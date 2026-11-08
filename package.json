@@ -1,7 +1,7 @@
 {
   "name": "pandoras-box",
   "productName": "Pandora's Box",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Interfaz a pantalla completa, pensada para control, para tu biblioteca de LaunchBox.",
   "main": "main.js",
   "license": "MIT",
