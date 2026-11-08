@@ -10,7 +10,7 @@ export default function basic(api, root) {
     build() {
       this.secs = api.sections();
       root.replaceChildren();
-      this.head = h('div', { class: 'mx-head' }, h('div', { text: 'MSX BASIC versión 1.0' }), h('div', { text: 'Pandora · 28815 bytes libres' }), h('div', { text: 'Ok' }));
+      this.head = h('div', { class: 'mx-head' }, h('div', { text: 'MSX BASIC versión 1.0' }), h('div', { text: 'Pandora’s Box · 28815 bytes libres' }), h('div', { text: 'Ok' }));
       this.cmd = h('div', { class: 'mx-cmd' });
       this.list = h('div', { class: 'mx-list' });
       this.ok = h('div', { class: 'mx-ok' }, h('span', { text: 'Ok' }), h('br'), h('i'));

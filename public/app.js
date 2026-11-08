@@ -1104,6 +1104,13 @@ screens.shelf = {
       const x = L.left + col * (L.iw + L.gap), y = (bib ? 1 : 1.6) * r + (rw - this.row.x) * L.rowH;
       t = `translate3d(${x.toFixed(1)}px,${y.toFixed(1)}px,0) scale(${foc ? (bib ? 1.06 : 1.1) : 1})`;
       o = foc ? 1 : bib ? 0.7 : 0.82; z = foc ? 200 : 100;
+    } else if (L.lay === 'lista' && settings.shelfLayout === 'tema') {
+      // Listas «del tema» (ventanas, paneles): empiezan arriba y se desplazan sin dejar huecos.
+      const vis = Math.max(1, Math.floor(L.H / L.rowH)), keep = Math.floor(vis * 0.45);
+      const top = clamp(this.pos.x - keep, 0, Math.max(0, (this.games?.length || 0) - vis));
+      const y = 0.3 * r + (i - top) * L.rowH;
+      t = `translate3d(0,${y.toFixed(1)}px,0)`;
+      o = y < -L.rowH || y > L.H ? 0 : 1;
     } else if (L.lay === 'lista') {
       const y = L.H * 0.45 + off * L.rowH - L.ih / 2;
       t = `translate3d(0,${y.toFixed(1)}px,0)`;
@@ -1744,7 +1751,7 @@ const Menu = {
         act('reset:logos', 'Borrar logos descargados', 'Pide confirmar. Se pueden volver a descargar.', { danger: true }),
         act('reset:ajustes', 'Restablecer ajustes', 'Pide confirmar. Vuelve todo esto a como venía.', { danger: true }),
         act('reset:todo', 'Dejar Pandora como nueva', 'Pide confirmar. Borra favoritos, estadísticas, logos, ajustes y la carpeta elegida.', { danger: true }),
-        ...(window.pandora?.app ? [{ sec: 'Pandora' }, act('quit', 'Salir de Pandora', 'Cierra la aplicación.')] : []),
+        ...(window.pandora?.app ? [{ sec: 'Pandora’s Box' }, act('quit', 'Salir de Pandora’s Box', 'Cierra la aplicación.')] : []),
       ] },
     ];
     const want = t === 'shelf' || t === 'detail' ? 0 : this.tabs.findIndex(x => x.name === this.lastTab);

@@ -100,3 +100,6 @@
   background: #9bbc0f; border: .5rem double #0f380f; border-radius: .6rem; color: #0f380f; font-weight: 700; font-size: 1.05rem; line-height: 1.55; }
 .theme-pantalla #detail.D-tema .desc-box::after { content: '▼'; position: absolute; right: 1.2rem; bottom: .6rem; animation: gb-tri 1s steps(1) infinite; }
 .theme-pantalla #detail.D-tema .detail-main { bottom: 22rem; }
+/* Legibilidad sobre el arte de fondo. */
+.theme-pantalla #detail.D-tema .detail-main { background: #9bbc0f; border: .5rem double #0f380f; border-radius: .6rem; padding: 1rem 1.4rem; }
+.theme-pantalla #detail.D-tema .detail-main { left: 39.4rem; }

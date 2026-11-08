@@ -18,7 +18,7 @@ export default function luna(api, root) {
       this.menuList = h('div', { class: 'xp-left' }, ...this.secRows);
       this.right = h('div', { class: 'xp-right' });
       this.start = h('div', { class: 'xp-start' },
-        h('div', { class: 'xp-user' }, h('div', { class: 'xp-pic' }), h('b', { text: 'Pandora' })),
+        h('div', { class: 'xp-user' }, h('div', { class: 'xp-pic' }), h('b', { text: 'Pandora’s Box' })),
         h('div', { class: 'xp-cols' }, this.menuList, this.right),
         h('div', { class: 'xp-off' }, h('span', { class: 'xp-key' }, h('i'), 'Cerrar sesión'), h('span', { class: 'xp-pow' }, h('i'), 'Apagar equipo')));
       this.flyList = h('div', { class: 'xp-flylist' });

@@ -589,8 +589,8 @@ img[src^="/dl/"] { background: rgba(255, 255, 255, .94); border-radius: .5em; pa
 #menu h2 { margin-bottom: .8rem; }
 .mtabs { display: flex; flex-wrap: wrap; gap: .3rem; flex: none; overflow-x: auto; scrollbar-width: none; padding-bottom: .8rem; margin-bottom: .4rem; border-bottom: 1px solid var(--line); }
 .mtabs::-webkit-scrollbar { display: none; }
-.mtab { flex: none; padding: .4rem .75rem; border-radius: 99rem; font-size: .88rem; font-weight: 600; color: var(--muted); white-space: nowrap; }
-.mtab.on { color: var(--text); background: var(--row-focus); box-shadow: inset 0 0 0 1px var(--focus-line), inset 0 -.22rem 0 var(--focus-line); }
+.mtab { flex: none; padding: .4rem .75rem; border-radius: 99rem; font-size: .88rem; font-weight: 600; color: inherit; opacity: .62; white-space: nowrap; }
+.mtab.on { color: inherit; opacity: 1; background: var(--row-focus); box-shadow: inset 0 0 0 1px var(--focus-line), inset 0 -.22rem 0 var(--focus-line); }
 #menuRows { flex: 1 1 auto; min-height: 0; overflow-y: auto; scrollbar-width: none; padding: .2rem 0; }
 #menuRows::-webkit-scrollbar { display: none; }
 .mrow .lbl { min-width: 0; }
@@ -605,7 +605,7 @@ img[src^="/dl/"] { background: rgba(255, 255, 255, .94); border-radius: .5em; pa
 .val.sw.on { background: #2fb350; }
 .val.sw.on i { transform: translateX(1.3rem); }
 .mfoot { flex: none; border-top: 1px solid var(--line); padding-top: .9rem; margin-top: .4rem; }
-#menuHelp { min-height: 2.8rem; font-size: .92rem; line-height: 1.45; color: var(--text); opacity: .85; margin-bottom: .4rem; }
+#menuHelp { min-height: 2.8rem; font-size: .92rem; line-height: 1.45; color: inherit; opacity: .85; margin-bottom: .4rem; }
 
 /* ===== Tema GameCube, vista «Del tema»: bloques de tarjeta de memoria en cubos de vidrio (lista) y panel de vidrio (ficha) ===== */
 .theme-cubo #shelf.L-tema .shelf-info { left: 6rem; right: 6rem; width: auto; top: 5.6rem; }
@@ -628,11 +628,10 @@ img[src^="/dl/"] { background: rgba(255, 255, 255, .94); border-radius: .5em; pa
 .mrow.choice.focus .val::before, .mrow.choice.focus .val::after { content: none; }
 
 /* Interruptores con texto: se entienden en cualquier tema, sin depender de los colores del tema. */
-.val.sw::after { content: 'No'; position: absolute; right: calc(100% + .6rem); top: 50%; transform: translateY(-50%); font-size: .85rem; font-weight: 700; color: var(--muted); }
-.val.sw.on::after { content: 'Sí'; color: var(--text); }
+.val.sw::after { content: 'No'; position: absolute; right: calc(100% + .6rem); top: 50%; transform: translateY(-50%); font-size: .85rem; font-weight: 700; color: inherit; opacity: .7; }
+.val.sw.on::after { content: 'Sí'; opacity: 1; }
 .mrow.is-bool.focus .val.sw::after { content: 'No'; }
 .mrow.is-bool.focus .val.sw.on::after { content: 'Sí'; }
-.sheet .mrow { color: var(--text); }
 
 /* Marca «pandora's box»: la «o» de box es la caja. */
 .boot-word b { font-weight: 700; letter-spacing: .14em; color: #fff; }

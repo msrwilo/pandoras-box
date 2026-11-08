@@ -94,3 +94,6 @@
 .theme-gris #detail.D-tema::after { content: '© ' attr(data-year) ' ' attr(data-dev); position: absolute; left: 0; right: 0; bottom: 6rem; text-align: center; color: #fcfcfc; font-weight: 800;
   letter-spacing: .1em; text-transform: uppercase; font-size: 1rem; pointer-events: none; }
 .theme-gris #detail.D-tema .detail-main { bottom: 8.6rem; }
+/* Legibilidad sobre el arte de fondo. */
+.theme-gris #detail.D-tema::before { content: ''; position: absolute; inset: 0; background: rgba(0, 0, 0, .78); pointer-events: none; }
+.theme-gris #shelf.L-tema .shelf-track { background: rgba(0, 0, 0, .7); }

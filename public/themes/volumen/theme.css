@@ -76,3 +76,5 @@
   background: linear-gradient(90deg, #e4202b 0 25%, #f2b705 25% 50%, #12a24a 50% 75%, #2556d9 75%); }
 .theme-volumen #detail.D-tema .detail-logo h1 { text-transform: uppercase; letter-spacing: .08em; }
 .theme-volumen #detail.D-tema .act { border-radius: .4rem; text-transform: uppercase; letter-spacing: .1em; font-weight: 800; }
+.theme-volumen #detail.D-tema .detail-main { padding: 1.8rem 2.2rem; background: rgba(6, 16, 54, .82); border-radius: .6rem; }
+.theme-volumen #shelf.L-tema .shelf-info { padding: 1.2rem 1.4rem; background: rgba(6, 16, 54, .82); border-radius: .6rem; }

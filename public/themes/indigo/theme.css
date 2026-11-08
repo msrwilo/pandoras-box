@@ -80,3 +80,5 @@
 .theme-indigo #detail.D-tema .detail-logo h1 { font-size: 2rem; }
 .theme-indigo #detail.D-tema .desc-box { font-size: .92rem; }
 .theme-indigo #detail.D-tema .act { border-radius: 99rem; }
+/* Legibilidad sobre el arte de fondo. */
+.theme-indigo #detail.D-tema .detail-main, .theme-indigo #shelf.L-tema .shelf-info { background-color: rgba(36, 24, 92, .92); }

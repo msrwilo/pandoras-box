@@ -28,7 +28,7 @@ export default function monolito(api, root) {
         return { el, track, tiles, s, x: new Spring(0, { response: 0.32, damping: 1 }) };
       });
       this.rowsBox.append(...this.rowEls.map(r => r.el));
-      this.top = h('div', { class: 'xs-top' }, h('div', { class: 'xs-avatar' }), h('b', { text: 'Pandora' }));
+      this.top = h('div', { class: 'xs-top' }, h('div', { class: 'xs-avatar' }), h('b', { text: 'Pandora’s Box' }));
       root.append(this.hero, this.rowsBox, this.top);
       this.si = clamp(this.si, 0, this.secs.length - 1);
       this.rowsS.jump(this.si);
