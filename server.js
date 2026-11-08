@@ -173,7 +173,7 @@ function loadLibrary() {
   launcher.load(records, readXML);
   mediaCache.clear();
   gameMedia.clear();
-  console.log(`Biblioteca: ${games.size} juegos en ${plats.length} plataformas (${Date.now() - t0} ms)`);
+  log(`Biblioteca: ${games.size} juegos en ${plats.length} plataformas (${Date.now() - t0} ms; Pandora lleva ${Math.round(process.uptime() * 1000)} ms abierta)`);
 }
 
 // ---------- Índice de medios ----------
@@ -490,6 +490,11 @@ const server = http.createServer(async (req, res) => {
       return res.end(JSON.stringify(readJSON(SETTINGS_FILE, {})));
     }
     // Elegir la carpeta de LaunchBox (primera vez, o si compartes la app con otra persona).
+    if (req.method === 'POST' && p === '/api/log') {
+      const body = JSON.parse(await readBody(req) || '{}');
+      log('Interfaz: ' + String(body.msg || '').slice(0, 200));
+      res.writeHead(200, { 'Content-Type': 'application/json' }); return res.end('{"ok":true}');
+    }
     if (req.method === 'POST' && p === '/api/setup') {
       const body = JSON.parse(await readBody(req) || '{}');
       const dir = String(body.path || '').trim().replace(/^"|"$/g, '');
@@ -593,9 +598,9 @@ function warmUp() {
   const t0 = Date.now();
   const next = () => {
     const n = names.shift();
-    if (!n) return console.log(`Medios indexados (${((Date.now() - t0) / 1000).toFixed(1)} s)`);
+    if (!n) return log(`Medios indexados (${((Date.now() - t0) / 1000).toFixed(1)} s, en segundo plano)`);
     if (!mediaCache.has(n)) indexPlatform(n);
-    setTimeout(next, 5);
+    setTimeout(next, 25);
   };
-  setTimeout(next, 200);
+  setTimeout(next, 4000);
 }

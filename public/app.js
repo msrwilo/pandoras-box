@@ -2031,6 +2031,7 @@ async function start() {
   setTimeout(() => $('#boot').remove(), 1000);
   S.play('startup');
   try { await restore(); } catch (e) { console.error(e); try { go('home', null, true); } catch {} }
+  fetch('/api/log', { method: 'POST', body: JSON.stringify({ msg: `lista en ${Math.round(performance.now())} ms (tema ${settings.theme})` }) }).catch(() => {});
   lastInput = performance.now();
 }
 let bootLast = null;
