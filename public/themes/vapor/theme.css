@@ -1,0 +1,60 @@
+/* Tema «Steam Big Picture»: azul pizarra, pestañas arriba, cápsulas verticales y botón verde. */
+:root {
+  --font: 'Open Sans', 'Segoe UI', system-ui, sans-serif;
+  --tint: 16, 22, 31; --backdrop: #10161f;
+  --violet: #1a9fff; --glow: #66c0f4; --text: #f2f5f8; --muted: rgba(220, 230, 240, .72); --faint: rgba(220, 230, 240, .45);
+  --line: rgba(255, 255, 255, .1); --glass: rgba(30, 40, 54, .78); --glass-strong: rgba(22, 30, 41, .97);
+  --focus: #1a9fff; --focus-line: rgba(26, 159, 255, .95); --tile-focus: rgba(50, 64, 82, .95);
+  --row-focus: rgba(26, 159, 255, .16); --chip-bg: rgba(40, 52, 68, .85);
+  --primary: #5cb82c; --primary-fg: #fff; --act-focus: #fff; --act-focus-fg: #10161f; --act-focus-line: #fff;
+  --glow-shadow: rgba(26, 159, 255, .35); --pill: rgba(255,255,255,.08); --pill-fg: #fff; --pill-line: transparent;
+  --ph: linear-gradient(160deg, #2a3646, #18212c); --floor: none; --particle: transparent; --bib-panel: rgba(22, 30, 41, .9);
+}
+.theme-vapor #particles { display: none; }
+.theme-vapor.at-home #crumbs, .theme-vapor.at-home .back { display: none; }
+.theme-vapor h1 { font-weight: 700; }
+.theme-vapor .act { border-radius: .3rem; }
+.theme-vapor .act.primary { background: linear-gradient(90deg, #6fcf35, #4ca82a); color: #fff; }
+
+.sb-bg { position: absolute; inset: 0; background: center / cover no-repeat; opacity: 0; transition: opacity .7s; }
+.sb-bg.on { opacity: 1; }
+.sb-vid { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .6s; }
+.sb-vid.on { opacity: 1; }
+.sb-shade { position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(0deg, #10161f 0, rgba(16,22,31,.92) 42%, rgba(16,22,31,.35) 75%, rgba(16,22,31,.7)); }
+.sb-tabs { position: absolute; left: 0; right: 0; top: 1.4rem; height: 3.2rem; display: flex; align-items: center; justify-content: flex-start; gap: 0; padding: 0 10rem 0 2.6rem; overflow: hidden; }
+.sb-tab { flex: none; height: 2.6rem; padding: 0 .75rem; border-radius: .3rem; color: var(--muted); font-weight: 600; font-size: .95rem; letter-spacing: .02em; text-transform: uppercase; }
+.sb-tab.on { color: #fff; background: rgba(255,255,255,.12); box-shadow: inset 0 -.2rem 0 #1a9fff; }
+.sb-lb { flex: none; opacity: .8; margin: 0 .4rem; }
+.sb-info { position: absolute; left: 5rem; top: 8.5rem; max-width: 50rem; display: flex; flex-direction: column; gap: 1.2rem; }
+.sb-info h1 { font-size: 3.4rem; line-height: 1.05; text-shadow: 0 .2rem 1.2rem rgba(0,0,0,.6); }
+.sb-logo { max-width: 30rem; max-height: 9rem; object-fit: contain; object-position: left; filter: drop-shadow(0 .3rem 1rem rgba(0,0,0,.7)); }
+.sb-row { display: flex; align-items: center; gap: 1.6rem; }
+.sb-play { display: inline-flex; align-items: center; gap: .6rem; height: 3.2rem; padding: 0 2.2rem; border-radius: .3rem; font-weight: 700; font-size: 1.15rem; text-transform: uppercase; letter-spacing: .04em;
+  background: linear-gradient(90deg, #6fcf35, #4ca82a); color: #fff; box-shadow: 0 .4rem 1.2rem rgba(80, 180, 40, .35); }
+.sb-meta { display: flex; flex-direction: column; }
+.sb-meta small { font-size: .78rem; text-transform: uppercase; letter-spacing: .1em; color: var(--faint); font-weight: 700; }
+.sb-meta b { font-size: 1.05rem; font-weight: 600; color: var(--muted); }
+.sb-rtitle { position: absolute; left: 5rem; top: 25.6rem; display: flex; gap: .8rem; align-items: baseline; font-size: 1.15rem; text-transform: uppercase; letter-spacing: .06em; }
+.sb-rtitle span { color: var(--faint); font-size: .9rem; }
+.sb-track { position: absolute; left: 5rem; right: 0; top: 28rem; height: 21rem; }
+.sb-cap { position: absolute; left: 0; top: 0; width: 12.4rem; height: 18.6rem; border-radius: .35rem; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .8rem;
+  padding: 1rem; background: linear-gradient(170deg, #2b3a4c, #17202b); box-shadow: 0 .6rem 1.4rem rgba(0,0,0,.45); transition: box-shadow .2s, background .2s, width .2s; will-change: transform; }
+.sb-cap img { max-width: 100%; max-height: 10rem; object-fit: contain; filter: drop-shadow(0 .3rem .6rem rgba(0,0,0,.6)); }
+.sb-cap .ico { position: static; opacity: 1; }
+.sb-cap svg { width: 3.2rem; height: 3.2rem; fill: none; stroke: #c7d5e0; stroke-width: 1.4; }
+.sb-cap .nm { font-size: .9rem; font-weight: 600; text-align: center; color: #c7d5e0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.sb-cap.on { box-shadow: 0 0 0 .22rem #fff, 0 0 2rem rgba(102, 192, 244, .55), 0 1rem 2rem rgba(0,0,0,.6); background: linear-gradient(170deg, #3d5268, #1f2b38); }
+.sb-cap.on .nm { color: #fff; }
+
+/* ===== Vista «Del tema»: biblioteca en cápsulas (lista) y página del juego con barra verde (ficha) ===== */
+.theme-vapor #shelf.L-tema .item { border-radius: .3rem; overflow: hidden; background: #1f2a37; box-shadow: 0 .4rem 1rem rgba(0,0,0,.45); }
+.theme-vapor #shelf.L-tema .item img { object-fit: cover; filter: none; }
+.theme-vapor #shelf.L-tema .item .ph { background: linear-gradient(170deg, #2b3a4c, #17202b); border-radius: .3rem; font-size: .8rem; }
+.theme-vapor #shelf.L-tema .item.focus { box-shadow: 0 0 0 .2rem #fff, 0 0 1.6rem rgba(102, 192, 244, .6); }
+.theme-vapor #shelf.L-tema .item.focus::after { display: none; }
+.theme-vapor #shelf.L-tema::before { content: 'BIBLIOTECA · ' attr(data-plat); position: absolute; left: 5rem; top: 4.6rem; font-size: 1rem; font-weight: 700; letter-spacing: .08em; color: var(--muted); }
+
+.theme-vapor #detail.D-tema .detail-logo img { height: 10rem; }
+.theme-vapor #detail.D-tema .act.primary { height: 3.4rem; padding: 0 2.6rem; font-size: 1.15rem; text-transform: uppercase; letter-spacing: .04em; }
+.theme-vapor #detail.D-tema .act.focus { box-shadow: 0 0 0 .2rem #fff; transform: none; }

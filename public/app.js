@@ -28,6 +28,7 @@ const DEFAULTS = {
   shelfLayout: 'tema', detailLayout: 'tema', manualMode: 'doble',
   cinemaDelay: 8, spectatorIdle: 5,
   // Qué aparece en el inicio, búsqueda y combinación para cerrar un juego.
+  logoSound: true,
   sections: { all: true, Consoles: true, Handhelds: true, Arcade: true, Computers: true, modes: true, genres: true, developers: true },
   search: true, letterBar: true,
   exitCombo: ['ls', 'rs', 'b'], exitHold: 0, exitFromLaunchBox: true, buttonStyle: 'auto',
@@ -70,6 +71,8 @@ const THEMES = {
   rojo: { label: 'Virtual Boy', sound: 'rojo', shelf: 'lista', detail: 'cine', direct: true, pixel: true },
   pantalla: { label: 'Game Boy', sound: 'pantalla', shelf: 'lista', detail: 'clasica', direct: true },
   vitrina: { label: 'Playnite', sound: 'vitrina', shelf: 'biblioteca', detail: 'heroe', direct: true },
+  vapor: { label: 'Steam Big Picture', sound: 'vapor', shelf: 'rejilla', detail: 'heroe', direct: true, tile: 0.667, isz: 13, tkinds: ['box', 'box3d', 'cart'] },
+  manzana: { label: 'Apple TV', sound: 'manzana', shelf: 'rejilla', detail: 'poster', direct: true, tile: 1.78, isz: 7.6, tkinds: ['shots', 'fanart', 'box'] },
 };
 // «Del tema»: cada tema usa su acomodo propio (definido en su theme.css sobre .L-tema / .D-tema).
 const shelfLay = () => settings.shelfLayout === 'tema' ? (THEMES[settings.theme]?.shelf || 'repisa') : SHELF_LAYOUTS[settings.shelfLayout] ? settings.shelfLayout : 'repisa';
@@ -126,7 +129,7 @@ const BUTTON_STYLES = {
 };
 const THEME_BUTTONS = { cubo: 'gamecube', barra: 'playstation', mosaicos: 'nintendo', canales: 'nintendo', paneles: 'xbox', torres: 'playstation', esfera: 'xbox', naranja: 'sega',
   volumen: 'n64', disco: 'playstation', lavanda: 'super', gris: 'nes', anillo: 'sega', pantalla: 'super',
-  orbita: 'sega', tarjeta: 'turbo', ficha: 'arcade', simbolo: 'neutral', luna: 'xbox', doble: 'nintendo', basic: 'neutral', relieve: 'nintendo', alas: 'playstation', monolito: 'xbox', plaza: 'nintendo', indigo: 'super', rojo: 'neutral', vitrina: 'xbox' };
+  orbita: 'sega', tarjeta: 'turbo', ficha: 'arcade', simbolo: 'neutral', luna: 'xbox', doble: 'nintendo', basic: 'neutral', relieve: 'nintendo', alas: 'playstation', monolito: 'xbox', plaza: 'nintendo', indigo: 'super', rojo: 'neutral', vitrina: 'xbox', vapor: 'xbox', manzana: 'neutral' };
 const btnStyleId = () => { const s = settings?.buttonStyle; return BUTTON_STYLES[s] ? s : (THEMES[settings?.theme]?.buttons || THEME_BUTTONS[settings?.theme] || 'xbox'); };
 const btnStyle = () => BUTTON_STYLES[btnStyleId()];
 function glyph(name) {
@@ -1715,6 +1718,7 @@ const Menu = {
         rng('volume', 'Volumen general', 'Volumen de todo lo que suena en Pandora.'),
         opt('audioMode', 'Audio de fondo', AUDIO_MODES, 'Qué suena mientras navegas: el audio del video del juego, su música o un ambiente tranquilo.'),
         rng('ambient', 'Volumen del ambiente', 'Solo se oye si el audio de fondo es «Ambiente».'),
+        yes('logoSound', 'Sonido del logo al abrir', 'Suena cuando se abre la caja del logo al arrancar Pandora’s Box.'),
         opt('soundTheme', 'Efectos de sonido', { auto: 'Según el tema', ...Object.fromEntries(Object.entries(themes).map(([k, l]) => [THEME_SOUND[k], l]).filter(([k]) => k)), ...S.extras() }, 'Los sonidos al moverte y elegir. Cambian solos con el tema.'),
       ] },
       { name: 'Videos', rows: [
@@ -1743,8 +1747,8 @@ const Menu = {
       { name: 'Biblioteca', rows: [
         act('lbPath', 'Carpeta de LaunchBox', 'De aquí lee Pandora tus juegos. Nunca modifica nada de LaunchBox.', { show: () => library.path || 'Sin elegir' }),
         act('reload', 'Volver a leer LaunchBox', 'Úsalo si agregaste juegos o imágenes en LaunchBox con Pandora abierta.'),
-        yes('devLogos', 'Logos de desarrolladoras', 'Los busca en internet (Wikidata y Wikipedia) y los guarda en datos\\logos.'),
-        act('retryLogos', 'Buscar logos que faltan', 'Vuelve a buscar los logos que no se encontraron.'),
+        yes('devLogos', 'Logos de desarrolladores', 'Los busca en internet (Wikidata y Wikipedia) y los guarda en datos\\logos.'),
+        act('retryLogos', 'Buscar logos de desarrolladores', 'Busca en internet los logos de desarrolladores que aún no tiene, incluidos los que no se encontraron antes.'),
         { sec: 'Borrar datos de Pandora' },
         act('reset:favoritos', 'Borrar favoritos', 'Pide confirmar. LaunchBox no se toca.', { danger: true }),
         act('reset:estadisticas', 'Borrar partidas y tiempo jugado', 'Pide confirmar. LaunchBox no se toca.', { danger: true }),
@@ -1843,7 +1847,7 @@ const Menu = {
     if (r.id === 'exitCombo') return Capture.show();
     if (r.id === 'reload') return reloadLibrary();
     if (r.id === 'lbPath') { this.close(); return Setup.show(false); }
-    if (r.id === 'retryLogos') { await fetch('/api/devlogos?retry=1'); toast('Buscando logos de desarrolladoras…'); DevLogos.watch(); return; }
+    if (r.id === 'retryLogos') { await fetch('/api/devlogos?retry=1'); toast('Buscando logos de desarrolladores…'); DevLogos.watch(); return; }
     if (r.danger) {
       if (this.confirm !== r.id) { this.confirm = r.id; S.play('error'); toast('¿Seguro? Presiona A otra vez para borrar'); this.paint(); clearTimeout(this.ct); this.ct = setTimeout(() => { this.confirm = null; if (this.open) this.paint(); }, 4000); return; }
       this.confirm = null;
@@ -2029,14 +2033,14 @@ const DevLogos = {
 // ======================================================================
 // Entrada global, arranque y regreso a la última vista
 // ======================================================================
-let started = false;
+let started = false, logoPlayed = false;
 async function start() {
   if (started) return;
   started = true;
   S.unlock(); applySound();
   $('#boot').classList.add('out');
   setTimeout(() => $('#boot').remove(), 1000);
-  S.play('startup');
+  if (!logoPlayed) S.play('startup');
   try { await restore(); } catch (e) { console.error(e); try { go('home', null, true); } catch {} }
   fetch('/api/log', { method: 'POST', body: JSON.stringify({ msg: `lista en ${Math.round(performance.now())} ms (tema ${settings.theme})` }) }).catch(() => {});
   lastInput = performance.now();
@@ -2108,6 +2112,8 @@ for (const id in screens) { vis[id] = new Spring(0, { response: 0.45, damping: 1
       fetch('/api/library').then(r => r.json()),
     ]);
     settings = { ...DEFAULTS, ...s, fields: { ...DEFAULTS.fields, ...(s.fields || {}) } };
+    // Sonido del logo: suena junto con la tapa que se abre (la animación empieza al cargar la página).
+    if (settings.logoSound !== false && $('#boot')) { applySound(); logoPlayed = S.logo(Math.max(0, 0.3 - performance.now() / 1000)); }
     bootLast = settings.last; // se guarda antes de que el inicio se dibuje y la sobrescriba
     // Las vistas «Del tema» llegan como predeterminadas una sola vez; después se respeta lo que elijas.
     if (!s.viewsTema) { settings.shelfLayout = 'tema'; settings.detailLayout = 'tema'; settings.viewsTema = 1; saveSettings(); }

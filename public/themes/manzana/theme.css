@@ -1,0 +1,59 @@
+/* Tema «Apple TV»: franja superior con el arte grande, filas de íconos 16:9 que se levantan con brillo. */
+:root {
+  --font: 'Open Sans', 'Segoe UI', system-ui, sans-serif;
+  --tint: 11, 11, 14; --backdrop: #0b0b0e;
+  --violet: #ffffff; --glow: #ffffff; --text: #f5f5f7; --muted: rgba(245, 245, 247, .7); --faint: rgba(245, 245, 247, .45);
+  --line: rgba(255, 255, 255, .12); --glass: rgba(40, 40, 46, .72); --glass-strong: rgba(28, 28, 32, .97);
+  --focus: #ffffff; --focus-line: rgba(255, 255, 255, .95); --tile-focus: rgba(255, 255, 255, .16);
+  --row-focus: rgba(255, 255, 255, .14); --chip-bg: rgba(255, 255, 255, .1);
+  --primary: #ffffff; --primary-fg: #111; --act-focus: #ffffff; --act-focus-fg: #111; --act-focus-line: #fff;
+  --glow-shadow: rgba(255, 255, 255, .25); --pill: rgba(255,255,255,.12); --pill-fg: #fff; --pill-line: transparent;
+  --ph: linear-gradient(160deg, #3a3a42, #1c1c21); --floor: none; --particle: transparent; --bib-panel: rgba(28, 28, 32, .88);
+}
+.theme-manzana #particles { display: none; }
+.theme-manzana.at-home #crumbs, .theme-manzana.at-home .back { display: none; }
+.theme-manzana .act, .theme-manzana .chip { border-radius: .8rem; }
+.theme-manzana .act.focus { transform: scale(1.06); box-shadow: 0 1rem 2rem rgba(0,0,0,.5); }
+
+.tv-shelf { position: absolute; left: 0; right: 0; top: 0; height: 32rem; background: center 30% / cover no-repeat; opacity: 0; transition: opacity .8s; }
+.tv-shelf.on { opacity: 1; }
+.tv-vid { position: absolute; left: 0; right: 0; top: 0; height: 32rem; width: 100%; object-fit: cover; opacity: 0; transition: opacity .8s; }
+.tv-vid.on { opacity: 1; }
+.tv-shade { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(11,11,14,.15) 0, rgba(11,11,14,.35) 18rem, #0b0b0e 31rem); }
+.tv-stext { position: absolute; left: 6rem; top: 15.5rem; display: flex; flex-direction: column; gap: .3rem; max-width: 60rem; transition: opacity .3s; }
+.tv-stext small { font-size: .85rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.tv-stext b { font-size: 3rem; font-weight: 700; letter-spacing: -.02em; text-shadow: 0 .2rem 1.4rem rgba(0,0,0,.6); }
+.tv-stext span { font-size: 1.05rem; color: var(--muted); }
+.tv-list { position: absolute; left: 0; right: 0; top: 26.4rem; will-change: transform; }
+.tv-row { position: relative; height: 16.6rem; opacity: .55; transition: opacity .3s; }
+.tv-row.on { opacity: 1; }
+.tv-rlabel { position: absolute; left: 6rem; top: 0; font-size: 1.05rem; font-weight: 700; color: var(--muted); }
+.tv-icons { position: absolute; left: 6rem; right: 0; top: 2.2rem; height: 12rem; perspective: 60rem; }
+.tv-icon { position: absolute; left: 0; top: 0; width: 16rem; display: flex; flex-direction: column; align-items: center; gap: .9rem; transform-style: preserve-3d; will-change: transform; transition: filter .2s; }
+.tv-face { position: relative; width: 16rem; height: 9rem; border-radius: .9rem; overflow: hidden; display: grid; place-items: center;
+  background: linear-gradient(160deg, #3c3c44, #1f1f25); box-shadow: 0 .5rem 1rem rgba(0,0,0,.45); }
+.tv-icon.has-img .tv-face { background: linear-gradient(160deg, #f4f4f6, #d8d8de); }
+.tv-face img { max-width: 78%; max-height: 72%; object-fit: contain; }
+.tv-face .ico { position: static; opacity: 1; }
+.tv-face svg { width: 3.4rem; height: 3.4rem; fill: none; stroke: #f5f5f7; stroke-width: 1.4; }
+.tv-glare { position: absolute; inset: -40%; pointer-events: none; opacity: 0; transition: opacity .3s;
+  background: radial-gradient(circle at var(--gx, 50%) 30%, rgba(255,255,255,.45), rgba(255,255,255,0) 40%); }
+.tv-name { font-size: .95rem; font-weight: 600; opacity: 0; transform: translateY(-.4rem); transition: opacity .2s, transform .2s; white-space: nowrap; max-width: 18rem; overflow: hidden; text-overflow: ellipsis; }
+.tv-icon.on .tv-face { box-shadow: 0 1.6rem 2.6rem rgba(0,0,0,.6); }
+.tv-icon.on .tv-glare { opacity: 1; }
+.tv-icon.on .tv-name { opacity: 1; transform: translateY(.5rem); }
+
+/* ===== Vista «Del tema»: biblioteca de íconos con brillo (lista) y página tipo App Store (ficha) ===== */
+.theme-manzana #shelf.L-tema .item { border-radius: .9rem; overflow: hidden; background: #26262c; box-shadow: 0 .5rem 1rem rgba(0,0,0,.45); }
+.theme-manzana #shelf.L-tema .item img { object-fit: cover; filter: none; }
+.theme-manzana #shelf.L-tema .item .ph { border-radius: .9rem; background: linear-gradient(160deg, #3c3c44, #1f1f25); font-size: .85rem; }
+.theme-manzana #shelf.L-tema .item.focus { box-shadow: 0 1.4rem 2.4rem rgba(0,0,0,.6); }
+.theme-manzana #shelf.L-tema .item.focus::before { content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none; border-radius: .9rem;
+  background: linear-gradient(115deg, rgba(255,255,255,.35), rgba(255,255,255,0) 45%); }
+.theme-manzana #shelf.L-tema .item.focus::after { display: none; }
+.theme-manzana #shelf.L-tema .item.focus > .cap { display: block; position: absolute; left: -2rem; right: -2rem; top: calc(100% + .7rem); text-align: center; font-size: .9rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.theme-manzana #detail.D-tema .detail-main { padding: 2rem 2.4rem; border-radius: 1.6rem; background: rgba(28, 28, 32, .82); backdrop-filter: blur(2rem); }
+.theme-manzana #detail.D-tema .detail-art img { border-radius: 1.2rem; filter: drop-shadow(0 1.4rem 2.4rem rgba(0,0,0,.6)); }
+.theme-manzana #detail.D-tema .act { border-radius: .8rem; }
+.theme-manzana #detail.D-tema .act.primary { background: #fff; color: #111; }

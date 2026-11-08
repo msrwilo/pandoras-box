@@ -36,6 +36,31 @@ export function unlock() {
   if (ctx.state === 'suspended') ctx.resume();
   return ctx.state === 'running';
 }
+// Sonido del logo de Pandora's Box, sincronizado con la animación del arranque (ver .pd-lid en el CSS):
+// el clic de la tapa al destrabarse, el roce al levantarse, la luz que sube y un acorde cálido que queda.
+// `at` es cuántos segundos faltan para que la tapa empiece a abrirse.
+export function logo(at = 0.3) {
+  if (!unlock()) return false;
+  const t0 = Math.max(0, at), wet = echo;
+  // Clic de la tapa (dos golpecitos secos) y un golpe grave muy corto.
+  click({ f: 3400, t: t0, gain: 0.05, dur: 0.018, body: 1400 });
+  click({ f: 2600, t: t0 + 0.045, gain: 0.035, dur: 0.02, body: 900 });
+  tone({ f: 110, f2: 70, t: t0, dur: 0.16, gain: 0.07, type: 'sine' });
+  // La tapa se levanta: un roce que sube.
+  noise({ t: t0 + 0.06, dur: 0.5, gain: 0.025, from: 500, to: 2600 });
+  tone({ f: 196, f2: 262, t: t0 + 0.05, dur: 0.45, gain: 0.02, type: 'triangle', q: 1200 });
+  // La luz sale: un barrido brillante y destellos (arpegio de La mayor con novena).
+  noise({ t: t0 + 0.22, dur: 1.1, gain: 0.03, from: 1800, to: 9000 });
+  [1318.5, 1661.2, 1975.5, 2489, 2637].forEach((f, i) => {
+    tone({ f, t: t0 + 0.26 + i * 0.07, dur: 0.9, gain: 0.022, attack: 0.003 });
+    tone({ f, t: t0 + 0.26 + i * 0.07, dur: 0.6, gain: 0.012, attack: 0.003, out: wet });
+  });
+  // Acorde que se abre y se queda flotando con la luz.
+  [220, 329.6, 440, 554.4, 659.3, 987.8].forEach((f, i) => tone({ f, t: t0 + 0.3 + i * 0.02, dur: 2.6, gain: i < 2 ? 0.035 : 0.022, attack: 0.45, type: i % 2 ? 'sine' : 'triangle', q: 3200 }));
+  // Un último destello al final.
+  tone({ f: 3520, t: t0 + 1.45, dur: 0.7, gain: 0.012, attack: 0.002, out: wet });
+  return true;
+}
 // En segundo plano todo el audio sintetizado se duerme (no gasta nada) y despierta al volver.
 export function sleep(on) { if (!ctx) return; if (on) ctx.suspend(); else ctx.resume(); }
 export const running = () => ctx && ctx.state === 'running';
@@ -467,6 +492,30 @@ Object.assign(SFX, {
   },
 });
 Object.assign(SFX, {
+  // Steam: clics secos y un «whoosh» corto al cambiar de pestaña.
+  vapor: {
+    move: () => click({ f: 1800, gain: 0.04, body: 700, dur: 0.02 }),
+    rotate: () => { noise({ dur: 0.18, gain: 0.03, from: 800, to: 4000 }); tone({ f: 440, f2: 520, dur: 0.08, gain: 0.025, type: 'triangle' }); },
+    select: () => { tone({ f: 620, dur: 0.06, gain: 0.04, type: 'triangle' }); tone({ f: 930, t: 0.05, dur: 0.12, gain: 0.035, type: 'triangle' }); },
+    back: () => tone({ f: 700, f2: 480, dur: 0.09, gain: 0.035, type: 'triangle' }),
+    open: () => { noise({ dur: 0.35, gain: 0.03, from: 400, to: 5000 }); tone({ f: 392, dur: 0.25, gain: 0.03 }); tone({ f: 587, t: 0.08, dur: 0.3, gain: 0.03 }); },
+    toggle: () => click({ f: 2200, gain: 0.035, body: 1000, dur: 0.016 }),
+    error: () => tone({ f: 200, f2: 170, dur: 0.12, gain: 0.05, type: 'square', q: 900 }),
+    startup: () => { noise({ dur: 0.9, gain: 0.03, from: 200, to: 3000 }); [261.6, 392, 523.3].forEach((f, i) => tone({ f, t: 0.15 + i * 0.12, dur: 1.2, gain: 0.03, type: 'triangle', q: 2400 })); },
+    launch: () => { noise({ dur: 0.6, gain: 0.04, from: 300, to: 7000 }); [392, 523.3, 784].forEach((f, i) => tone({ f, t: i * 0.08, dur: 0.6, gain: 0.035, type: 'triangle' })); },
+  },
+  // Apple TV: «tics» suaves de cristal y un pop redondo al elegir.
+  manzana: {
+    move: (p = 0) => tone({ f: 1500 + (p % 4) * 40, dur: 0.035, gain: 0.03, attack: 0.001 }),
+    rotate: () => tone({ f: 900, f2: 1100, dur: 0.07, gain: 0.03 }),
+    select: () => { tone({ f: 660, f2: 990, dur: 0.09, gain: 0.04 }); tone({ f: 1320, t: 0.04, dur: 0.12, gain: 0.02 }); },
+    back: () => tone({ f: 990, f2: 660, dur: 0.09, gain: 0.035 }),
+    open: () => { tone({ f: 523.3, dur: 0.3, gain: 0.03, attack: 0.02 }); tone({ f: 784, t: 0.06, dur: 0.35, gain: 0.025, attack: 0.02 }); },
+    toggle: () => tone({ f: 1200, dur: 0.04, gain: 0.03 }),
+    error: () => { tone({ f: 330, dur: 0.07, gain: 0.04 }); tone({ f: 330, t: 0.1, dur: 0.07, gain: 0.04 }); },
+    startup: () => [523.3, 659.3, 784, 1046.5].forEach((f, i) => tone({ f, t: i * 0.11, dur: 1.4, gain: 0.022, attack: 0.04 })),
+    launch: () => { tone({ f: 523.3, f2: 1046.5, dur: 0.4, gain: 0.03 }); tone({ f: 1568, t: 0.25, dur: 0.6, gain: 0.018 }); },
+  },
   // Vitrina: toques de interfaz modernos, cortos y limpios.
   vitrina: {
     rotate: () => { tone({ f: 660, f2: 880, dur: 0.07, gain: 0.03 }); noise({ dur: 0.08, gain: 0.008, from: 3000, to: 7000 }); },
@@ -567,6 +616,8 @@ const MOVE = {
   alas: () => tone({ f: 2093, dur: 0.05, gain: 0.018, attack: 0.002 }),
   monolito: () => click({ f: 3200, gain: 0.045, body: 1100, dur: 0.02 }),
   vitrina: () => click({ f: 2400, gain: 0.035, body: 1600, dur: 0.018 }),
+  vapor: () => click({ f: 1800, gain: 0.035, body: 700, dur: 0.018 }),
+  manzana: () => tone({ f: 1500, dur: 0.03, gain: 0.025, attack: 0.001 }),
   plaza: d => melody(784, PEN, d, f => pluck(f, 0, 0.035)),
   indigo: d => melody(1046, MAJ, d, f => tone({ f, dur: 0.04, gain: 0.028, type: 'square', attack: 0.001, q: 5000 })),
   rojo: d => shepard(220, MINP, d, (f, w) => tone({ f, dur: 0.14, gain: 0.03 * w, type: 'square', q: 1200, out: echo })),
@@ -637,6 +688,8 @@ const AMB = {
     melody: [76, 0, 79, 0, 81, 79, 76, 0, 74, 0, 76, 0, 72, 0, 0, 0, 74, 0, 77, 0, 79, 77, 74, 0, 72, 0, 71, 0, 72, 0, 0, 0],
     bass: [48, 0, 0, 0, 0, 0, 0, 0, 45, 0, 0, 0, 0, 0, 0, 0, 41, 0, 0, 0, 0, 0, 0, 0, 43, 0, 0, 0, 0, 0, 0, 0] },
   alas: { kind: 'pad', notes: [220, 329.6, 440, 554.4, 659.3], lp: 3000, lfo: 1400, gain: 0.014, types: ['sine'] }, // calma luminosa
+  vapor: { kind: 'pad', notes: [130.8, 196, 261.6, 329.6], lp: 1200, lfo: 500, gain: 0.016, types: ['sine', 'triangle'] },
+  manzana: { kind: 'pad', notes: [174.6, 261.6, 349.2, 440], lp: 1600, lfo: 700, gain: 0.014, types: ['sine', 'sine'] },
   vitrina: { kind: 'pad', notes: [146.8, 220, 293.7, 370], lp: 1400, lfo: 600, gain: 0.018, types: ['sine', 'triangle'] }, // fondo tranquilo
   monolito: { kind: 'pad', notes: [55, 82.4, 110, 146.8], lp: 380, lfo: 160, gain: 0.04, types: ['sawtooth', 'sine'] }, // grave y contenido
   plaza: { kind: 'seq', bpm: 104, gain: 0.025, wave: 'triangle',                            // paseo alegre por la plaza (original)

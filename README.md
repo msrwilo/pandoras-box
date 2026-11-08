@@ -13,7 +13,7 @@
 
 ## Qué hace
 
-- **28 temas** inspirados en el diseño de consolas y sistemas (GameCube, PS1 a PS5, Xbox a Series X, NES, Super Nintendo, N64, Wii, Wii U, Switch, Game Boy, GBA, DS, 3DS, Virtual Boy, Genesis, Saturn, Dreamcast, TurboGrafx-16, Arcade, MSX, MS-DOS, Windows XP) y uno en los temas de la comunidad de Playnite. No usan logos ni sonidos de las marcas: todo se dibuja y se sintetiza.
+- **30 temas** inspirados en el diseño de consolas y sistemas (GameCube, PS1 a PS5, Xbox a Series X, NES, Super Nintendo, N64, Wii, Wii U, Switch, Game Boy, GBA, DS, 3DS, Virtual Boy, Genesis, Saturn, Dreamcast, TurboGrafx-16, Arcade, MSX, MS-DOS, Windows XP), más tres inspirados en frontends: Playnite, Steam Big Picture y Apple TV. No usan logos ni sonidos de las marcas: todo se dibuja y se sintetiza.
 - **Cada tema trae su propia lista de juegos y su propia ficha** («Del tema»): en MS-DOS la lista es un panel de archivos y la ficha un `TYPE JUEGO.TXT`; en Windows XP, una ventana del Explorador y sus Propiedades; en Game Boy, un menú con cursor ▶ y una ficha de enciclopedia…
 - **Vistas que sirven en cualquier tema**: Repisa, Carrusel, Rejilla, Lista, Rueda y Biblioteca para la lista; Clásica, Cine, Póster, Galería y Héroe para la ficha.
 - **Tema aleatorio** al abrir la app, eligiendo con interruptores qué temas pueden salir.
@@ -104,7 +104,7 @@ No incluye juegos, BIOS ni emuladores. Las carátulas e imágenes de las captura
 
 ## English summary
 
-**Pandora's Box** is a controller-first, full-screen frontend for your **LaunchBox** library. It reads LaunchBox's data read-only (games, media, emulators and RetroArch cores) and launches games the same way LaunchBox does, including your LaunchBox exit-game shortcut. It ships 28 console-inspired themes (no trademarks or original sounds; all visuals are drawn and all sounds synthesized), each with its own game list and game detail views, plus layouts that work with any theme, a random-theme mode, video previews, a cinema mode and a spectator mode. The UI is in Spanish.
+**Pandora's Box** is a controller-first, full-screen frontend for your **LaunchBox** library. It reads LaunchBox's data read-only (games, media, emulators and RetroArch cores) and launches games the same way LaunchBox does, including your LaunchBox exit-game shortcut. It ships 30 themes inspired by consoles and frontends (no trademarks or original sounds; all visuals are drawn and all sounds synthesized), each with its own game list and game detail views, plus layouts that work with any theme, a random-theme mode, video previews, a cinema mode and a spectator mode. The UI is in Spanish.
 
 ```bash
 npm install
