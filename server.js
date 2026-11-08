@@ -200,8 +200,11 @@ function walk(root, rel = '', out = [], depth = 0) {
   return out;
 }
 
+// «name» puede traer subcarpetas («Platforms/Arcade 80's»): solo se limpia el último tramo, como hace
+// LaunchBox («Arcade 80_s»); antes se cambiaba también la «/» y nunca se encontraba la carpeta.
 function platformDirs(base, name) {
-  const cands = [...new Set([name, lbSafe(name)])];
+  const i = name.lastIndexOf('/'), head = i >= 0 ? name.slice(0, i + 1) : '', tail = name.slice(i + 1);
+  const cands = [...new Set([name, head + lbSafe(tail)])];
   return cands.map(c => path.join(LB, base, c)).filter(d => { try { return fs.statSync(d).isDirectory(); } catch { return false; } });
 }
 
