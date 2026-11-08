@@ -1,0 +1,64 @@
+/* Tema «Barra»: inspirado en la barra cruzada de PS3. Texto blanco fino sobre ondas de luz. */
+:root {
+  --font: 'Sora', system-ui, sans-serif;
+  --tint: 4, 10, 22;
+  --backdrop: #061223;
+  --violet: #7fc4ff; --glow: #cfe8ff; --text: #ffffff; --muted: rgba(255, 255, 255, .7); --faint: rgba(255, 255, 255, .42);
+  --line: rgba(255, 255, 255, .18); --glass: rgba(10, 20, 40, .45); --glass-strong: rgba(6, 14, 30, .85);
+  --focus: #ffffff; --focus-line: rgba(255, 255, 255, .85); --tile-focus: rgba(255, 255, 255, .16);
+  --floor: linear-gradient(180deg, rgba(255,255,255,.06), transparent); --ph: linear-gradient(160deg, rgba(255,255,255,.14), rgba(0,0,0,.4));
+  --row-focus: rgba(255, 255, 255, .12); --chip-bg: rgba(255, 255, 255, .08);
+  --primary: rgba(255, 255, 255, .16); --act-focus: #ffffff; --act-focus-fg: #0b1a30; --act-focus-line: #fff; --glow-shadow: rgba(160, 210, 255, .5);
+  --particle: rgba(220, 240, 255, .8);
+}
+body.theme-barra { font-weight: 300; }
+.theme-barra #particles { opacity: .35; }
+.theme-barra h1, .theme-barra .shelf-logo h1, .theme-barra .detail-logo h1 { font-weight: 300; letter-spacing: -.01em; }
+.theme-barra .chip, .theme-barra .act, .theme-barra .tile { border-radius: .4rem; }
+
+.xmb-bar, .xmb-items { position: absolute; inset: 0; }
+.xmb-col { position: absolute; left: 0; top: 0; width: 9rem; height: 9rem; margin: -4.5rem 0 0 -4.5rem; display: flex; flex-direction: column; align-items: center; justify-content: center; transform-origin: 50% 40%; will-change: transform, opacity; cursor: pointer; }
+.xmb-col .ico { position: static; opacity: 1; display: grid; place-items: center; }
+.xmb-col .ico svg { width: 5.2rem; height: 5.2rem; fill: none; stroke: #fff; stroke-width: 1.2; stroke-linecap: round; stroke-linejoin: round; }
+.xmb-col.on .ico svg { filter: drop-shadow(0 0 .6rem rgba(255,255,255,.8)); }
+.xmb-label { margin-top: .6rem; font-size: 1.1rem; font-weight: 400; opacity: 0; transition: opacity .25s; white-space: nowrap; }
+.xmb-col.on .xmb-label { opacity: 1; }
+.xmb-item { position: absolute; left: 0; top: 0; display: flex; align-items: center; gap: 1.6rem; width: 70rem; height: 6.6rem; will-change: transform, opacity; cursor: pointer; }
+.xmb-ico { width: 6.6rem; height: 6.6rem; flex: none; display: grid; place-items: center; transition: transform .25s; }
+.xmb-ico img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 .3rem .6rem rgba(0,0,0,.5)); }
+.xmb-ico .ico { position: static; opacity: 1; }
+.xmb-ico .ico svg { width: 4rem; height: 4rem; fill: none; stroke: #fff; stroke-width: 1.3; }
+.xmb-item.on .xmb-ico { transform: scale(1.25); }
+.xmb-txt b { display: block; font-weight: 400; font-size: 1.3rem; }
+.xmb-txt span { display: block; font-size: .95rem; color: var(--muted); opacity: 0; transition: opacity .25s; }
+.xmb-item.on .xmb-txt b { font-size: 1.55rem; text-shadow: 0 0 1rem rgba(255,255,255,.55); }
+.xmb-item.on .xmb-txt span { opacity: 1; }
+.xmb-info { display: none; }
+
+/* ===== Vista «Del tema»: columna vertical de la barra cruzada (lista) y banda de información (ficha) ===== */
+.theme-barra #shelf.L-tema::before { content: attr(data-plat); position: absolute; left: 12rem; top: 6.2rem; font-size: 1rem; font-weight: 300; letter-spacing: .04em; color: rgba(255,255,255,.75); }
+.theme-barra #shelf.L-tema::after { content: ''; position: absolute; left: 12rem; right: 12rem; top: 8.4rem; height: 1px; background: linear-gradient(90deg, rgba(255,255,255,.5), transparent); }
+.theme-barra #shelf.L-tema .shelf-track { left: 12rem; width: 50rem; top: 9.6rem; bottom: 5.6rem; padding: 0; mask-image: linear-gradient(180deg, transparent, #000 22%, #000 78%, transparent); }
+.theme-barra #shelf.L-tema .row-item { width: 48rem; background: none; box-shadow: none; font-weight: 300; font-size: 1.15rem; color: rgba(255,255,255,.6); transition: font-size .18s, color .18s; }
+.theme-barra #shelf.L-tema .row-item .s { font-weight: 300; color: rgba(255,255,255,.35); }
+.theme-barra #shelf.L-tema .row-item.focus { font-size: 1.75rem; color: #fff; text-shadow: 0 0 1rem rgba(170, 215, 255, .9); background: none; box-shadow: none; }
+.theme-barra #shelf.L-tema .row-item.focus .s { color: rgba(255,255,255,.75); font-size: 1rem; }
+.theme-barra #shelf.L-tema .shelf-floor { display: none; }
+.theme-barra #shelf.L-tema .shelf-art { display: block; left: 64rem; right: auto; top: 9.6rem; width: 26rem; height: 20rem; object-position: center; filter: drop-shadow(0 1rem 2rem rgba(0,0,0,.6)); }
+.theme-barra #shelf.L-tema .shelf-info { left: 64rem; width: 26rem; top: 31rem; }
+.theme-barra #shelf.L-tema .shelf-logo { height: 3.6rem; }
+.theme-barra #shelf.L-tema .shelf-logo img { max-width: 22rem; }
+.theme-barra #shelf.L-tema .shelf-logo h1 { font-size: 1.6rem; font-weight: 300; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.theme-barra #shelf.L-tema .meta { font-weight: 300; }
+.theme-barra #shelf.L-tema .desc { -webkit-line-clamp: 4; font-weight: 300; }
+.theme-barra #shelf.L-tema .shelf-side { right: 5rem; top: 6rem; }
+
+.theme-barra #detail.D-tema .detail-main { left: 0; right: 0; width: auto; bottom: 7rem; padding: 2rem 12rem 2.2rem; background: linear-gradient(90deg, rgba(0, 8, 24, .72), rgba(0, 8, 24, .35));
+  border-top: 1px solid rgba(255,255,255,.35); border-bottom: 1px solid rgba(255,255,255,.35); }
+.theme-barra #detail.D-tema .detail-logo h1 { font-weight: 300; font-size: 2.8rem; }
+.theme-barra #detail.D-tema .chips { gap: 0; }
+.theme-barra #detail.D-tema .chips span { background: none; border: 0; border-radius: 0; padding: 0 .9rem; font-weight: 300; border-left: 1px solid rgba(255,255,255,.35); }
+.theme-barra #detail.D-tema .chips span:first-child { border-left: 0; padding-left: 0; }
+.theme-barra #detail.D-tema .desc-box { font-weight: 300; }
+.theme-barra #detail.D-tema .act { background: none; border: 0; border-radius: 0; font-weight: 300; font-size: 1.15rem; padding: 0 1rem; color: rgba(255,255,255,.65); }
+.theme-barra #detail.D-tema .act.focus { color: #fff; background: none; transform: none; box-shadow: none; text-shadow: 0 0 1rem rgba(170, 215, 255, .95); border-bottom: 1px solid #fff; }

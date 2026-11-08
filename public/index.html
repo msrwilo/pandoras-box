@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pandora's Box</title>
+<link rel="icon" href="/pandora.svg">
+<link rel="stylesheet" href="/themes/cubo/theme.css">
+<link rel="stylesheet" id="themeCss" href="data:text/css,">
+</head>
+<body class="theme-cubo">
+<div id="backdrop" aria-hidden="true">
+  <canvas id="themeCanvas"></canvas>
+  <div class="bg-layer" id="bgA"></div>
+  <div class="bg-layer" id="bgB"></div>
+  <video id="bgVideo" playsinline preload="none"></video>
+  <div class="bg-tint"></div>
+  <canvas id="particles"></canvas>
+</div>
+
+<main id="app">
+  <section id="home" class="screen">
+    <div id="homeTheme"></div>
+    <div class="home-cube">
+    <div class="cube-stage">
+      <div class="cube-float">
+        <div class="cube" id="cube"></div>
+      </div>
+      <div class="cube-floor"></div>
+    </div>
+    <div class="cube-caption">
+      <h1 id="catTitle"></h1>
+      <p id="catMeta"></p>
+      <p id="catList" class="muted"></p>
+    </div>
+    </div>
+  </section>
+
+  <section id="platforms" class="screen">
+    <div class="plat-info">
+      <h1 id="platTitle"></h1>
+      <p id="platMeta" class="meta"></p>
+      <p id="platNotes" class="notes"></p>
+    </div>
+    <img id="platDevice" class="plat-device" alt="">
+    <div class="row" id="platRow"></div>
+  </section>
+
+  <section id="shelf" class="screen">
+    <div class="shelf-info">
+      <div class="shelf-logo" id="shelfLogo"></div>
+      <p id="shelfMeta" class="meta"></p>
+      <p id="shelfDesc" class="desc"></p>
+      <div id="shelfStats" class="shelf-stats"></div>
+    </div>
+    <div class="shelf-side">
+      <span id="shelfPos" class="pos"></span>
+
+    </div>
+    <img id="shelfArt" class="shelf-art" alt="">
+    <div class="shelf-track" id="shelfTrack"></div>
+    <div class="shelf-floor"></div>
+    <div class="search-bar" id="searchBar">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>
+      <input id="searchInput" type="search" placeholder="Buscar en esta lista" autocomplete="off" spellcheck="false">
+      <span id="searchCount"></span>
+    </div>
+    <nav class="letters" id="letters" aria-label="Ir a la letra"></nav>
+  </section>
+
+  <section id="detail" class="screen">
+    <div class="detail-main">
+      <div class="detail-logo" id="dLogo"></div>
+      <p id="dSub" class="meta"></p>
+      <div class="chips" id="dChips"></div>
+      <dl class="facts" id="dFacts"></dl>
+      <div class="desc-box" id="dDesc"></div>
+      <div class="stats" id="dStats"></div>
+      <div class="actions" id="dActions"></div>
+    </div>
+    <div class="detail-art"><img id="dArt" alt=""></div>
+    <div class="thumbs" id="dThumbs"></div>
+  </section>
+
+  <section id="spectator" class="screen">
+    <div class="spec-tag chip"><span class="dot"></span><span id="specFilter"></span></div>
+    <div class="spec-card" id="specCard">
+      <div class="spec-logo" id="specLogo"></div>
+      <p id="specMeta" class="meta"></p>
+      <div class="spec-bar"><i id="specBar"></i></div>
+    </div>
+  </section>
+</main>
+
+<div id="cineCap" aria-hidden="true"></div>
+
+<header id="topbar">
+  <button id="backBtn" class="back" aria-label="Regresar"><svg viewBox="0 0 12 20"><path d="M10 2 L3 10 L10 18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  <nav id="crumbs"></nav>
+  <div class="top-right">
+    <time id="clock"></time>
+  </div>
+</header>
+
+<footer id="hints"></footer>
+
+<div id="viewer" class="overlay" hidden>
+  <div class="viewer-stage" id="viewerStage"></div>
+  <div class="viewer-caption" id="viewerCaption"></div>
+</div>
+
+<aside id="menu" class="sheet" hidden>
+  <h2>Ajustes</h2>
+  <nav id="menuTabs" class="mtabs"></nav>
+  <div id="menuRows"></div>
+  <div class="mfoot"><p id="menuHelp"></p><p class="muted small">Los cambios se guardan solos.</p></div>
+</aside>
+
+<aside id="picker" class="sheet picker" hidden>
+  <h2 id="pickTitle"></h2>
+  <p class="muted small">Elige qué versión abrir</p>
+  <div id="pickRows"></div>
+</aside>
+
+<div id="playing" hidden>
+  <div class="play-bg" id="playBg"></div>
+  <div class="play-card">
+    <img id="playArt" alt="">
+    <div class="play-text">
+      <div class="play-logo" id="playLogo"></div>
+      <p class="meta" id="playVia"></p>
+      <p class="play-msg" id="playMsg"></p>
+      <button class="act primary" id="playClose">Cerrar juego</button>
+      <p class="play-hint" id="playHint">Para salir del juego, sostén <span class="gslot" data-g="exitcombo"></span> un segundo</p>
+    </div>
+  </div>
+</div>
+
+<div id="kbd" class="kbd" hidden></div>
+
+<div id="capture" class="capture" hidden>
+  <div class="cap-card">
+    <h2>Combinación para cerrar un juego</h2>
+    <p class="muted">Mantén presionados de 2 a 4 botones del control al mismo tiempo durante 2 segundos.</p>
+    <div class="cap-combo" id="capCombo"></div>
+    <div class="cap-track"><i id="capBar"></i></div>
+    <p class="cap-note" id="capNote"></p>
+    <button class="act" id="capCancel">Cancelar</button>
+  </div>
+</div>
+
+<div id="toast" role="status"></div>
+
+<div id="boot">
+  <svg class="pandora-mark" viewBox="0 0 120 120" aria-hidden="true">
+    <defs><linearGradient id="pdBeam" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#fff4cf" stop-opacity=".95"/><stop offset="1" stop-color="#b4a8ff" stop-opacity="0"/></linearGradient></defs><path class="pd-beam" d="M36 76 L12 2 L108 2 L84 76 Z" fill="url(#pdBeam)"/><path d="M30.0 78.0 L60.0 94.0 L60.0 112.0 L30.0 96.0 Z" fill="#15112c"/><path d="M31.6 80.8 L43.4 87.1 L43.4 101.2 L31.6 94.9 Z" fill="#1fae55"/><path d="M46.6 88.8 L58.4 95.1 L58.4 109.2 L46.6 102.9 Z" fill="#ff8a1f"/><path d="M60.0 94.0 L90.0 78.0 L90.0 96.0 L60.0 112.0 Z" fill="#15112c"/><path d="M61.6 95.1 L73.4 88.8 L73.4 102.9 L61.6 109.2 Z" fill="#e0313a"/><path d="M76.6 87.1 L88.4 80.8 L88.4 94.9 L76.6 101.2 Z" fill="#2f6fe0"/><path d="M60.0 62.0 L90.0 78.0 L60.0 94.0 L30.0 78.0 Z" fill="#fff1c2" class="pd-glow"/><g class="pd-lid"><path d="M60.0 44.0 L90.0 60.0 L60.0 76.0 L30.0 60.0 Z" fill="#15112c"/><path d="M60.0 45.7 L71.8 52.0 L60.0 58.3 L48.2 52.0 Z" fill="#f5f3ee"/><path d="M75.0 53.7 L86.8 60.0 L75.0 66.3 L63.2 60.0 Z" fill="#ffd43b"/><path d="M45.0 53.7 L56.8 60.0 L45.0 66.3 L33.2 60.0 Z" fill="#f5f3ee"/><path d="M60.0 61.7 L71.8 68.0 L60.0 74.3 L48.2 68.0 Z" fill="#f5f3ee"/><path d="M30.0 60.0 L60.0 76.0 L60.0 94.0 L30.0 78.0 Z" fill="#15112c"/><path d="M31.6 62.8 L43.4 69.1 L43.4 83.2 L31.6 76.9 Z" fill="#1fae55"/><path d="M46.6 70.8 L58.4 77.1 L58.4 91.2 L46.6 84.9 Z" fill="#1fae55"/><path d="M60.0 76.0 L90.0 60.0 L90.0 78.0 L60.0 94.0 Z" fill="#15112c"/><path d="M61.6 77.1 L73.4 70.8 L73.4 84.9 L61.6 91.2 Z" fill="#e0313a"/><path d="M76.6 69.1 L88.4 62.8 L88.4 76.9 L76.6 83.2 Z" fill="#2f6fe0"/></g>
+  </svg>
+  <p class="boot-word">pandora’s <b>b<svg class="boot-o" viewBox="26 40 68 74" aria-hidden="true"><defs><linearGradient id="mBeam" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#fff4cf" stop-opacity=".95"/><stop offset="1" stop-color="#b4a8ff" stop-opacity="0"/></linearGradient></defs><path d="M30.0 78.0 L60.0 94.0 L60.0 112.0 L30.0 96.0 Z" fill="#15112c"/><path d="M31.6 80.8 L43.4 87.1 L43.4 101.2 L31.6 94.9 Z" fill="#1fae55"/><path d="M46.6 88.8 L58.4 95.1 L58.4 109.2 L46.6 102.9 Z" fill="#ff8a1f"/><path d="M60.0 94.0 L90.0 78.0 L90.0 96.0 L60.0 112.0 Z" fill="#15112c"/><path d="M61.6 95.1 L73.4 88.8 L73.4 102.9 L61.6 109.2 Z" fill="#e0313a"/><path d="M76.6 87.1 L88.4 80.8 L88.4 94.9 L76.6 101.2 Z" fill="#2f6fe0"/><path d="M60.0 44.0 L90.0 60.0 L60.0 76.0 L30.0 60.0 Z" fill="#15112c"/><path d="M60.0 45.7 L71.8 52.0 L60.0 58.3 L48.2 52.0 Z" fill="#f5f3ee"/><path d="M75.0 53.7 L86.8 60.0 L75.0 66.3 L63.2 60.0 Z" fill="#ffd43b"/><path d="M45.0 53.7 L56.8 60.0 L45.0 66.3 L33.2 60.0 Z" fill="#f5f3ee"/><path d="M60.0 61.7 L71.8 68.0 L60.0 74.3 L48.2 68.0 Z" fill="#f5f3ee"/><path d="M30.0 60.0 L60.0 76.0 L60.0 94.0 L30.0 78.0 Z" fill="#15112c"/><path d="M31.6 62.8 L43.4 69.1 L43.4 83.2 L31.6 76.9 Z" fill="#1fae55"/><path d="M46.6 70.8 L58.4 77.1 L58.4 91.2 L46.6 84.9 Z" fill="#1fae55"/><path d="M60.0 76.0 L90.0 60.0 L90.0 78.0 L60.0 94.0 Z" fill="#15112c"/><path d="M61.6 77.1 L73.4 70.8 L73.4 84.9 L61.6 91.2 Z" fill="#e0313a"/><path d="M76.6 69.1 L88.4 62.8 L88.4 76.9 L76.6 83.2 Z" fill="#2f6fe0"/></svg>x</b></p>
+  <p class="boot-hint" id="bootHint" hidden></p>
+</div>
+
+<audio id="music" loop preload="none"></audio>
+<script type="module" src="/app.js"></script>
+</body>
+</html>

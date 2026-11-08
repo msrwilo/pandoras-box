@@ -1,0 +1,80 @@
+/* Tema «Torres»: inspirado en el menú de PS2. Azul profundo, texto fino y luminoso, cubos de cristal. */
+:root {
+  --font: 'Sora', system-ui, sans-serif;
+  --tint: 2, 6, 22;
+  --backdrop: #01030c;
+  --violet: #4f8dff; --glow: #9cc4ff; --text: #e6efff; --muted: rgba(205, 222, 255, .66); --faint: rgba(205, 222, 255, .38);
+  --line: rgba(130, 180, 255, .25); --glass: rgba(8, 22, 60, .55); --glass-strong: rgba(4, 12, 36, .9);
+  --focus: #b9d4ff; --focus-line: rgba(150, 195, 255, .9); --tile-focus: rgba(40, 90, 200, .5);
+  --row-focus: rgba(120, 170, 255, .16); --chip-bg: rgba(10, 26, 70, .6);
+  --primary: rgba(60, 120, 255, .5); --primary-fg: #fff;
+  --act-focus: #dbe8ff; --act-focus-fg: #04102e; --act-focus-line: #fff; --glow-shadow: rgba(90, 150, 255, .6);
+  --pill: rgba(200, 220, 255, .18); --pill-fg: #fff; --pill-line: rgba(200, 220, 255, .3);
+  --ph: linear-gradient(160deg, rgba(50, 100, 220, .5), rgba(5, 14, 50, .9));
+  --floor: linear-gradient(180deg, rgba(80, 140, 255, .14), transparent);
+  --particle: #a9c8ff;
+}
+.theme-torres #particles { opacity: .6; }
+.theme-torres h1, .theme-torres .x-title { font-weight: 300; }
+
+.ps2-list { position: absolute; left: 6rem; top: 0; display: flex; flex-direction: column; will-change: transform; }
+.ps2-sec { height: 4.2rem; display: flex; align-items: center; font-size: 1.9rem; font-weight: 300; letter-spacing: .06em; color: var(--muted); text-align: left;
+  transition: color .25s, text-shadow .25s, letter-spacing .3s; }
+.ps2-sec.on { color: #fff; text-shadow: 0 0 1.2rem rgba(120, 180, 255, .95), 0 0 .3rem rgba(200, 230, 255, .8); letter-spacing: .1em; }
+#homeTheme.in-items .ps2-sec.on { color: var(--glow); text-shadow: 0 0 .8rem rgba(120, 180, 255, .6); }
+/* Línea guía: marca la altura de la sección elegida. */
+.theme-torres #homeTheme::before { content: ''; position: absolute; left: 4.4rem; width: 26rem; top: calc(44vh + 2.1rem); height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(150, 200, 255, .7), transparent); }
+
+.ps2-head { position: absolute; left: 36%; top: 7rem; font-size: 1rem; font-weight: 600; letter-spacing: .3em; text-transform: uppercase; color: var(--faint); }
+.ps2-grid { position: absolute; inset: 0; pointer-events: none; }
+.ps2-tile { position: absolute; left: 0; top: 0; width: 13rem; height: 15rem; perspective: 50rem; display: flex; flex-direction: column; align-items: center; gap: 1rem; pointer-events: auto;
+  transition: opacity .3s; }
+.ps2-cube { position: relative; width: 9rem; height: 9rem; transform-style: preserve-3d; margin-top: 1rem; }
+.ps2-cube i { position: absolute; inset: 0; border: 1px solid rgba(160, 205, 255, .45); background: rgba(60, 120, 255, .08); }
+.ps2-cube i.f { transform: translateZ(4.5rem); }
+.ps2-cube i.t { transform: rotateX(90deg) translateZ(4.5rem); background: rgba(120, 180, 255, .1); }
+.ps2-cube i.s { transform: rotateY(90deg) translateZ(4.5rem); }
+.ps2-art { position: absolute; inset: .8rem; transform: translateZ(4.6rem); display: grid; place-items: center; }
+.ps2-art img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 0 .6rem rgba(120, 180, 255, .5)); }
+.ps2-art img.logo { filter: drop-shadow(0 .1rem .3rem #000); }
+.ps2-art .ico { position: static; opacity: 1; display: grid; }
+.ps2-art svg { width: 4.4rem; height: 4.4rem; fill: none; stroke: #cfe0ff; stroke-width: 1.3; stroke-linecap: round; stroke-linejoin: round; }
+.ps2-tile span { font-size: .95rem; font-weight: 400; color: var(--muted); text-align: center; max-width: 13rem; line-height: 1.25;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.ps2-tile.on .ps2-cube i { border-color: rgba(210, 232, 255, .95); background: rgba(90, 150, 255, .2); box-shadow: 0 0 1.6rem rgba(90, 150, 255, .55); }
+.ps2-tile.on span { color: #fff; text-shadow: 0 0 .8rem rgba(120, 180, 255, .9); }
+#homeTheme:not(.in-items) .ps2-tile { opacity: .55 !important; }
+
+.ps2-info { position: absolute; left: 36%; bottom: 6rem; display: flex; flex-direction: column; gap: .3rem; }
+.ps2-info b { font-size: 2rem; font-weight: 300; letter-spacing: .02em; color: #fff; }
+.ps2-info span { font-size: 1rem; color: var(--muted); }
+
+.theme-torres .tile, .theme-torres .act, .theme-torres .chip { border-radius: .35rem; }
+.theme-torres .key { border-radius: .3rem; font-weight: 400; }
+.theme-torres .kbd, .theme-torres .search-bar, .theme-torres .cap-card { border-radius: .5rem; }
+
+/* ===== Vista «Del tema»: navegador de tarjeta de memoria con cubos que giran (lista) y panel de cristal (ficha) ===== */
+@keyframes ps2-spin { from { transform: rotateY(0); } to { transform: rotateY(360deg); } }
+.theme-torres #shelf.L-tema .shelf-info { left: 6rem; right: 6rem; width: auto; top: 5.4rem; text-align: center; }
+.theme-torres #shelf.L-tema .shelf-logo { display: none; }
+.theme-torres #shelf.L-tema .shelf-info::before { content: attr(data-title); display: block; font-size: 1.9rem; font-weight: 300; letter-spacing: .06em; color: #e6efff;
+  text-shadow: 0 0 1.2rem #4f8dff, 0 0 .3rem #9cc4ff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.theme-torres #shelf.L-tema .meta { justify-content: center; font-weight: 300; }
+.theme-torres #shelf.L-tema::after { content: attr(data-plat); position: absolute; left: 6rem; bottom: 5.4rem; font-size: .95rem; font-weight: 300; letter-spacing: .2em; text-transform: uppercase; color: rgba(156, 196, 255, .6); }
+.theme-torres #shelf.L-tema .shelf-track { top: 13rem; bottom: 7rem; perspective: 60rem; }
+.theme-torres #shelf.L-tema .item { transform-style: preserve-3d; }
+.theme-torres #shelf.L-tema .item img { filter: drop-shadow(0 0 .6rem rgba(79, 141, 255, .35)); opacity: .75; }
+.theme-torres #shelf.L-tema .item.focus img { opacity: 1; animation: ps2-spin 6s linear infinite; filter: drop-shadow(0 0 1.4rem rgba(120, 175, 255, .9)); }
+.theme-torres #shelf.L-tema .item.focus::after { left: 5%; right: 5%; bottom: -1.4rem; height: 1.2rem; border-radius: 50%; background: radial-gradient(closest-side, rgba(120, 175, 255, .7), transparent); }
+.theme-torres #shelf.L-tema .item .ph { background: linear-gradient(160deg, rgba(60, 110, 230, .55), rgba(10, 25, 80, .7)); border: 1px solid rgba(150, 195, 255, .5); }
+
+.theme-torres #detail.D-tema .thumbs { display: none; }
+.theme-torres #detail.D-tema .detail-art { left: 6rem; right: auto; top: 9rem; width: 28rem; height: 30rem; perspective: 60rem; }
+.theme-torres #detail.D-tema .detail-art img { animation: ps2-spin 9s linear infinite; filter: drop-shadow(0 0 1.6rem rgba(120, 175, 255, .8)); }
+.theme-torres #detail.D-tema .detail-main { left: 38rem; right: 6rem; width: auto; top: 8rem; bottom: 7rem; padding: 2rem 2.4rem; border: 1px solid rgba(150, 195, 255, .45);
+  background: linear-gradient(160deg, rgba(40, 80, 190, .28), rgba(5, 12, 40, .7)); box-shadow: inset 0 0 3rem rgba(79, 141, 255, .2), 0 0 2rem rgba(79, 141, 255, .2); }
+.theme-torres #detail.D-tema .detail-logo h1 { font-weight: 300; text-shadow: 0 0 1.2rem #4f8dff; }
+.theme-torres #detail.D-tema .chips span { border-radius: .2rem; background: rgba(40, 80, 190, .3); border-color: rgba(150, 195, 255, .4); font-weight: 400; }
+.theme-torres #detail.D-tema .act { border-radius: .2rem; background: rgba(40, 80, 190, .35); border: 1px solid rgba(150, 195, 255, .5); font-weight: 400; }
+.theme-torres #detail.D-tema .act.focus { background: rgba(120, 175, 255, .9); color: #01030c; box-shadow: 0 0 1.6rem rgba(120, 175, 255, .8); transform: none; }

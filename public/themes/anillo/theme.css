@@ -1,0 +1,73 @@
+/* Tema «Anillo»: inspirado en el Genesis de 1989. Negro brillante, rojo, anillo plateado con su leyenda y letra inclinada. */
+:root {
+  --font: 'Sora', system-ui, sans-serif;
+  --tint: 6, 6, 8;
+  --backdrop: #060607;
+  --violet: #d4161d; --glow: #ff3b3b; --text: #f2f2f4; --muted: rgba(230, 230, 236, .72); --faint: rgba(230, 230, 236, .45);
+  --line: rgba(255, 255, 255, .14); --glass: rgba(14, 14, 16, .85); --glass-strong: #0d0d0f;
+  --focus: #d4161d; --focus-line: #d4161d; --tile-focus: #ffffff;
+  --row-focus: rgba(212, 22, 29, .22); --chip-bg: rgba(14, 14, 16, .9);
+  --primary: #d4161d; --primary-fg: #fff;
+  --act-focus: #d4161d; --act-focus-fg: #fff; --act-focus-line: #ff8a8a; --glow-shadow: rgba(212, 22, 29, .45);
+  --pill: #26262b; --pill-fg: #f2f2f4; --pill-line: rgba(255,255,255,.12);
+  --ph: linear-gradient(160deg, #2a2a30, #0e0e10);
+  --floor: linear-gradient(180deg, rgba(212, 22, 29, .14), transparent);
+  --particle: transparent;
+}
+.theme-anillo #particles { display: none; }
+.theme-anillo h1 { font-weight: 800; font-style: italic; letter-spacing: -.02em; background: linear-gradient(180deg, #ffffff 0%, #c9cad2 48%, #6d6f78 52%, #e9eaf0 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.theme-anillo .act, .theme-anillo .chip { border-radius: .2rem; }
+
+.md-tabs { position: absolute; left: 50%; top: 5.4rem; margin-left: -6rem; height: 3rem; }
+.md-tab { position: absolute; left: 0; top: 0; width: 12rem; height: 3rem; display: grid; place-items: center; cursor: pointer; white-space: nowrap;
+  font-size: 1rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #8d8e96; background: #141418; box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); }
+.md-tab.on { background: linear-gradient(180deg, #ee2a2a, #a80f14); color: #fff; box-shadow: 0 0 1.6rem rgba(212, 22, 29, .5); }
+
+.md-disc { position: absolute; left: 5rem; top: 11rem; width: 34rem; height: 34rem; }
+.md-ring { position: absolute; inset: 0; filter: drop-shadow(0 1.2rem 2rem rgba(0,0,0,.8)); pointer-events: none; }
+.md-ring svg { width: 100%; height: 100%; overflow: visible; }
+.md-hole { position: absolute; inset: 4.6rem; border-radius: 50%; overflow: hidden; background: radial-gradient(circle at 50% 35%, #1d1d22, #050506 70%);
+  box-shadow: inset 0 .6rem 1.6rem rgba(0,0,0,.9), inset 0 -.2rem .4rem rgba(255,255,255,.06); display: grid; place-items: center; }
+.md-art { position: absolute; inset: 3.4rem; display: grid; place-items: center; }
+.md-art img { width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; filter: drop-shadow(0 .8rem 1rem rgba(0,0,0,.8)); }
+.md-art .ico { position: static; opacity: 1; }
+.md-art svg { width: 8rem; height: 8rem; fill: none; stroke: #d6d7dc; stroke-width: 1.3; }
+.md-hole video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .4s; image-rendering: pixelated; }
+.md-hole video.on { opacity: 1; }
+
+.md-list { position: absolute; left: 44rem; right: 4rem; top: 11rem; height: 25.2rem; overflow: hidden; }
+.md-row { position: absolute; left: 1.6rem; right: 0; top: 0; height: 4.2rem; display: flex; flex-direction: column; justify-content: center; padding-left: 1.4rem; cursor: pointer;
+  border-left: .3rem solid transparent; }
+.md-row b { font-size: 1.55rem; font-weight: 800; font-style: italic; letter-spacing: -.01em; color: #bfc0c8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.md-row span { font-size: .85rem; font-weight: 600; color: var(--faint); letter-spacing: .04em; }
+.md-row.on { border-left-color: #d4161d; background: linear-gradient(90deg, rgba(212, 22, 29, .35), transparent 80%); }
+.md-row.on b { color: transparent; background: linear-gradient(180deg, #ffffff 0%, #d9dae0 48%, #7d7f88 52%, #f2f3f7 100%); -webkit-background-clip: text; background-clip: text; }
+.md-row.on span { color: #ff8a8a; }
+.md-info { position: absolute; left: 45.6rem; right: 4rem; top: 38rem; display: flex; flex-direction: column; gap: .4rem; }
+.md-info b { font-size: 1rem; font-weight: 800; letter-spacing: .2em; text-transform: uppercase; color: #d4161d; }
+.md-info span { font-size: 1rem; line-height: 1.5; color: var(--muted); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.md-keys { position: absolute; left: 50%; top: 8.9rem; margin-left: -7.6rem; width: 15.2rem; display: flex; justify-content: space-between; pointer-events: none; z-index: 2; }
+
+/* ===== Vista «Del tema»: lista con letra inclinada y franja roja, carátula dentro del anillo plateado (lista y ficha) ===== */
+.theme-anillo #shelf.L-tema .shelf-track { left: 5rem; width: 50rem; top: 6rem; bottom: 5.6rem; padding: 0; mask-image: linear-gradient(180deg, transparent, #000 12%, #000 88%, transparent); }
+.theme-anillo #shelf.L-tema .row-item { width: 48rem; background: none; box-shadow: none; font-style: italic; font-weight: 800; letter-spacing: .02em; text-transform: uppercase; }
+.theme-anillo #shelf.L-tema .row-item.focus { background: linear-gradient(90deg, #d4161d, #8a0d12 80%, transparent); transform-origin: left; box-shadow: none; color: #fff; }
+.theme-anillo #shelf.L-tema .row-item.focus .s { color: #fff; }
+.theme-anillo #shelf.L-tema .shelf-floor { display: none; }
+.theme-anillo #shelf.L-tema::before { content: ''; position: absolute; left: 60rem; top: 5rem; width: 27rem; height: 27rem; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(circle, transparent 61%, #3a3a40 61.5%, #e6e6ec 64%, #8a8a94 67%, #f4f4f8 70%, #55555c 73%, transparent 73.5%); }
+.theme-anillo #shelf.L-tema .shelf-art { display: block; left: 64rem; right: auto; top: 9rem; width: 19rem; height: 19rem; object-position: center; }
+.theme-anillo #shelf.L-tema .shelf-info { left: 58rem; width: 32rem; top: 34rem; }
+.theme-anillo #shelf.L-tema .shelf-logo { height: 3.8rem; }
+.theme-anillo #shelf.L-tema .shelf-logo img { max-width: 26rem; }
+.theme-anillo #shelf.L-tema .shelf-logo h1 { font-size: 1.7rem; font-style: italic; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.theme-anillo #shelf.L-tema .desc { -webkit-line-clamp: 3; }
+.theme-anillo #shelf.L-tema .shelf-side { right: 5rem; top: 4.4rem; }
+
+.theme-anillo #detail.D-tema::before { content: ''; position: absolute; right: 6rem; top: 6rem; width: 22rem; height: 22rem; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(circle, transparent 61%, #3a3a40 61.5%, #e6e6ec 64%, #8a8a94 67%, #f4f4f8 70%, #55555c 73%, transparent 73.5%); }
+.theme-anillo #detail.D-tema .detail-main { border-left: .6rem solid #d4161d; padding-left: 2rem; }
+.theme-anillo #detail.D-tema .detail-logo h1 { font-style: italic; text-transform: uppercase; }
+.theme-anillo #detail.D-tema .chips span { border-radius: 0; transform: skewX(-12deg); }
+.theme-anillo #detail.D-tema .act { border-radius: 0; transform: skewX(-12deg); font-style: italic; text-transform: uppercase; }
+.theme-anillo #detail.D-tema .act.focus { transform: skewX(-12deg) scale(1.04); }

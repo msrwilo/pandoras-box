@@ -1,0 +1,87 @@
+/* Tema «Basic»: inspirado en las computadoras MSX. Pantalla de texto azul con borde, letra blanca de ancho fijo,
+   video inverso para lo elegido y la barra de teclas de función. */
+:root {
+  --font: 'Cascadia Mono', Consolas, 'Lucida Console', 'Courier New', monospace;
+  --tint: 84, 85, 237;
+  --backdrop: #5455ed;
+  --violet: #ffffff; --glow: #ffffff; --text: #ffffff; --muted: #d8d8ff; --faint: #a9a9f5;
+  --line: #ffffff; --glass: #5455ed; --glass-strong: #5455ed;
+  --focus: #ffffff; --focus-line: #ffffff; --tile-focus: #ffffff;
+  --row-focus: rgba(255, 255, 255, .25); --chip-bg: #5455ed;
+  --primary: #ffffff; --primary-fg: #5455ed;
+  --act-focus: #ffffff; --act-focus-fg: #5455ed; --act-focus-line: #ffffff; --glow-shadow: transparent;
+  --pill: #ffffff; --pill-fg: #5455ed; --pill-line: transparent;
+  --ph: linear-gradient(160deg, #7d7ef5, #3b3bd0);
+  --floor: none;
+  --particle: transparent;
+}
+.theme-basic #particles { display: none; }
+.theme-basic h1 { font-weight: 700; letter-spacing: 0; }
+.theme-basic .act, .theme-basic .chip, .theme-basic .sheet, .theme-basic .kbd, .theme-basic .item, .theme-basic .row-item { border-radius: 0 !important; }
+.theme-basic .sheet { background: #5455ed; border: .3rem solid #fff; backdrop-filter: none; }
+.theme-basic .sheet .mrow.focus { background: #fff; color: #5455ed; box-shadow: none; } .theme-basic .sheet .mrow.focus .val { color: #5455ed; }
+
+.mx-screen { position: absolute; left: 4rem; right: 4rem; top: 3.6rem; bottom: 6.4rem; background: #5455ed; padding: 1.6rem 2rem; font-size: 1.35rem; line-height: 2.1rem; color: #fff; overflow: hidden; }
+.mx-head div, .mx-cmd { white-space: pre; }
+.mx-cmd { min-height: 2.1rem; }
+.mx-list { position: absolute; left: 2rem; width: 52rem; top: 10.4rem; bottom: 6.4rem; overflow: hidden; }
+.mx-row { display: flex; white-space: pre; cursor: pointer; }
+.mx-row b { font-weight: 400; overflow: hidden; text-overflow: ellipsis; }
+.mx-row.on { background: #fff; color: #5455ed; }
+.mx-ok { position: absolute; left: 2rem; bottom: 1.4rem; }
+.mx-ok i { display: inline-block; width: 1rem; height: 1.7rem; background: #fff; vertical-align: middle; opacity: 0; }
+#homeTheme.mx-blink .mx-ok i { opacity: 1; }
+.mx-sprite { position: absolute; right: 2rem; top: 10.4rem; width: 28rem; height: 21rem; border: .3rem solid #fff; background: #000; display: grid; place-items: center; overflow: hidden; }
+.mx-pic { position: absolute; inset: 1.4rem; display: grid; place-items: center; }
+.mx-pic img { width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; }
+.mx-pic .ico { position: static; opacity: 1; }
+.mx-pic svg { width: 7rem; height: 7rem; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: square; stroke-linejoin: miter; }
+.mx-sprite video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; image-rendering: pixelated; }
+.mx-sprite video.on { opacity: 1; }
+.mx-info { position: absolute; right: 2rem; top: 32.4rem; width: 28rem; white-space: pre-line; font-size: 1.05rem; line-height: 1.6rem; }
+.mx-keys { position: absolute; left: 4rem; right: 4rem; bottom: 3.6rem; display: grid; grid-template-columns: repeat(5, 1fr); gap: 1.2rem; font-size: 1.2rem; }
+.mx-keys span { background: #fff; color: #5455ed; padding: 0 .6rem; }
+.theme-basic.at-home #hints { bottom: .4rem; }
+
+/* ===== Vista «Del tema»: listado tipo FILES (lista) y programa con LIST (ficha) ===== */
+@keyframes mx-cur { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+.theme-basic #shelf.L-tema::before { content: 'files "' attr(data-plat) '"'; position: absolute; left: 6rem; right: 6rem; top: 5.2rem; font-size: 1.3rem; color: #fff;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.theme-basic #shelf.L-tema .shelf-track { left: 6rem; width: 52rem; top: 8rem; bottom: 6.6rem; mask-image: none; overflow: hidden; padding: 0; }
+.theme-basic #shelf.L-tema .row-item { width: 50rem; height: 3rem; padding: 0 .6rem; border-radius: 0; background: none; box-shadow: none; color: #fff; font-weight: 400; font-size: 1.25rem; }
+.theme-basic #shelf.L-tema .row-item .s { color: #d8d8ff; font-size: 1.1rem; font-weight: 400; }
+.theme-basic #shelf.L-tema .row-item.focus { background: #fff; color: #5455ed; }
+.theme-basic #shelf.L-tema .row-item.focus .s { color: #5455ed; }
+.theme-basic #shelf.L-tema .fav-badge { display: none; }
+.theme-basic #shelf.L-tema .shelf-floor { display: none; }
+.theme-basic #shelf.L-tema .shelf-info { left: 60rem; width: 31rem; top: 8rem; bottom: 6.6rem; padding-left: 2rem; border-left: .2rem solid #fff; display: flex; flex-direction: column; }
+.theme-basic #shelf.L-tema .shelf-logo { display: none; }
+.theme-basic #shelf.L-tema .shelf-info::before { content: '10 REM ' attr(data-title); color: #fff; font-size: 1.25rem; line-height: 1.6; margin-bottom: .6rem; }
+.theme-basic #shelf.L-tema .meta { margin-top: 0; color: #d8d8ff; font-size: 1.05rem; }
+.theme-basic #shelf.L-tema .meta::before { content: '20 REM '; color: #fff; }
+.theme-basic #shelf.L-tema .desc { color: #fff; font-size: 1rem; line-height: 1.6; -webkit-line-clamp: 7; max-width: none; }
+.theme-basic #shelf.L-tema .desc::before { content: '30 PRINT "'; }
+.theme-basic #shelf.L-tema .shelf-art { display: block; left: 62rem; top: 33rem; width: 22rem; height: 12rem; object-position: left center; filter: none; image-rendering: pixelated; }
+.theme-basic #shelf.L-tema .shelf-side { right: 5rem; top: 5rem; }
+
+.theme-basic #detail.D-tema .detail-art, .theme-basic #detail.D-tema .thumbs, .theme-basic #detail.D-tema .chips, .theme-basic #detail.D-tema .stats { display: none; }
+.theme-basic #detail.D-tema .detail-main { left: 6rem; right: 6rem; top: 5.2rem; bottom: 6.4rem; width: auto; font-size: 1.2rem; line-height: 1.75; color: #fff; counter-reset: ln 20; overflow: hidden; }
+.theme-basic #detail.D-tema .detail-main::before { content: 'load "' attr(data-file) '"'; }
+.theme-basic #detail.D-tema .detail-logo { min-height: 0; height: auto; display: block; }
+.theme-basic #detail.D-tema .detail-logo img, .theme-basic #detail.D-tema .detail-logo h1 { display: none; }
+.theme-basic #detail.D-tema .detail-logo::before { content: 'Ok\A list\A 10 REM ' attr(data-title); white-space: pre; display: block; }
+.theme-basic #detail.D-tema #dSub { color: #fff; font-size: 1.2rem; }
+.theme-basic #detail.D-tema #dSub::before { content: '20 REM '; }
+.theme-basic #detail.D-tema .facts { display: grid; grid-template-columns: auto 1fr; column-gap: 1rem; }
+.theme-basic #detail.D-tema .facts dt { color: #fff; font-size: 1.2rem; font-weight: 400; letter-spacing: 0; text-transform: none; padding: 0; counter-increment: ln 10; }
+.theme-basic #detail.D-tema .facts dt::before { content: counter(ln) ' DATA '; }
+.theme-basic #detail.D-tema .facts dd { font-size: 1.2rem; font-weight: 400; color: #d8d8ff; }
+.theme-basic #detail.D-tema .facts dd::before { content: '"'; } .theme-basic #detail.D-tema .facts dd::after { content: '"'; }
+.theme-basic #detail.D-tema .desc-box { margin-top: 0; color: #d8d8ff; font-size: 1.1rem; line-height: 1.7; mask-image: none; max-height: 9rem; overflow: hidden; flex: 0 1 auto; }
+.theme-basic #detail.D-tema .desc-box { counter-increment: ln 10; }
+.theme-basic #detail.D-tema .desc-box::before { content: counter(ln) ' REM '; color: #fff; }
+.theme-basic #detail.D-tema .actions { margin-top: 1rem; gap: 2.4rem; align-items: center; }
+.theme-basic #detail.D-tema .actions::after { content: ''; width: .9rem; height: 1.5rem; background: #fff; animation: mx-cur 1s steps(1) infinite; }
+.theme-basic #detail.D-tema .act { height: 2.2rem; padding: 0 .4rem; border: 0; border-radius: 0; background: none; color: #fff; font-weight: 400; font-size: 1.2rem; backdrop-filter: none; text-transform: lowercase; }
+.theme-basic #detail.D-tema .act .gl { display: none; }
+.theme-basic #detail.D-tema .act.focus { background: #fff; color: #5455ed; transform: none; box-shadow: none; }

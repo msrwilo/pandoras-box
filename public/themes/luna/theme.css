@@ -1,0 +1,165 @@
+/* Tema «Luna»: inspirado en Windows XP. Menú Inicio blanco y azul, barra de tareas azul brillante, botón verde
+   y ventanas con barra de título azul redondeada. */
+:root {
+  --font: Tahoma, 'Segoe UI', 'Nunito', sans-serif;
+  --tint: 40, 100, 210;
+  --backdrop: #3a7ee0;
+  --violet: #245edb; --glow: #3c8f1e; --text: #ffffff; --muted: rgba(255, 255, 255, .85); --faint: rgba(255, 255, 255, .6);
+  --line: rgba(255, 255, 255, .3); --glass: rgba(30, 80, 190, .85); --glass-strong: #ffffff;
+  --focus: #316ac5; --focus-line: #316ac5; --tile-focus: #ffffff;
+  --row-focus: #316ac5; --chip-bg: rgba(30, 80, 190, .85);
+  --primary: #3c8f1e; --primary-fg: #fff;
+  --act-focus: #316ac5; --act-focus-fg: #fff; --act-focus-line: #9ec0f5; --glow-shadow: rgba(49, 106, 197, .4);
+  --pill: #245edb; --pill-fg: #fff; --pill-line: rgba(255,255,255,.3);
+  --ph: linear-gradient(160deg, #6aa8f2, #245edb);
+  --floor: none;
+  --particle: transparent;
+}
+.theme-luna #particles { display: none; }
+.theme-luna .sheet { color: #000; background: #ece9d8; border: .2rem solid #0a246a; border-radius: .6rem .6rem 0 0; backdrop-filter: none; box-shadow: .4rem .4rem 1rem rgba(0,0,0,.4); }
+.theme-luna .sheet h2 { margin: -2rem -1.6rem 1.2rem; padding: .7rem 1.4rem; color: #fff; font-size: 1.2rem; border-radius: .4rem .4rem 0 0; background: linear-gradient(180deg, #0a5ee8, #0346d6 40%, #0a3cb0); }
+.theme-luna .sheet .mrow.focus { background: #316ac5; color: #fff; box-shadow: none; }
+.theme-luna .sheet .mrow .val { color: #0a246a; } .theme-luna .sheet .mrow.focus .val { color: #fff; }
+.theme-luna .sheet .muted, .theme-luna .sheet .mrow.sec { color: #555; }
+.theme-luna .act, .theme-luna .chip { border-radius: .3rem; }
+.theme-luna h1 { text-shadow: .1rem .1rem .2rem rgba(0,0,0,.5); }
+
+/* Barra de tareas */
+.xp-task { position: absolute; left: 0; right: 0; bottom: 0; height: 3rem; display: flex; align-items: stretch;
+  background: linear-gradient(180deg, #3168d5 0%, #4993e6 8%, #2157d7 20%, #2663e0 80%, #1941a5 100%); box-shadow: 0 -.1rem 0 #0c59b9; }
+.xp-go { display: flex; align-items: center; gap: .5rem; padding: 0 2rem 0 1rem; font-size: 1.5rem; font-weight: 700; font-style: italic; color: #fff; text-shadow: .1rem .1rem .1rem rgba(0,0,0,.5);
+  border-radius: 0 1.2rem 1.2rem 0; background: linear-gradient(180deg, #3c9e3c 0%, #5fc65f 12%, #36a336 40%, #2a8f2a 90%, #1f6e1f 100%); box-shadow: .2rem 0 .3rem rgba(0,0,0,.35); }
+.xp-go i { width: 1.3rem; height: 1.3rem; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #ffffff, #cfe9c7 60%, #8fc77f); box-shadow: 0 0 .3rem rgba(0,0,0,.35); }
+.xp-tasks { flex: 1; display: flex; align-items: center; padding-left: 1rem; }
+.xp-tasks span { padding: .4rem 1.2rem; min-width: 14rem; max-width: 24rem; border-radius: .3rem; font-size: .95rem; color: #fff; background: #1e52b7; box-shadow: inset 0 0 0 1px rgba(0,0,0,.25), inset .1rem .1rem .2rem rgba(0,0,0,.3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.xp-tray { display: flex; align-items: center; padding: 0 1.4rem; background: linear-gradient(180deg, #0c8de8, #1290e9 15%, #0b77d6); box-shadow: inset .1rem 0 .1rem rgba(0,0,0,.2); }
+.xp-clock { color: #fff; font-size: 1rem; }
+.theme-luna.at-home #topbar { display: none; }
+.theme-luna.at-home #hints { bottom: 0; height: 3rem; padding-top: 0; padding-bottom: 0; padding-right: 10rem; align-items: center; z-index: 12; color: #fff; text-shadow: .1rem .1rem .1rem rgba(0,0,0,.6); font-size: .95rem; }
+
+/* Menú Inicio */
+.xp-start { position: absolute; left: 0; bottom: 3rem; width: 47.6rem; height: 46rem; display: flex; flex-direction: column; border-radius: .7rem .7rem 0 0; overflow: hidden;
+  background: #fff; box-shadow: .3rem 0 1.2rem rgba(0,0,0,.45); border: .15rem solid #1c5fd8; border-bottom: 0; color: #000; }
+.xp-user { display: flex; align-items: center; gap: 1rem; padding: .8rem 1.2rem; background: linear-gradient(180deg, #1868ce, #0e60cb 50%, #0c59b9); border-bottom: .2rem solid #e0a32f; }
+.xp-pic { width: 3.6rem; height: 3.6rem; border-radius: .4rem; border: .15rem solid #fff; background: radial-gradient(circle at 40% 35%, #ffd75a, #f08a00); box-shadow: 0 .1rem .3rem rgba(0,0,0,.4); }
+.xp-user b { font-size: 1.4rem; color: #fff; text-shadow: .1rem .1rem .1rem rgba(0,0,0,.5); }
+.xp-cols { flex: 1; display: grid; grid-template-columns: 1fr 17rem; min-height: 0; }
+.xp-left { padding: .6rem .4rem; overflow: hidden; }
+.xp-item { display: flex; align-items: center; gap: .8rem; padding: .25rem .6rem; border-radius: .2rem; cursor: pointer; }
+.xp-item b { display: block; font-size: 1.02rem; font-weight: 700; color: #000; }
+.xp-item small { font-size: .8rem; color: #666; }
+.xp-item > i { margin-left: auto; font-style: normal; font-size: .7rem; color: #0c3c9c; }
+.xp-ico { width: 2.4rem; height: 2.4rem; display: grid; place-items: center; }
+.xp-ico .ico { position: static; opacity: 1; }
+.xp-ico svg { width: 2rem; height: 2rem; fill: none; stroke: #1c5fd8; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.xp-item.on { background: #316ac5; }
+.xp-item.on b, .xp-item.on small, .xp-item.on > i { color: #fff; }
+.xp-item.on svg { stroke: #fff; }
+.xp-right { background: #d3e5fa; border-left: .1rem solid #95bdee; padding: 1.2rem 1rem; display: flex; flex-direction: column; gap: .5rem; color: #0a246a; }
+.xp-right b { font-size: 1.05rem; } .xp-right span { font-size: .9rem; color: #335; } .xp-right p { font-size: .85rem; line-height: 1.45; color: #335; }
+.xp-off { display: flex; justify-content: flex-end; gap: 1.6rem; padding: .7rem 1.2rem; background: linear-gradient(180deg, #4282d6, #3b75d2 50%, #3168c4); color: #fff; font-size: .95rem; }
+.xp-off span { display: flex; align-items: center; gap: .5rem; }
+.xp-off i { width: 1.6rem; height: 1.6rem; border-radius: .3rem; border: .1rem solid #fff; }
+.xp-key i { background: linear-gradient(180deg, #f5c84a, #d18a12); }
+.xp-pow i { background: linear-gradient(180deg, #f07a52, #c2391a); }
+
+/* Submenú desplegable: columna alta junto al menú, con la elegida siempre al centro. */
+.xp-fly { position: absolute; left: 47.6rem; bottom: 3rem; height: 30rem; width: 36rem; pointer-events: none; }
+.xp-flybox { position: absolute; inset: 0; display: flex; flex-direction: column; background: #fff; border: .12rem solid #7a96df; border-radius: .2rem;
+  box-shadow: .4rem .4rem 1rem rgba(0,0,0,.4); opacity: 0; transform: translateX(-1.4rem); transition: opacity .14s, transform .14s; pointer-events: auto; }
+.xp-fly.open .xp-flybox { opacity: 1; transform: none; }
+.xp-flylist { flex: 1; overflow: hidden; padding: .2rem; }
+.xp-more { height: 1.6rem; display: grid; place-items: center; font-size: .7rem; color: #9ab; background: linear-gradient(180deg, #f4f7fc, #e3eaf6); }
+.xp-more.on { color: #0c3c9c; }
+.xp-frow { display: flex; align-items: center; gap: .8rem; height: 2.7rem; padding: 0 .8rem; color: #000; font-size: 1.05rem; white-space: nowrap; cursor: pointer; border-radius: .2rem; }
+.xp-frow span { overflow: hidden; text-overflow: ellipsis; }
+.xp-fico { width: 2rem; height: 2rem; display: grid; place-items: center; flex: none; }
+.xp-fico img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 0 .1rem rgba(0,0,0,.6)); }
+.xp-fico .ico { position: static; opacity: 1; }
+.xp-fico svg { width: 1.6rem; height: 1.6rem; fill: none; stroke: #1c5fd8; stroke-width: 1.7; }
+.xp-frow.on { background: #316ac5; color: #fff; }
+.xp-frow.on svg { stroke: #fff; }
+/* Con el submenú abierto, la ventana se recorre para no quedar debajo. */
+#homeTheme:has(.xp-fly.open) .xp-win { right: 1.2rem; top: 1.2rem; width: 30rem; height: 18.4rem; }
+
+/* Ventana */
+.xp-win { position: absolute; right: 3rem; top: 3.4rem; width: 40rem; height: 32rem; transition: width .2s, height .2s, right .2s; display: flex; flex-direction: column; border-radius: .7rem .7rem 0 0; overflow: hidden;
+  background: #ece9d8; box-shadow: .4rem .4rem 1.2rem rgba(0,0,0,.4); border: .2rem solid #0831d9; border-top: 0; }
+.xp-title { height: 2.6rem; display: flex; align-items: center; justify-content: space-between; padding: 0 .4rem 0 .9rem; color: #fff; font-weight: 700; font-size: 1.05rem; text-shadow: .1rem .1rem .1rem #0a246a;
+  background: linear-gradient(180deg, #0997ff 0%, #0053ee 10%, #0050ee 50%, #06f 90%, #0050ee 100%); }
+.xp-title span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.xp-title em { display: flex; gap: .2rem; font-style: normal; }
+.xp-title em i { width: 1.8rem; height: 1.8rem; display: grid; place-items: center; font-style: normal; font-size: .8rem; border-radius: .3rem; border: .1rem solid #fff; background: linear-gradient(180deg, #3c8cf8, #1e5fd8); }
+.xp-title em i.x { background: linear-gradient(180deg, #e88a6a, #c63c1c); }
+.xp-body { position: relative; flex: 1; margin: .4rem; background: #000; display: grid; place-items: center; overflow: hidden; border: .1rem solid #7f9db9; }
+.xp-wpic { position: absolute; inset: 1.2rem; display: grid; place-items: center; }
+.xp-wpic img { width: 100%; height: 100%; object-fit: contain; }
+.xp-wpic .ico { position: static; opacity: 1; }
+.xp-wpic svg { width: 7rem; height: 7rem; fill: none; stroke: #9ec0f5; stroke-width: 1.3; }
+.xp-body video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; }
+.xp-body video.on { opacity: 1; }
+.xp-status { height: 1.8rem; padding: 0 .8rem; display: flex; align-items: center; font-size: .85rem; color: #000; border-top: .1rem solid #c5c2b2; }
+
+/* Avisos, teclado y ventanas emergentes: texto oscuro sobre fondo claro (antes quedaba blanco sobre blanco). */
+.theme-luna #toast { background: #ffffe1; color: #000; border: 1px solid #000; border-radius: .5rem; backdrop-filter: none; box-shadow: .2rem .2rem .5rem rgba(0,0,0,.35); }
+.theme-luna .kbd, .theme-luna .cap-card, .theme-luna .sheet { color: #000; }
+.theme-luna .kbd { background: #ece9d8; border: .2rem solid #0a246a; }
+.theme-luna .key { background: #fff; color: #000; box-shadow: inset 0 0 0 1px #7f9db9; border-radius: .3rem; }
+.theme-luna .key.focus, .theme-luna .key.done { background: #316ac5; color: #fff; }
+.theme-luna .cap-card { background: #ece9d8; border: .2rem solid #0a246a; }
+
+/* ===== Vista «Del tema»: ventana del Explorador con vista en miniatura (lista) y Propiedades (ficha) ===== */
+.theme-luna #shelf.L-tema::before { content: ''; position: absolute; left: 3rem; right: 3rem; top: 5.4rem; bottom: 4.6rem; border-radius: .7rem .7rem 0 0; pointer-events: none;
+  background: linear-gradient(180deg, #0a5ee8, #0346d6 40%, #0a3cb0) top / 100% 2.6rem no-repeat, #ffffff;
+  border: .22rem solid #0831d9; box-shadow: .4rem .5rem 1.4rem rgba(0, 0, 0, .45); }
+.theme-luna #shelf.L-tema::after { content: attr(data-plat); position: absolute; left: 4.4rem; top: 5.75rem; color: #fff; font-weight: 700; font-size: 1.1rem; pointer-events: none;
+  text-shadow: .08rem .08rem 0 #0a246a; }
+.theme-luna #shelf.L-tema .shelf-info { left: 3.22rem; top: 8rem; bottom: 4.82rem; width: 22rem; padding: 15.4rem 1.2rem 1rem; color: #000;
+  background: linear-gradient(180deg, #7ba2e7, #6375d6); display: flex; flex-direction: column; overflow: hidden; }
+.theme-luna #shelf.L-tema .shelf-info::before { content: 'Detalles'; display: block; margin: 0 -.2rem .6rem; padding: .4rem .8rem; border-radius: .4rem .4rem 0 0; font-weight: 700; font-size: .95rem;
+  color: #215dc6; background: linear-gradient(90deg, #fff, #c6d3f7); }
+.theme-luna #shelf.L-tema .shelf-logo { height: auto; display: block; background: #d6dff7; margin: -.6rem -.2rem 0; padding: .6rem .8rem 0; }
+.theme-luna #shelf.L-tema .shelf-logo img { display: none; }
+.theme-luna #shelf.L-tema .shelf-logo::before { content: attr(data-title); }
+.theme-luna #shelf.L-tema .shelf-logo h1 { display: none; }
+.theme-luna #shelf.L-tema .shelf-logo, .theme-luna #shelf.L-tema .meta, .theme-luna #shelf.L-tema .desc, .theme-luna #shelf.L-tema .shelf-stats { background: #d6dff7; margin-left: -.2rem; margin-right: -.2rem; padding-left: .8rem; padding-right: .8rem; }
+.theme-luna #shelf.L-tema .shelf-logo { font-weight: 700; font-size: 1rem; }
+.theme-luna #shelf.L-tema .meta { margin-top: 0; padding-top: .4rem; font-size: .88rem; color: #000; }
+.theme-luna #shelf.L-tema .desc { margin-top: 0; padding-top: .4rem; padding-bottom: .8rem; font-size: .85rem; color: #222; -webkit-line-clamp: 9; max-width: none; text-shadow: none; }
+.theme-luna #shelf.L-tema .shelf-art { display: block; left: 4.4rem; top: 9.2rem; width: 19.6rem; height: 13.2rem; object-position: center; filter: drop-shadow(0 .3rem .5rem rgba(0,0,0,.4)); }
+.theme-luna #shelf.L-tema .shelf-track { left: 26rem; right: 3.5rem; top: 8.3rem; bottom: 5rem; height: auto; mask-image: none; overflow: hidden; }
+.theme-luna #shelf.L-tema .item { transform-origin: 50% 0; }
+.theme-luna #shelf.L-tema .item img { filter: none; }
+.theme-luna #shelf.L-tema .item.focus img { filter: drop-shadow(0 0 0 #316ac5) brightness(.82) sepia(.4) hue-rotate(180deg) saturate(2); }
+.theme-luna #shelf.L-tema .item > .cap { display: block; position: absolute; top: calc(100% + .2rem); left: 50%; transform: translateX(-50%); max-width: 115%;
+  padding: 0 .3rem; font-size: .82rem; color: #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: none; }
+.theme-luna #shelf.L-tema .item.focus > .cap { background: #316ac5; color: #fff; outline: 1px dotted #f5d33d; }
+.theme-luna #shelf.L-tema .item.focus::after { display: none; }
+.theme-luna #shelf.L-tema .item .ph { color: #fff; }
+.theme-luna #shelf.L-tema .fav-badge { color: #e7a400; }
+.theme-luna #shelf.L-tema .shelf-floor { display: none; }
+.theme-luna #shelf.L-tema .shelf-side { right: 4rem; top: 5.7rem; }
+.theme-luna #shelf.L-tema .pos { color: #fff; }
+
+.theme-luna #detail.D-tema::before { content: ''; position: absolute; left: 9rem; right: 9rem; top: 5.4rem; bottom: 4.6rem; border-radius: .7rem .7rem 0 0; pointer-events: none;
+  background: linear-gradient(180deg, #0a5ee8, #0346d6 40%, #0a3cb0) top / 100% 2.6rem no-repeat, #ece9d8;
+  border: .22rem solid #0831d9; box-shadow: .4rem .5rem 1.4rem rgba(0, 0, 0, .5); }
+.theme-luna #detail.D-tema::after { content: 'Propiedades de ' attr(data-title); position: absolute; left: 10.4rem; right: 11rem; top: 5.75rem; color: #fff; font-weight: 700; font-size: 1.1rem;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: .08rem .08rem 0 #0a246a; pointer-events: none; }
+.theme-luna #detail.D-tema .detail-art { left: 11rem; top: 10rem; width: 24rem; height: 32rem; padding: 1rem; background: #fff; border: 1px solid #7f9db9; }
+.theme-luna #detail.D-tema .detail-art img { inset: 1rem; width: calc(100% - 2rem); height: calc(100% - 2rem); filter: none; }
+.theme-luna #detail.D-tema .detail-main { left: 37rem; right: 11rem; top: 10rem; bottom: 6.4rem; width: auto; color: #000; }
+.theme-luna #detail.D-tema .detail-logo { height: auto; min-height: 0; display: block; }
+.theme-luna #detail.D-tema .detail-logo img, .theme-luna #detail.D-tema .detail-logo h1 { display: none; }
+.theme-luna #detail.D-tema .detail-logo::before { content: attr(data-title); font-size: 1.8rem; font-weight: 700; color: #000; }
+.theme-luna #detail.D-tema #dSub { color: #444; padding-bottom: .8rem; border-bottom: 1px solid #aca899; }
+.theme-luna #detail.D-tema .facts dt { color: #555; font-size: .85rem; letter-spacing: 0; text-transform: none; font-weight: 400; }
+.theme-luna #detail.D-tema .facts dt::after { content: ':'; }
+.theme-luna #detail.D-tema .facts dd { color: #000; font-weight: 400; font-size: .95rem; }
+.theme-luna #detail.D-tema .desc-box { color: #000; mask-image: none; background: #fff; border: 1px solid #7f9db9; padding: .8rem 1rem; font-size: .95rem; }
+.theme-luna #detail.D-tema .actions { justify-content: flex-end; }
+.theme-luna #detail.D-tema .act { height: 2.6rem; padding: 0 1.4rem; border-radius: .3rem; color: #000; background: linear-gradient(180deg, #ffffff, #ece9d8 85%, #d6d0c5);
+  border: 1px solid #003c74; backdrop-filter: none; font-weight: 400; font-size: .95rem; }
+.theme-luna #detail.D-tema .act.focus { box-shadow: inset 0 0 0 .14rem #7da2ce, inset 0 -.14rem 0 .1rem #f5c45a; transform: none; color: #000; background: linear-gradient(180deg, #ffffff, #ece9d8 85%, #d6d0c5); }
+.theme-luna #detail.D-tema .act .n { color: #555; }
+.theme-luna #detail.D-tema .detail-art:has(img[hidden]) { visibility: hidden; }

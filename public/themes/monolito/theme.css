@@ -1,0 +1,71 @@
+/* Tema «Monolito»: inspirado en el inicio de Xbox Series X. Negro mate, verde como acento, esquinas redondeadas,
+   cuadros con transparencia y filas que se apilan. */
+:root {
+  --font: 'Open Sans', 'Segoe UI', system-ui, sans-serif;
+  --tint: 11, 12, 13;
+  --backdrop: #0b0c0d;
+  --violet: #107c10; --glow: #3fbf3f; --text: #ffffff; --muted: rgba(255, 255, 255, .72); --faint: rgba(255, 255, 255, .45);
+  --line: rgba(255, 255, 255, .14); --glass: rgba(36, 38, 40, .78); --glass-strong: rgba(28, 30, 32, .97);
+  --focus: #ffffff; --focus-line: #ffffff; --tile-focus: #ffffff;
+  --row-focus: rgba(255, 255, 255, .1); --chip-bg: rgba(36, 38, 40, .85);
+  --primary: #107c10; --primary-fg: #fff;
+  --act-focus: #ffffff; --act-focus-fg: #000; --act-focus-line: #ffffff; --glow-shadow: rgba(16, 124, 16, .4);
+  --pill: #2a2c2e; --pill-fg: #fff; --pill-line: transparent;
+  --ph: linear-gradient(160deg, #2c2e30, #161718);
+  --floor: none;
+  --particle: transparent;
+}
+.theme-monolito #particles { display: none; }
+.theme-monolito h1 { font-weight: 600; }
+.theme-monolito .act, .theme-monolito .chip { border-radius: .6rem; }
+
+.xs-top { position: absolute; left: 4rem; top: 2.2rem; display: flex; align-items: center; gap: .8rem; font-size: 1.05rem; }
+.xs-avatar { width: 2.4rem; height: 2.4rem; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #5ad05a, #107c10); box-shadow: 0 0 0 .15rem rgba(255,255,255,.3); }
+.xs-hero { position: absolute; left: 4rem; right: 4rem; top: 5.6rem; height: 19rem; border-radius: 1rem; overflow: hidden; background: linear-gradient(120deg, #1c1e20, #121314); box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); }
+.xs-hart { position: absolute; right: 3rem; top: 1.6rem; bottom: 1.6rem; width: 36rem; display: grid; place-items: center; }
+.xs-hart img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 1rem 1.6rem rgba(0,0,0,.6)); }
+.xs-hart .ico { position: static; opacity: 1; }
+.xs-hart svg { width: 9rem; height: 9rem; fill: none; stroke: #3fbf3f; stroke-width: 1.2; }
+.xs-hero video { position: absolute; right: 0; top: 0; width: 62%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .5s; -webkit-mask-image: linear-gradient(90deg, transparent, #000 30%); mask-image: linear-gradient(90deg, transparent, #000 30%); }
+.xs-hero video.on { opacity: 1; }
+.xs-htext { position: absolute; left: 2.6rem; bottom: 2.2rem; max-width: 34rem; display: flex; flex-direction: column; gap: .5rem; z-index: 1; }
+.xs-htext small { font-size: .9rem; font-weight: 600; color: #3fbf3f; letter-spacing: .04em; }
+.xs-htext b { font-size: 2.6rem; font-weight: 600; line-height: 1.1; }
+.xs-htext img { max-width: 24rem; max-height: 6rem; object-fit: contain; object-position: left; }
+.xs-htext span { font-size: 1rem; color: var(--muted); }
+.xs-rows { position: absolute; left: 3.4rem; right: 0; top: 26rem; bottom: 4.4rem; overflow: hidden; }
+.xs-row { position: absolute; left: .6rem; right: 0; top: .4rem; height: 13rem; will-change: transform; }
+.xs-rtitle { font-size: 1.05rem; font-weight: 600; color: var(--muted); margin-bottom: .6rem; }
+.xs-row.on .xs-rtitle { color: #fff; }
+.xs-track { position: relative; height: 11rem; }
+.xs-tile { position: absolute; left: 0; top: 0; width: 11rem; height: 9.4rem; border-radius: .8rem; background: rgba(44, 46, 48, .85); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .5rem; padding: .8rem;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); will-change: transform; transition: width .2s, height .2s; }
+.xs-row.on .xs-tile { width: 13rem; height: 10.4rem; }
+.xs-tile img { max-width: 100%; max-height: 6rem; object-fit: contain; }
+.xs-tile .ico { position: static; opacity: 1; }
+.xs-tile svg { width: 3.6rem; height: 3.6rem; fill: none; stroke: #fff; stroke-width: 1.4; }
+.xs-tile span { font-size: .8rem; font-weight: 600; text-align: center; color: var(--muted); max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.xs-tile.on { box-shadow: 0 0 0 .25rem #fff, 0 .8rem 1.6rem rgba(0,0,0,.5); background: rgba(64, 66, 68, .92); }
+.xs-tile.on span { color: #fff; }
+.theme-monolito.at-home #crumbs, .theme-monolito.at-home .back { display: none; }
+
+/* ===== Vista «Del tema»: «Mis juegos» con panel lateral y cuadros (lista); página del juego (ficha) ===== */
+.theme-monolito #shelf.L-tema::before { content: 'Mis juegos\A\A' attr(data-plat) '\A\AOrden: A-Z'; white-space: pre-wrap; position: absolute; left: 4rem; width: 16rem; top: 5.6rem; bottom: 5rem;
+  padding: 1.6rem 1.4rem; border-radius: .6rem; background: rgba(255, 255, 255, .06); color: rgba(255,255,255,.7); font-size: .95rem; line-height: 1.4; pointer-events: none; }
+.theme-monolito #shelf.L-tema .shelf-track { left: 22rem; right: 4rem; top: 5.6rem; bottom: 5rem; height: auto; mask-image: linear-gradient(180deg, transparent 0, #000 1.6rem, #000 94%, transparent); }
+.theme-monolito #shelf.L-tema .shelf-info, .theme-monolito #shelf.L-tema .shelf-art, .theme-monolito #shelf.L-tema .shelf-floor { display: none !important; }
+.theme-monolito #shelf.L-tema .item { border-radius: .5rem; overflow: visible; background: #1f2123; }
+.theme-monolito #shelf.L-tema .item img { object-fit: cover; border-radius: .5rem; filter: none; }
+.theme-monolito #shelf.L-tema .item .ph { border-radius: .5rem; background: #26292b; font-size: .85rem; }
+.theme-monolito #shelf.L-tema .item.focus { outline: .25rem solid #fff; outline-offset: .25rem; }
+.theme-monolito #shelf.L-tema .item.focus::after { display: none; }
+.theme-monolito #shelf.L-tema .item.focus > .cap { display: block; position: absolute; left: -1rem; right: -1rem; top: calc(100% + .7rem); text-align: center; font-size: .9rem; font-weight: 600;
+  color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.theme-monolito #shelf.L-tema .shelf-side { right: 5rem; top: 4.4rem; }
+
+.theme-monolito #detail.D-tema .thumbs img { border-radius: .5rem; }
+.theme-monolito #detail.D-tema .act { border-radius: .4rem; }
+.theme-monolito #detail.D-tema .act.primary { background: #107c10; color: #fff; }
+.theme-monolito #detail.D-tema .act.focus { outline: .2rem solid #fff; outline-offset: .2rem; transform: none; box-shadow: none; }
+.theme-monolito #detail.D-tema .detail-main { padding: 1.4rem 1.8rem; border-radius: .8rem; background: rgba(20, 22, 24, .78); }
+.theme-monolito #detail.D-tema .desc-box { min-height: 0; overflow: hidden; }

@@ -1,0 +1,78 @@
+/* Tema «Mosaicos»: inspirado en Switch (tema oscuro básico). Gris plano, cuadros grandes, borde de enfoque turquesa. */
+:root {
+  --font: 'Nunito', system-ui, sans-serif;
+  --tint: 45, 45, 45;
+  --backdrop: #2d2d2d;
+  --violet: #00c3e3; --glow: #5ff0ff; --text: #ffffff; --muted: rgba(255, 255, 255, .72); --faint: rgba(255, 255, 255, .45);
+  --line: rgba(255, 255, 255, .12); --glass: rgba(60, 60, 60, .92); --glass-strong: rgba(48, 48, 48, .97);
+  --focus: #00c3e3; --focus-line: #00c3e3; --tile-focus: #3d3d3d;
+  --floor: none; --ph: #4a4a4a;
+  --row-focus: rgba(0, 195, 227, .14); --chip-bg: #464646;
+  --primary: #4a4a4a; --act-focus: #00c3e3; --act-focus-fg: #0d2a30; --act-focus-line: #5ff0ff; --glow-shadow: rgba(0, 195, 227, .45);
+  --pill: #555; --pill-line: transparent;
+  --particle: transparent;
+}
+body.theme-mosaicos { font-weight: 600; }
+.theme-mosaicos #particles { display: none; }
+.theme-mosaicos .chip, .theme-mosaicos .chips span, .theme-mosaicos .act, .theme-mosaicos .sheet, .theme-mosaicos .spec-card { backdrop-filter: none; }
+.theme-mosaicos .act { border-radius: .5rem; }
+.theme-mosaicos .act.focus { animation: swPulse 1.2s ease-in-out infinite; }
+.theme-mosaicos .item.focus::after { background: var(--focus); box-shadow: 0 0 1rem var(--focus); }
+.theme-mosaicos .sheet { border-radius: .8rem; }
+.theme-mosaicos .mrow.focus { box-shadow: inset 0 0 0 .2rem var(--focus); }
+
+.sw-title { position: absolute; left: 6rem; top: 12rem; font-size: 1.6rem; font-weight: 700; color: var(--focus); }
+.sw-title::after { content: attr(data-sub); display: block; font-size: 1rem; font-weight: 600; color: var(--muted); }
+.sw-track { position: absolute; left: 0; top: 17rem; height: 18rem; display: flex; gap: 1.4rem; will-change: transform; }
+.sw-tile { position: relative; flex: none; width: 17rem; height: 17rem; border-radius: .2rem; overflow: hidden; display: grid; place-items: center;
+  background: linear-gradient(160deg, #4b4b4b, #383838); box-shadow: 0 .4rem 1rem rgba(0,0,0,.35); transition: transform .15s ease-out; }
+.sw-tile.cat-handhelds { background: linear-gradient(160deg, #46505a, #333a40); }
+.sw-tile.cat-arcade { background: linear-gradient(160deg, #5a4646, #3f3333); }
+.sw-tile.cat-computers { background: linear-gradient(160deg, #4a5246, #353b33); }
+.sw-tile img { position: absolute; inset: 8% 8% 26%; width: 84%; height: 66%; object-fit: contain; filter: drop-shadow(0 .5rem .8rem rgba(0,0,0,.45)); }
+.sw-tile .sw-logo { inset: auto 10% 6%; height: 18%; width: 80%; filter: drop-shadow(0 .1rem .3rem rgba(0,0,0,.8)); }
+.sw-tile .sw-name { position: absolute; bottom: 1rem; left: 1rem; right: 1rem; text-align: center; font-weight: 700; }
+.sw-tile.on { outline: .32rem solid var(--focus); outline-offset: .32rem; animation: swPulse 1.2s ease-in-out infinite; }
+@keyframes swPulse { 50% { outline-color: #8af6ff; box-shadow: 0 0 1.6rem rgba(0, 195, 227, .55); } }
+.sw-btn-label { position: absolute; left: 0; right: 0; bottom: 12.4rem; text-align: center; font-size: 1.1rem; font-weight: 700; color: var(--focus); }
+.sw-buttons { position: absolute; left: 0; right: 0; bottom: 6.6rem; display: flex; justify-content: center; gap: 2rem; }
+.sw-btn { width: 5rem; height: 5rem; border-radius: 50%; background: #474747; display: grid; place-items: center; box-shadow: 0 .3rem .6rem rgba(0,0,0,.35); }
+.sw-btn .ico { position: static; opacity: 1; display: grid; }
+.sw-btn svg { width: 2.6rem; height: 2.6rem; fill: none; stroke: #e8e8e8; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.sw-btn.on { outline: .28rem solid var(--focus); outline-offset: .3rem; animation: swPulse 1.2s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .sw-tile.on, .sw-btn.on, .theme-mosaicos .act.focus { animation: none; } }
+.sw-tile.sw-all { background: linear-gradient(160deg, #e60012, #b0000e); }
+.sw-tile.sw-all .ico { position: static; opacity: 1; display: grid; margin-bottom: 2rem; }
+.sw-tile.sw-all svg { width: 7rem; height: 7rem; fill: none; stroke: #fff; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ===== Vista «Del tema»: «Todo el software» en cuadros (lista) e información del programa (ficha) ===== */
+@keyframes sw-pulse { 0%, 100% { box-shadow: 0 0 0 .3rem #00c3e3, 0 0 0 .55rem rgba(0, 195, 227, .25); } 50% { box-shadow: 0 0 0 .3rem #5ff0ff, 0 0 0 .55rem rgba(95, 240, 255, .35); } }
+.theme-mosaicos #shelf.L-tema .shelf-track { left: 4rem; right: 4rem; top: 7.4rem; bottom: 5.6rem; height: auto; mask-image: linear-gradient(180deg, transparent 0, #000 2.6rem, #000 92%, transparent); }
+.theme-mosaicos #shelf.L-tema .shelf-info, .theme-mosaicos #shelf.L-tema .shelf-art, .theme-mosaicos #shelf.L-tema .shelf-floor { display: none !important; }
+.theme-mosaicos #shelf.L-tema .item { background: #3d3d3d; border-radius: .2rem; }
+.theme-mosaicos #shelf.L-tema .item img { object-fit: cover; object-position: center top; filter: none; border-radius: .2rem; }
+.theme-mosaicos #shelf.L-tema .item .ph { border-radius: .2rem; background: #4a4a4a; color: #fff; }
+.theme-mosaicos #shelf.L-tema .item.focus { animation: sw-pulse 1.4s ease-in-out infinite; }
+.theme-mosaicos #shelf.L-tema .item.focus::after { display: none; }
+.theme-mosaicos #shelf.L-tema .item.focus > .cap { display: block; position: absolute; left: -2rem; right: -2rem; bottom: calc(100% + .7rem); text-align: center; color: #00c3e3; font-weight: 700;
+  font-size: 1.05rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.theme-mosaicos #shelf.L-tema::before { content: 'Todo el software · ' attr(data-plat); position: absolute; left: 6rem; top: 4.6rem; font-size: 1.3rem; font-weight: 700; color: #fff; }
+.theme-mosaicos #shelf.L-tema .shelf-side { right: 5rem; top: 4.4rem; }
+
+.theme-mosaicos #detail.D-tema .thumbs { display: none; }
+.theme-mosaicos #detail.D-tema .detail-art { left: 6rem; right: auto; top: 7rem; width: 24rem; height: 24rem; background: #3d3d3d; border-radius: .3rem; overflow: hidden; }
+.theme-mosaicos #detail.D-tema .detail-art img { object-fit: cover; object-position: center top; filter: none; transform: none !important; }
+.theme-mosaicos #detail.D-tema .detail-main { left: 34rem; right: 6rem; width: auto; top: 7rem; bottom: 6rem; }
+.theme-mosaicos #detail.D-tema .detail-logo { min-height: 0; height: auto; display: block; }
+.theme-mosaicos #detail.D-tema .detail-logo img, .theme-mosaicos #detail.D-tema .detail-logo h1 { display: none; }
+.theme-mosaicos #detail.D-tema .detail-logo::before { content: attr(data-title); display: block; font-size: 2.4rem; font-weight: 700; line-height: 1.15; }
+.theme-mosaicos #detail.D-tema .chips { display: none; }
+.theme-mosaicos #detail.D-tema .facts { display: grid; grid-template-columns: 16rem 1fr; margin-top: 1.4rem; border-top: 1px solid rgba(255, 255, 255, .14); }
+.theme-mosaicos #detail.D-tema .facts dt, .theme-mosaicos #detail.D-tema .facts dd { padding: .55rem 0; border-bottom: 1px solid rgba(255, 255, 255, .14); }
+.theme-mosaicos #detail.D-tema .facts dt { color: rgba(255, 255, 255, .6); font-size: .9rem; font-weight: 600; letter-spacing: 0; text-transform: none; padding-left: .6rem; }
+.theme-mosaicos #detail.D-tema .facts dd { font-weight: 600; }
+.theme-mosaicos #detail.D-tema .desc-box { max-height: 7rem; flex: none; }
+.theme-mosaicos #detail.D-tema .stats { position: absolute; left: -28rem; top: 26rem; flex-direction: column; gap: .7rem; }
+.theme-mosaicos #detail.D-tema .act { border-radius: .3rem; background: #4a4a4a; border-color: transparent; }
+.theme-mosaicos #detail.D-tema .act.focus { background: #4a4a4a; color: #fff; box-shadow: 0 0 0 .25rem #00c3e3; transform: none; }
+.theme-mosaicos #detail.D-tema .facts > div:nth-child(n+7) { display: none; }

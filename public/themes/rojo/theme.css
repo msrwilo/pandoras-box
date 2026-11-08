@@ -1,0 +1,73 @@
+/* Tema «Rojo»: inspirado en Virtual Boy. Solo rojo sobre negro (cuatro tonos), letra de líneas, todo pixelado. */
+:root {
+  --font: 'Sora', system-ui, sans-serif;
+  --tint: 0, 0, 0;
+  --backdrop: #000;
+  --violet: #ff0000; --glow: #ff2a2a; --text: #ff2a2a; --muted: #b00000; --faint: #6a0000;
+  --line: #6a0000; --glass: rgba(0, 0, 0, .9); --glass-strong: #000;
+  --focus: #ff0000; --focus-line: #ff0000; --tile-focus: #ff2a2a;
+  --row-focus: rgba(255, 0, 0, .18); --chip-bg: #000;
+  --primary: #ff0000; --primary-fg: #000;
+  --act-focus: #ff0000; --act-focus-fg: #000; --act-focus-line: #ff6a6a; --glow-shadow: rgba(255, 0, 0, .5);
+  --pill: #3a0000; --pill-fg: #ff2a2a; --pill-line: transparent;
+  --ph: linear-gradient(160deg, #3a0000, #000);
+  --floor: none;
+  --particle: transparent;
+  --g-a: #ff0000; --g-b: #b00000; --g-x: #6a0000; --g-y: #ff5a5a;
+}
+.theme-rojo #particles { display: none; }
+.theme-rojo h1, .theme-rojo .meta { text-transform: uppercase; letter-spacing: .08em; }
+.theme-rojo h1 { color: #ff2a2a; text-shadow: 0 0 1rem rgba(255, 0, 0, .6); }
+.theme-rojo .gl, .theme-rojo .gl.round { color: #000 !important; }
+/* Todo en rojo: imágenes y videos de toda la app pasan por un filtro de un solo color. */
+.theme-rojo img, .theme-rojo video, .theme-rojo #bgVideo, .theme-rojo .bg-layer { filter: grayscale(1) brightness(.9) sepia(1) saturate(6) hue-rotate(-50deg) contrast(1.4) !important; image-rendering: pixelated; }
+.theme-rojo .act, .theme-rojo .chip, .theme-rojo .sheet, .theme-rojo .kbd { border-radius: 0; }
+.theme-rojo .sheet, .theme-rojo .kbd { border: .2rem solid #ff0000; }
+
+.vb-tabs { position: absolute; left: 0; right: 0; top: 4.8rem; display: flex; justify-content: center; align-items: center; gap: 2rem; }
+.vb-tabs span { font-size: 1rem; font-weight: 700; letter-spacing: .2em; color: #6a0000; }
+.vb-tabs span.on { color: #ff2a2a; text-shadow: 0 0 .8rem #ff0000; font-size: 1.2rem; }
+.vb-list { position: absolute; left: 4rem; top: 9rem; width: 40rem; bottom: 6rem; overflow: hidden; }
+.vb-row { position: absolute; left: 0; top: 0; height: 3.2rem; display: flex; align-items: center; padding: 0 1rem; font-size: 1.3rem; font-weight: 700; letter-spacing: .12em; color: #ff2a2a; white-space: nowrap; cursor: pointer; transform-origin: left center; will-change: transform; }
+.vb-row.on { color: #ff4a4a; text-shadow: 0 0 .9rem #ff0000, .25rem 0 0 rgba(255, 0, 0, .35), -.25rem 0 0 rgba(120, 0, 0, .5); outline: .12rem solid #ff0000; outline-offset: .2rem; }
+.vb-view { position: absolute; right: 4rem; top: 9rem; width: 44rem; height: 28rem; border: .15rem solid #b00000; display: grid; place-items: center; overflow: hidden; background: #000; }
+.vb-art { position: absolute; inset: 2rem; display: grid; place-items: center; grid-template-rows: minmax(0,1fr); grid-template-columns: minmax(0,1fr); }
+.vb-art img { width: 100%; height: 100%; object-fit: contain; min-height: 0; }
+.vb-art .ico { position: static; opacity: 1; }
+.vb-art svg { width: 9rem; height: 9rem; fill: none; stroke: #ff0000; stroke-width: 1.5; filter: drop-shadow(.4rem 0 0 rgba(120,0,0,.6)); }
+.vb-view video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; }
+.vb-view video.on { opacity: 1; }
+.vb-info { position: absolute; right: 4rem; width: 44rem; top: 38.6rem; display: flex; flex-direction: column; gap: .3rem; }
+.vb-info b { font-size: 1.6rem; font-weight: 700; letter-spacing: .1em; color: #ff2a2a; text-shadow: 0 0 .8rem #ff0000; }
+.vb-info span { font-size: .95rem; letter-spacing: .14em; color: #b00000; }
+
+/* ===== Vista «Del tema»: lista en profundidad y visor con marco de alambre (lista), ficha en dos planos (ficha) ===== */
+.theme-rojo #shelf.L-tema .shelf-track { left: 4rem; width: 44rem; top: 7rem; bottom: 6rem; padding: 0; transform: perspective(60rem) rotateY(16deg); transform-origin: left center; background: #000; box-shadow: 0 0 0 .15rem #3a0000;
+  mask-image: linear-gradient(180deg, transparent, #000 18%, #000 82%, transparent); }
+.theme-rojo #shelf.L-tema .row-item { width: 42rem; background: none; box-shadow: none; color: #b00000; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+.theme-rojo #shelf.L-tema .row-item .s { color: #6a0000; }
+.theme-rojo #shelf.L-tema .row-item.focus { color: #ff4a4a; background: none; outline: .12rem solid #ff0000; outline-offset: -.2rem;
+  text-shadow: 0 0 .9rem #ff0000, .25rem 0 0 rgba(255, 0, 0, .35), -.25rem 0 0 rgba(120, 0, 0, .5); box-shadow: none; }
+.theme-rojo #shelf.L-tema .fav-badge { color: #ff2a2a; }
+.theme-rojo #shelf.L-tema .shelf-floor { display: none; }
+.theme-rojo #shelf.L-tema::before { content: ''; position: absolute; left: 51rem; right: 4rem; top: 7rem; height: 26rem; border: .15rem solid #b00000; pointer-events: none;
+  background: linear-gradient(#ff0000, #ff0000) left top / 2rem .3rem no-repeat, linear-gradient(#ff0000, #ff0000) left top / .3rem 2rem no-repeat,
+              linear-gradient(#ff0000, #ff0000) right bottom / 2rem .3rem no-repeat, linear-gradient(#ff0000, #ff0000) right bottom / .3rem 2rem no-repeat,
+              repeating-linear-gradient(0deg, rgba(255, 0, 0, .06) 0 .15rem, transparent .15rem .5rem), #000; }
+.theme-rojo #shelf.L-tema .shelf-art { display: block; left: 53rem; right: 6rem; width: auto; top: 8.5rem; height: 23rem; object-position: center;
+  filter: grayscale(1) brightness(.9) sepia(1) saturate(6) hue-rotate(-50deg) contrast(1.4) drop-shadow(.6rem 0 0 rgba(120, 0, 0, .7)) !important; }
+.theme-rojo #shelf.L-tema .shelf-info { left: 51rem; right: 4rem; width: auto; top: 34.2rem; bottom: 5.6rem; padding: .8rem 1.2rem; background: #000; border: .15rem solid #3a0000; }
+.theme-rojo #shelf.L-tema .row-item .s { display: none; }
+.theme-rojo #shelf.L-tema .shelf-logo { height: 4rem; }
+.theme-rojo #shelf.L-tema .shelf-logo img { max-width: 30rem; }
+.theme-rojo #shelf.L-tema .shelf-logo h1 { font-size: 1.8rem; letter-spacing: .1em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.theme-rojo #shelf.L-tema .desc { -webkit-line-clamp: 3; }
+.theme-rojo #shelf.L-tema .shelf-side { right: 5rem; top: 4.6rem; }
+
+.theme-rojo #detail.D-tema .detail-main { left: 6rem; right: 6rem; width: auto; bottom: 6rem; padding: 2rem 2.4rem; border: .15rem solid #b00000; background: #000;
+  box-shadow: .8rem -.8rem 0 -.1rem #000, .8rem -.8rem 0 0 #6a0000; }
+.theme-rojo #detail.D-tema .detail-logo h1 { text-transform: uppercase; letter-spacing: .12em; text-shadow: .35rem 0 0 rgba(120, 0, 0, .7), 0 0 1.2rem #ff0000; }
+.theme-rojo #detail.D-tema .chips span { border-radius: 0; background: none; border: .12rem solid #6a0000; text-transform: uppercase; letter-spacing: .1em; }
+.theme-rojo #detail.D-tema .act { border-radius: 0; letter-spacing: .12em; text-transform: uppercase; }
+.theme-rojo #detail.D-tema .act.focus { outline: .12rem solid #ff6a6a; outline-offset: .3rem; transform: none; }
+.theme-rojo #detail.D-tema::before { content: attr(data-plat); position: absolute; right: 6rem; top: 5rem; color: #6a0000; letter-spacing: .3em; font-weight: 700; text-transform: uppercase; }

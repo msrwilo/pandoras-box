@@ -1,0 +1,94 @@
+/* Tema «Naranja»: inspirado en el menú de Dreamcast. Fondo claro, naranja como acento, botones redondeados y gruesos. */
+:root {
+  --font: 'Nunito', system-ui, sans-serif;
+  --tint: 236, 240, 245;
+  --backdrop: #eef1f5;
+  --violet: #ff7a1a; --glow: #e8640a; --text: #2a2f37; --muted: rgba(42, 47, 55, .68); --faint: rgba(42, 47, 55, .42);
+  --line: rgba(40, 50, 70, .15); --glass: rgba(255, 255, 255, .78); --glass-strong: rgba(250, 251, 253, .97);
+  --focus: #ff7a1a; --focus-line: #ff8a2e; --tile-focus: #ffffff;
+  --row-focus: rgba(255, 122, 26, .14); --chip-bg: rgba(255, 255, 255, .9);
+  --primary: #ff7a1a; --primary-fg: #fff;
+  --act-focus: #ff7a1a; --act-focus-fg: #fff; --act-focus-line: #ffc08f; --glow-shadow: rgba(255, 122, 26, .45);
+  --pill: #dde2e9; --pill-fg: #2a2f37; --pill-line: transparent;
+  --ph: linear-gradient(160deg, #ffffff, #e3e8ef);
+  --floor: linear-gradient(180deg, rgba(255, 122, 26, .1), transparent);
+  --particle: transparent;
+  color-scheme: light;
+}
+.theme-naranja #particles { display: none; }
+.theme-naranja .back { color: var(--text); }
+.theme-naranja #backdrop.media:not(.ghost) .bg-tint { background: linear-gradient(90deg, rgba(var(--tint), .93), rgba(var(--tint), .8)); }
+.theme-naranja .shelf-info .desc, .theme-naranja .desc-box { color: var(--text); }
+.theme-naranja .gl.round.dark, .theme-naranja .gl.round.stick { background: #3c4048; }
+.theme-naranja h1 { font-weight: 800; }
+
+.dc-track { position: absolute; inset: 0; pointer-events: none; }
+.dc-btn { position: absolute; left: 0; top: 0; width: 19rem; display: flex; flex-direction: column; align-items: center; gap: 1.2rem; pointer-events: auto; will-change: transform; }
+.dc-face { width: 19rem; height: 19rem; border-radius: 3.4rem; display: grid; place-items: center;
+  background: linear-gradient(160deg, #ffffff 0%, #eef1f5 60%, #dfe4eb 100%);
+  box-shadow: 0 .8rem 2rem rgba(40, 50, 70, .16), inset 0 -.4rem 0 rgba(40, 50, 70, .06), inset 0 .2rem 0 #fff; transition: box-shadow .2s; }
+.dc-face .ico { position: static; opacity: 1; display: grid; }
+.dc-face svg { width: 9rem; height: 9rem; fill: none; stroke: #4a5568; stroke-width: 1.2; stroke-linecap: round; stroke-linejoin: round; }
+#homeTheme.dc-in .dc-btn span { opacity: 0; }
+.dc-btn span { transition: opacity .2s; font-size: 1.5rem; font-weight: 800; color: var(--muted); }
+.dc-btn.on .dc-face { background: linear-gradient(160deg, #ffb066 0%, #ff8a2e 55%, #f06a0a 100%);
+  box-shadow: 0 0 0 .5rem rgba(255, 255, 255, .9), 0 0 0 .8rem rgba(255, 122, 26, .5), 0 1.2rem 2.6rem rgba(240, 106, 10, .35); }
+.dc-btn.on .dc-face svg { stroke: #fff; }
+.dc-btn.on span { opacity: 0; }
+
+.dc-caption { position: absolute; left: 0; right: 0; top: 71%; text-align: center; display: flex; flex-direction: column; gap: .3rem; }
+.dc-caption b { font-size: 2.4rem; font-weight: 800; letter-spacing: -.01em; }
+.dc-caption span { font-size: 1.1rem; color: var(--muted); font-weight: 600; }
+
+.dc-files { position: absolute; left: 6rem; right: 6rem; top: 31%; bottom: 5.2rem; display: grid; grid-template-columns: 26rem 1fr; gap: 3rem; opacity: 0; }
+.dc-card { border-radius: 2.4rem; background: var(--glass-strong); box-shadow: 0 1rem 2.4rem rgba(40, 50, 70, .14); padding: 2rem; display: flex; flex-direction: column; gap: .8rem; }
+.dc-card-art { flex: 1; min-height: 0; border-radius: 1.6rem; background: linear-gradient(160deg, #ffb066, #f06a0a); display: grid; place-items: center; padding: 1.4rem; }
+.dc-card-art img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 .8rem 1rem rgba(0, 0, 0, .3)); }
+.dc-card-art .ico { position: static; opacity: 1; display: grid; }
+.dc-card-art svg { width: 7rem; height: 7rem; fill: none; stroke: #fff; stroke-width: 1.3; stroke-linecap: round; stroke-linejoin: round; }
+.dc-card b { font-size: 1.5rem; font-weight: 800; line-height: 1.2; }
+.dc-card p { font-size: .9rem; color: var(--muted); line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+.dc-list { position: relative; overflow: hidden; border-radius: 2rem; background: rgba(255, 255, 255, .6); box-shadow: inset 0 0 0 1px var(--line); }
+.dc-row { position: absolute; left: 1rem; right: 1rem; top: 0; height: 4.2rem; display: grid; grid-template-columns: 6rem 1fr auto; align-items: center; gap: 1.2rem;
+  padding: 0 1.4rem 0 .8rem; border-radius: 99rem; will-change: transform; cursor: pointer; }
+.dc-row b { font-size: 1.15rem; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dc-row span { font-size: .85rem; color: var(--muted); font-weight: 600; white-space: nowrap; }
+.dc-mini { width: 6rem; height: 3rem; display: grid; place-items: center; padding: .3rem .45rem; border-radius: .6rem; background: #2f343c; } /* logos claros: siempre sobre fondo oscuro */
+.dc-mini img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 .1rem .2rem rgba(0, 0, 0, .35)); }
+.dc-mini .ico { position: static; opacity: 1; display: grid; }
+.dc-mini svg { width: 2rem; height: 2rem; fill: none; stroke: #fff; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.dc-row.on { background: linear-gradient(180deg, #ff9a45, #f06a0a); color: #fff; box-shadow: 0 .4rem 1rem rgba(240, 106, 10, .35); }
+.dc-row.on span { color: rgba(255, 255, 255, .88); }
+.dc-row.on .dc-mini { background: rgba(0, 0, 0, .35); }
+
+.theme-naranja .act, .theme-naranja .chip { border-radius: 99rem; font-weight: 800; }
+.theme-naranja .key { border-radius: 1rem; font-weight: 800; background: rgba(40, 50, 70, .07); }
+.theme-naranja .kbd, .theme-naranja .cap-card { border-radius: 2rem; }
+.theme-naranja .letters button.on { background: var(--act-focus); color: #fff; }
+.theme-naranja .key.done { background: var(--primary); color: #fff; }
+.theme-naranja .key.focus { background: var(--act-focus); color: #fff; }
+
+/* ===== Vista «Del tema»: botones gruesos y redondos con la pantallita de la memoria (lista); ficha con cabecera naranja ===== */
+.theme-naranja #shelf.L-tema .shelf-track { left: 5rem; width: 50rem; top: 6rem; bottom: 5.6rem; padding: 0; mask-image: linear-gradient(180deg, transparent, #000 12%, #000 88%, transparent); }
+.theme-naranja #shelf.L-tema .row-item { width: 48rem; height: 3.3rem; border-radius: 99rem; padding: 0 1.8rem; background: #fff; color: #2a2f37; font-weight: 800;
+  box-shadow: inset 0 -.25rem 0 #d9dee5, 0 .2rem .5rem rgba(42, 47, 55, .12); }
+.theme-naranja #shelf.L-tema .row-item.focus { background: linear-gradient(180deg, #ff9a4a, #ff7a1a); color: #fff; box-shadow: inset 0 -.25rem 0 #d65a00, 0 .4rem 1rem rgba(255, 122, 26, .4); }
+.theme-naranja #shelf.L-tema .row-item.focus .s { color: rgba(255,255,255,.9); }
+.theme-naranja #shelf.L-tema .shelf-floor { display: none; }
+/* Pantallita de la unidad de memoria: título en pixeles oscuros sobre verde grisáceo. */
+.theme-naranja #shelf.L-tema .shelf-info { left: 59rem; width: 31rem; top: 30rem; bottom: 5.6rem; padding: 1.2rem 1.4rem; border-radius: .6rem 2.6rem .6rem .6rem; background: #fff; box-shadow: inset 0 0 0 .15rem #d9dee5; }
+.theme-naranja #shelf.L-tema .shelf-logo { height: auto; }
+.theme-naranja #shelf.L-tema .shelf-logo img, .theme-naranja #shelf.L-tema .shelf-logo h1 { display: none; }
+.theme-naranja #shelf.L-tema .shelf-logo::before { content: attr(data-title); display: block; padding: .6rem .8rem; border-radius: .3rem; background: #a9b8a0; color: #1e2a1a;
+  font-family: 'Cascadia Mono', Consolas, monospace; font-weight: 700; font-size: 1.05rem; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  box-shadow: inset 0 .15rem .3rem rgba(0,0,0,.25); }
+.theme-naranja #shelf.L-tema .desc { -webkit-line-clamp: 4; }
+.theme-naranja #shelf.L-tema .shelf-art { display: block; left: 59rem; right: auto; top: 6rem; width: 31rem; height: 22rem; object-position: center; }
+.theme-naranja #shelf.L-tema .shelf-side { right: 5rem; top: 4.4rem; }
+
+.theme-naranja #detail.D-tema .detail-main { padding: 0 2rem 1.8rem; border-radius: 1.6rem; background: #fff; box-shadow: 0 .6rem 1.6rem rgba(42, 47, 55, .15); overflow: hidden; }
+.theme-naranja #detail.D-tema .detail-main::before { content: attr(data-plat); margin: 0 -2rem 1.2rem; padding: .8rem 2rem; background: linear-gradient(90deg, #ff7a1a, #ffa04a); color: #fff; font-weight: 800; letter-spacing: .04em; }
+.theme-naranja #detail.D-tema .act { border-radius: 99rem; height: 3.4rem; font-weight: 800; box-shadow: inset 0 -.25rem 0 rgba(0,0,0,.12); }
+.theme-naranja #detail.D-tema .detail-main { overflow: visible; }
+.theme-naranja #detail.D-tema .facts > div:nth-child(n+7) { display: none; }
+.theme-naranja #detail.D-tema .desc-box { flex: 1 1 auto; min-height: 0; overflow: hidden; }

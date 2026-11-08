@@ -1,0 +1,97 @@
+/* Tema «Doble»: inspirado en la idea del Nintendo DS (una pantalla para ver, otra para tocar).
+   Blanco y gris claro, azul como acento, papel cuadriculado y botones grandes y redondeados. */
+:root {
+  --font: 'Nunito', system-ui, sans-serif;
+  --tint: 236, 239, 244;
+  --backdrop: #e9edf2;
+  --violet: #2d8cff; --glow: #1f74d8; --text: #2c3440; --muted: rgba(44, 52, 64, .72); --faint: rgba(44, 52, 64, .45);
+  --line: rgba(40, 60, 90, .16); --glass: rgba(255, 255, 255, .92); --glass-strong: #f8f9fb;
+  --focus: #2d8cff; --focus-line: #2d8cff; --tile-focus: #ffffff;
+  --row-focus: rgba(45, 140, 255, .14); --chip-bg: rgba(255, 255, 255, .92);
+  --primary: #2d8cff; --primary-fg: #fff;
+  --act-focus: #2d8cff; --act-focus-fg: #fff; --act-focus-line: #a9cff5; --glow-shadow: rgba(45, 140, 255, .35);
+  --pill: #d7dde6; --pill-fg: #2c3440; --pill-line: transparent;
+  --ph: linear-gradient(160deg, #ffffff, #dfe4ea);
+  --floor: linear-gradient(180deg, rgba(45, 140, 255, .1), transparent);
+  --particle: transparent;
+  color-scheme: light;
+}
+.theme-doble #particles { display: none; }
+.theme-doble .back { color: var(--text); }
+.theme-doble #backdrop.media:not(.ghost) .bg-tint { background: linear-gradient(90deg, rgba(var(--tint), .94), rgba(var(--tint), .82)); }
+.theme-doble .shelf-info .desc, .theme-doble .desc-box { color: var(--text); }
+.theme-doble .gl.round.dark, .theme-doble .gl.round.stick { background: #4a525e; }
+.theme-doble.at-home #topbar .top-right { display: none; }
+
+/* Pantalla de arriba: para ver */
+.nd-top { position: absolute; left: 0; right: 0; top: 0; height: 25rem; background: linear-gradient(180deg, #ffffff, #eef2f7); display: flex; align-items: center; gap: 2.6rem; padding: 2.4rem 4rem 1.6rem; }
+.nd-view { position: relative; width: 34rem; height: 20.6rem; flex: none; border-radius: 1.2rem; overflow: hidden; background: #1d2430; display: grid; place-items: center; box-shadow: 0 .6rem 1.4rem rgba(40, 60, 90, .22); }
+.nd-art { position: absolute; inset: 1.4rem; display: grid; place-items: center; }
+.nd-art img { width: 100%; height: 100%; object-fit: contain; }
+.nd-art .ico { position: static; opacity: 1; }
+.nd-art svg { width: 7rem; height: 7rem; fill: none; stroke: #8fc2ff; stroke-width: 1.4; }
+.nd-view video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .4s; }
+.nd-view video.on { opacity: 1; }
+.nd-title { flex: 1; display: flex; flex-direction: column; gap: .4rem; min-width: 0; }
+.nd-title small { font-size: .95rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: #2d8cff; }
+.nd-title b { font-size: 2.6rem; font-weight: 900; line-height: 1.1; color: #2c3440; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.nd-title span { font-size: 1.1rem; font-weight: 700; color: var(--muted); }
+.nd-side { flex: none; display: flex; align-items: center; gap: 1.6rem; }
+.nd-clock { width: 11rem; height: 11rem; }
+.nd-cal { width: 15rem; background: #fff; border-radius: .8rem; padding: .8rem; box-shadow: inset 0 0 0 .12rem #d5dde8; }
+.nd-cal b { display: block; text-align: center; font-size: .9rem; font-weight: 800; color: #2d8cff; text-transform: capitalize; margin-bottom: .4rem; }
+.nd-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: .15rem; text-align: center; font-size: .72rem; font-weight: 700; color: #5a6472; }
+.nd-days i { font-style: normal; height: 1.4rem; display: grid; place-items: center; border-radius: .3rem; }
+.nd-days i.hd { color: #9aa7b6; }
+.nd-days i.today { background: #2d8cff; color: #fff; }
+.nd-hinge { position: absolute; left: 0; right: 0; top: 25rem; height: 1.4rem; background: linear-gradient(180deg, #b8c0cb, #d9dee5 50%, #aeb6c2); box-shadow: 0 .2rem .4rem rgba(40, 60, 90, .2); }
+
+/* Pantalla de abajo: para tocar */
+.nd-bottom { position: absolute; left: 0; right: 0; top: 26.4rem; bottom: 0; overflow: hidden;
+  background-color: #f7f9fc; background-image: linear-gradient(rgba(45, 140, 255, .08) 1px, transparent 1px), linear-gradient(90deg, rgba(45, 140, 255, .08) 1px, transparent 1px); background-size: 1.6rem 1.6rem; }
+.nd-strip { position: absolute; left: 0; right: 0; top: 1.8rem; height: 15rem; }
+.nd-btn { position: absolute; left: 0; top: 0; width: 14rem; height: 14rem; border-radius: 1.6rem; background: #fff; border: .25rem solid #cdd6e2; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .7rem; padding: 1rem;
+  box-shadow: 0 .4rem 0 #b9c5d4; will-change: transform; transition: border-color .15s, box-shadow .15s; }
+.nd-bico { width: 9rem; height: 8rem; display: grid; place-items: center; }
+.nd-bico img { width: 100%; height: 100%; object-fit: contain; }
+.nd-bico .ico { position: static; opacity: 1; }
+.nd-bico svg { width: 5.4rem; height: 5.4rem; fill: none; stroke: #2d8cff; stroke-width: 1.5; }
+.nd-btn span { font-size: .92rem; font-weight: 800; text-align: center; line-height: 1.15; max-height: 2.3em; overflow: hidden; color: var(--text); }
+.nd-btn.on { border-color: #2d8cff; box-shadow: 0 .4rem 0 #1f6fd0, 0 0 0 .45rem rgba(45, 140, 255, .22); }
+.nd-pen { position: absolute; left: 0; top: 0; width: 5rem; height: 5rem; pointer-events: none; filter: drop-shadow(.3rem .4rem .3rem rgba(40, 60, 90, .3)); z-index: 2; }
+.nd-pen svg { width: 100%; height: 100%; }
+.nd-tabs { position: absolute; left: 0; right: 0; bottom: 4.6rem; height: 3rem; display: flex; justify-content: center; gap: .6rem; padding: 0 3rem; overflow: hidden; }
+.nd-tabs span { flex: none; padding: 0 1.2rem; border-radius: 1.4rem; display: grid; place-items: center; font-size: .9rem; font-weight: 800; color: var(--muted); background: #fff; border: .18rem solid #cdd6e2; cursor: pointer; }
+.nd-tabs span.on { color: #fff; background: #2d8cff; border-color: #1f6fd0; }
+.nd-tabs { align-items: center; } .nd-tabs .gl { flex: none; }
+
+/* ===== Vista «Del tema»: dos pantallas, arriba para ver y abajo para elegir (lista y ficha) ===== */
+.theme-doble #shelf.L-tema::before, .theme-doble #detail.D-tema::before { content: ''; position: absolute; left: 50%; width: 52rem; margin-left: -26rem; top: 5rem; height: 20.6rem; pointer-events: none;
+  border-radius: .8rem; background: #fff; box-shadow: 0 0 0 .5rem #c9d1db, 0 .8rem 1.6rem rgba(40, 60, 90, .18); }
+.theme-doble #shelf.L-tema::after, .theme-doble #detail.D-tema::after { content: ''; position: absolute; left: 50%; width: 52rem; margin-left: -26rem; top: 28.2rem; bottom: 4.8rem; pointer-events: none;
+  border-radius: .8rem; background: linear-gradient(rgba(45, 140, 255, .07) 1px, transparent 1px) 0 0 / 1.2rem 1.2rem, linear-gradient(90deg, rgba(45, 140, 255, .07) 1px, transparent 1px) 0 0 / 1.2rem 1.2rem, #fff;
+  box-shadow: 0 0 0 .5rem #c9d1db, 0 .8rem 1.6rem rgba(40, 60, 90, .18); }
+.theme-doble #shelf.L-tema .shelf-art { display: block; left: 50%; margin-left: -25rem; top: 6rem; width: 20rem; height: 18.6rem; object-position: center; filter: none; z-index: 1; }
+.theme-doble #shelf.L-tema .shelf-info { left: 50%; margin-left: -4rem; width: 29rem; top: 6.4rem; z-index: 1; }
+.theme-doble #shelf.L-tema .shelf-logo { height: 3.6rem; }
+.theme-doble #shelf.L-tema .shelf-logo img { max-width: 26rem; }
+.theme-doble #shelf.L-tema .shelf-logo h1 { font-size: 1.6rem; font-weight: 800; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.theme-doble #shelf.L-tema .desc { -webkit-line-clamp: 4; font-size: .9rem; }
+.theme-doble #shelf.L-tema .shelf-track { left: 50%; width: 50rem; margin-left: -25rem; top: 29rem; bottom: 5.4rem; padding: 0; z-index: 1; mask-image: none; overflow: hidden; }
+.theme-doble #shelf.L-tema .row-item { width: 50rem; border-radius: .8rem; background: none; box-shadow: none; font-weight: 700; }
+.theme-doble #shelf.L-tema .row-item.focus { background: #fff; box-shadow: inset 0 0 0 .2rem #2d8cff, 0 .3rem .6rem rgba(45, 140, 255, .25); color: #1f74d8; }
+.theme-doble #shelf.L-tema .shelf-floor { display: none; }
+.theme-doble #shelf.L-tema .shelf-side { right: 5rem; top: 4.6rem; }
+
+.theme-doble #detail.D-tema .thumbs, .theme-doble #detail.D-tema .stats { display: none; }
+.theme-doble #detail.D-tema .detail-art { left: 50%; margin-left: -25rem; top: 6rem; width: 50rem; height: 18.6rem; z-index: 1; }
+.theme-doble #detail.D-tema .detail-art img { object-fit: contain; filter: none; transform: none !important; }
+.theme-doble #detail.D-tema .detail-main { left: 50%; margin-left: -24rem; width: 48rem; top: 29.4rem; bottom: 5.8rem; z-index: 1; overflow: hidden; }
+.theme-doble #detail.D-tema .detail-logo { min-height: 0; height: auto; display: block; }
+.theme-doble #detail.D-tema .detail-logo img, .theme-doble #detail.D-tema .detail-logo h1 { display: none; }
+.theme-doble #detail.D-tema .detail-logo::before { content: attr(data-title); display: block; font-size: 1.7rem; line-height: 1.3; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.theme-doble #detail.D-tema .chips { margin-top: .6rem; }
+.theme-doble #detail.D-tema .desc-box { margin-top: .8rem; font-size: .92rem; }
+.theme-doble #detail.D-tema .actions { margin-top: .8rem; }
+.theme-doble #detail.D-tema .act { flex: 1; justify-content: center; height: 3.6rem; border-radius: .9rem; background: #fff; border: .18rem solid #c9d1db; color: #2c3440; font-weight: 800; }
+.theme-doble #detail.D-tema .act.focus { border-color: #2d8cff; background: #e8f2ff; color: #1f74d8; transform: none; }

@@ -1,0 +1,19 @@
+{
+  "name": "pandoras-box",
+  "productName": "Pandora's Box",
+  "version": "1.0.0",
+  "description": "Interfaz a pantalla completa, pensada para control, para tu biblioteca de LaunchBox.",
+  "main": "main.js",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "server": "node -e \"require('./server.js').start()\""
+  },
+  "dependencies": {
+    "koffi": "^2.9.0"
+  },
+  "devDependencies": {
+    "electron": "^39.0.0"
+  }
+}

@@ -1,0 +1,74 @@
+/* Tema «Esfera»: inspirado en el primer tablero de Xbox. Verde radiactivo sobre negro, botones gruesos, letra ancha. */
+:root {
+  --font: 'Nunito', system-ui, sans-serif;
+  --tint: 3, 10, 2;
+  --backdrop: #020602;
+  --violet: #8cd62e; --glow: #b8f26a; --text: #e9ffd6; --muted: rgba(205, 240, 170, .7); --faint: rgba(205, 240, 170, .42);
+  --line: rgba(150, 230, 70, .3); --glass: rgba(14, 34, 8, .62); --glass-strong: rgba(8, 20, 4, .92);
+  --focus: #c6f57a; --focus-line: rgba(170, 245, 90, .95); --tile-focus: rgba(90, 170, 20, .45);
+  --row-focus: rgba(140, 220, 60, .16); --chip-bg: rgba(20, 50, 10, .7);
+  --primary: #5aa818; --primary-fg: #fff;
+  --act-focus: #b7f264; --act-focus-fg: #102a02; --act-focus-line: #e4ffc0; --glow-shadow: rgba(150, 240, 60, .6);
+  --pill: rgba(170, 240, 100, .2); --pill-fg: #eaffd4; --pill-line: rgba(170, 240, 100, .35);
+  --ph: linear-gradient(160deg, rgba(80, 160, 20, .5), rgba(6, 18, 2, .9));
+  --floor: linear-gradient(180deg, rgba(120, 220, 40, .14), transparent);
+  --particle: #a6f05a;
+}
+.theme-esfera #particles { opacity: .5; }
+.theme-esfera h1 { font-weight: 800; letter-spacing: -.01em; }
+
+.xb-title { position: absolute; left: 6rem; top: 6.4rem; font-size: 1.1rem; font-weight: 800; letter-spacing: .28em; text-transform: uppercase; color: var(--glow);
+  text-shadow: 0 0 1rem rgba(150, 240, 60, .6); }
+.xb-stack { position: absolute; inset: 0; pointer-events: none; }
+.xb-btn { position: absolute; left: 0; top: 0; width: 30rem; height: 4.4rem; padding: 0 1.6rem 0 2.2rem; pointer-events: auto;
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem; border-radius: 2.2rem;
+  background: linear-gradient(180deg, #3d7a12 0%, #24520a 55%, #173806 100%);
+  box-shadow: inset 0 .15rem 0 rgba(220, 255, 170, .35), inset 0 -.2rem .4rem rgba(0, 0, 0, .4), 0 .3rem .8rem rgba(0, 0, 0, .5);
+  color: #dfffc0; will-change: transform; transform-origin: left center; }
+.xb-btn .xb-l { font-size: 1.35rem; font-weight: 800; letter-spacing: .02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 .1rem .2rem rgba(0, 0, 0, .5); }
+.xb-btn .xb-s { font-size: .82rem; font-weight: 700; opacity: .7; white-space: nowrap; }
+.xb-btn.on { background: linear-gradient(180deg, #c8ff6a 0%, #8edc2c 50%, #5aa818 100%); color: #0f2a02;
+  box-shadow: inset 0 .15rem 0 rgba(255, 255, 255, .7), 0 0 2.2rem rgba(150, 240, 60, .7), 0 .3rem .8rem rgba(0, 0, 0, .5); }
+.xb-btn.on .xb-l { text-shadow: none; }
+
+.xb-orb { position: absolute; left: 68%; top: 44%; width: 27rem; height: 27rem; border-radius: 50%; display: grid; place-items: center;
+  background: radial-gradient(circle at 38% 32%, rgba(230, 255, 190, .55), rgba(140, 230, 60, .25) 30%, rgba(40, 110, 10, .25) 62%, rgba(10, 40, 2, .55) 100%);
+  box-shadow: inset 0 0 3rem rgba(180, 255, 100, .45), 0 0 5rem rgba(120, 230, 40, .35); }
+.xb-orb-art { width: 60%; height: 55%; display: grid; place-items: center; }
+.xb-orb-art img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 .8rem 1.2rem rgba(0, 0, 0, .55)); }
+.xb-orb-art .ico { position: static; opacity: 1; display: grid; }
+.xb-orb-art svg { width: 8rem; height: 8rem; fill: none; stroke: #e8ffcc; stroke-width: 1.2; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 .8rem rgba(180, 255, 100, .8)); }
+.xb-orb-text { position: absolute; bottom: -3.6rem; left: 50%; transform: translateX(-50%); white-space: nowrap; font-size: 2rem; font-weight: 800; color: #eaffd4;
+  text-shadow: 0 0 1.2rem rgba(150, 240, 60, .7); }
+.xb-panel { position: absolute; left: 52%; right: 4rem; bottom: 5rem; text-align: center; font-size: .95rem; line-height: 1.5; color: var(--muted);
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+.theme-esfera .act { border-radius: 99rem; font-weight: 800; }
+.theme-esfera .key { border-radius: 99rem; font-weight: 800; }
+.theme-esfera .key.focus { background: linear-gradient(180deg, #c8ff6a, #6fbf22); }
+
+/* ===== Vista «Del tema»: lista de botones gruesos (lista) y panel de borde redondo (ficha) ===== */
+.theme-esfera #shelf.L-tema .shelf-track { left: 6rem; width: 48rem; top: 6.2rem; bottom: 5.6rem; padding: 0; mask-image: linear-gradient(180deg, transparent, #000 12%, #000 88%, transparent); }
+.theme-esfera #shelf.L-tema .row-item { width: 46rem; height: 3.3rem; border-radius: 99rem; padding: 0 1.8rem; color: #c6f57a; font-weight: 800; letter-spacing: .05em;
+  background: radial-gradient(120% 140% at 30% 0, rgba(90, 170, 20, .45), rgba(10, 40, 5, .8)); box-shadow: inset 0 0 0 .18rem rgba(140, 214, 46, .45); }
+.theme-esfera #shelf.L-tema .row-item .s { color: rgba(205, 240, 170, .55); }
+.theme-esfera #shelf.L-tema .row-item.focus { color: #062006; background: radial-gradient(120% 160% at 30% 0, #e6ffb8, #8cd62e 55%, #4f9a12); box-shadow: 0 0 1.6rem rgba(170, 245, 90, .7); }
+.theme-esfera #shelf.L-tema .row-item.focus .s { color: #164d06; }
+.theme-esfera #shelf.L-tema .shelf-floor { display: none; }
+.theme-esfera #shelf.L-tema .shelf-art { display: block; left: 58rem; right: auto; top: 7rem; width: 30rem; height: 20rem; object-position: center; }
+.theme-esfera #shelf.L-tema .shelf-info { left: 57rem; width: 32rem; top: 29rem; bottom: 6rem; padding: 1.4rem 1.8rem; border-radius: 2.2rem; border: .35rem solid #5fa61d;
+  background: radial-gradient(140% 100% at 50% 0, rgba(60, 120, 15, .4), rgba(2, 10, 2, .85)); box-shadow: 0 0 2rem rgba(140, 214, 46, .25); }
+.theme-esfera #shelf.L-tema .shelf-logo { height: 3.8rem; }
+.theme-esfera #shelf.L-tema .shelf-logo h1 { font-size: 1.6rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.theme-esfera #shelf.L-tema .shelf-logo img { max-width: 26rem; }
+.theme-esfera #shelf.L-tema .desc { -webkit-line-clamp: 3; }
+.theme-esfera #shelf.L-tema .shelf-side { right: 5rem; top: 4.6rem; }
+
+.theme-esfera #detail.D-tema .detail-main { padding: 1.6rem 2.2rem; border-radius: 2.4rem; border: .35rem solid #5fa61d; background: radial-gradient(140% 100% at 50% 0, rgba(60, 120, 15, .35), rgba(2, 10, 2, .88));
+  box-shadow: 0 0 2.4rem rgba(140, 214, 46, .25); bottom: 5.4rem; }
+.theme-esfera #detail.D-tema .thumbs img { border-radius: 1.6rem; border: .25rem solid #5fa61d; }
+.theme-esfera #detail.D-tema .detail-logo h1 { text-transform: uppercase; letter-spacing: .08em; font-weight: 800; }
+.theme-esfera #detail.D-tema .act { border-radius: 99rem; height: 3.4rem; font-weight: 800; letter-spacing: .05em; background: radial-gradient(120% 140% at 30% 0, rgba(90, 170, 20, .45), rgba(10, 40, 5, .8));
+  border: .18rem solid rgba(140, 214, 46, .5); color: #c6f57a; }
+.theme-esfera #detail.D-tema .act.focus { color: #062006; background: radial-gradient(120% 160% at 30% 0, #e6ffb8, #8cd62e 55%, #4f9a12); box-shadow: 0 0 1.6rem rgba(170, 245, 90, .7); }
+.theme-esfera #detail.D-tema .desc-box { min-height: 0; overflow: hidden; }

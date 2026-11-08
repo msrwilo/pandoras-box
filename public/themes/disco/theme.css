@@ -1,0 +1,93 @@
+/* Tema «Disco»: inspirado en la época de la primera PlayStation. Gráfica técnica y angular, gris y negro con naranja y cian,
+   tramado y polígonos que tiemblan. */
+:root {
+  --font: 'Sora', system-ui, sans-serif;
+  --tint: 16, 17, 22;
+  --backdrop: #121318;
+  --violet: #ff7a1f; --glow: #3cd2ff; --text: #eceef3; --muted: rgba(225, 228, 238, .7); --faint: rgba(225, 228, 238, .42);
+  --line: rgba(225, 228, 238, .16); --glass: rgba(26, 28, 36, .8); --glass-strong: rgba(20, 21, 27, .97);
+  --focus: #ff7a1f; --focus-line: #ff7a1f; --tile-focus: #ffffff;
+  --row-focus: rgba(255, 122, 31, .16); --chip-bg: rgba(26, 28, 36, .85);
+  --primary: #ff7a1f; --primary-fg: #140800;
+  --act-focus: #ff7a1f; --act-focus-fg: #140800; --act-focus-line: #ffc49c; --glow-shadow: rgba(255, 122, 31, .4);
+  --pill: #2b2e38; --pill-fg: #eceef3; --pill-line: rgba(255,255,255,.1);
+  --ph: linear-gradient(160deg, #3a3e4a, #1b1d24);
+  --floor: linear-gradient(180deg, rgba(60, 210, 255, .1), transparent);
+  --particle: transparent;
+}
+.theme-disco #particles { display: none; }
+.theme-disco #themeCanvas { image-rendering: pixelated; }
+/* Tramado ordenado sobre todo, como el de la consola al mezclar colores. */
+.theme-disco #backdrop::after { content: ''; position: absolute; inset: 0; pointer-events: none; opacity: .5;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Crect width='1' height='1' fill='%23000' fill-opacity='.35'/%3E%3Crect x='2' y='2' width='1' height='1' fill='%23000' fill-opacity='.35'/%3E%3Crect x='2' width='1' height='1' fill='%23fff' fill-opacity='.05'/%3E%3C/svg%3E");
+  background-size: 4px 4px; image-rendering: pixelated; }
+.theme-disco h1 { font-weight: 700; letter-spacing: -.01em; text-transform: uppercase; }
+.theme-disco .meta { letter-spacing: .06em; text-transform: uppercase; font-size: .95rem; }
+.theme-disco .act, .theme-disco .chip, .theme-disco .sheet { border-radius: 0; }
+.theme-disco .sheet { clip-path: polygon(0 1.4rem, 1.4rem 0, 100% 0, 100% 100%, 0 100%); }
+
+.pd-marks { position: absolute; left: 3.6rem; right: 3.6rem; top: 6rem; display: flex; justify-content: space-between; font-size: .78rem; font-weight: 700; letter-spacing: .35em; color: var(--faint);
+  border-top: 1px solid var(--line); padding-top: .6rem; }
+.pd-list { position: absolute; inset: 0; pointer-events: none; }
+.pd-row { position: absolute; left: 3.6rem; top: 0; width: 44rem; height: 4.4rem; display: flex; align-items: center; gap: 1.4rem; pointer-events: auto; cursor: pointer; will-change: transform;
+  border-bottom: 1px solid var(--line); }
+.pd-row em { font-style: normal; font-size: 1rem; font-weight: 700; letter-spacing: .1em; color: var(--faint); width: 2.6rem; font-variant-numeric: tabular-nums; }
+.pd-row b { font-size: 1.9rem; font-weight: 700; letter-spacing: -.01em; text-transform: uppercase; color: var(--muted); flex: 1; }
+.pd-row small { font-size: .78rem; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: var(--faint); }
+.pd-row.on { border-bottom-color: #ff7a1f; }
+.pd-row.on em { color: #14080a; background: #ff7a1f; padding: .2rem .4rem; clip-path: polygon(0 0, 100% 0, 100% 70%, 80% 100%, 0 100%); }
+.pd-row.on b { color: #fff; }
+.pd-row.on small { color: #3cd2ff; }
+.pd-tag { position: absolute; right: 3.6rem; bottom: 6rem; text-align: right; display: flex; flex-direction: column; align-items: flex-end; }
+.pd-tag em { font-style: normal; font-size: 7rem; font-weight: 800; line-height: .9; color: transparent; -webkit-text-stroke: .1rem rgba(255, 122, 31, .8); font-variant-numeric: tabular-nums; }
+.pd-tag b { font-size: 1rem; font-weight: 700; letter-spacing: .4em; text-transform: uppercase; color: var(--muted); }
+
+.pd-card { position: absolute; left: 50%; top: 7.4rem; width: 56rem; margin-left: -28rem; height: 41rem; padding: 1.6rem 2rem;
+  background: rgba(18, 19, 24, .92); box-shadow: inset 0 0 0 1px rgba(255,255,255,.12), 0 2rem 4rem rgba(0,0,0,.6);
+  clip-path: polygon(0 2rem, 2rem 0, 100% 0, 100% calc(100% - 2rem), calc(100% - 2rem) 100%, 0 100%);
+  display: flex; flex-direction: column; gap: 1.2rem; }
+.pd-head { display: flex; flex-direction: column; gap: .2rem; min-height: 5.6rem; border-left: .35rem solid #ff7a1f; padding-left: 1.2rem; }
+.pd-head small { font-size: .78rem; font-weight: 700; letter-spacing: .3em; text-transform: uppercase; color: #3cd2ff; }
+.pd-head b { font-size: 2.1rem; font-weight: 700; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pd-head span { font-size: .95rem; color: var(--muted); letter-spacing: .04em; }
+.pd-gridbox { position: relative; flex: 1; overflow: hidden; }
+.pd-grid { position: absolute; left: 50%; margin-left: -24rem; top: 0; }
+.pd-block { position: absolute; left: 0; top: 0; width: 8.6rem; height: 8.6rem; display: grid; place-items: center; padding: 1rem;
+  background: #1f2129; box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); clip-path: polygon(0 0, 100% 0, 100% 80%, 80% 100%, 0 100%); }
+.pd-block i { position: absolute; left: .5rem; top: .35rem; font-style: normal; font-size: .7rem; font-weight: 700; letter-spacing: .1em; color: var(--faint); }
+.pd-block img { width: 100%; height: 100%; object-fit: contain; image-rendering: auto; }
+.pd-block .ico { position: static; opacity: 1; }
+.pd-block svg { width: 4.4rem; height: 4.4rem; fill: none; stroke: #b9bfd0; stroke-width: 1.3; stroke-linecap: square; stroke-linejoin: miter; }
+.pd-block.on { background: #2a2d38; box-shadow: inset 0 0 0 .2rem #ff7a1f, 0 0 1.6rem rgba(255, 122, 31, .35); }
+.pd-block.on i { color: #ff7a1f; }
+.pd-pager { display: flex; gap: .5rem; justify-content: flex-end; }
+.pd-pager i { width: 2rem; height: .3rem; background: rgba(255,255,255,.18); transform: skewX(-30deg); }
+.pd-pager i.on { background: #3cd2ff; }
+
+/* ===== Vista «Del tema»: administrador de tarjeta de memoria (lista) y ficha técnica angular (ficha) ===== */
+.theme-disco #shelf.L-tema::before { content: 'MEMORY CARD  ·  ' attr(data-plat); position: absolute; left: 6rem; right: 6rem; top: 5.2rem; height: 3rem; padding: 0 1.4rem;
+  display: flex; align-items: center; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; font-size: .95rem; color: #121318;
+  background: linear-gradient(90deg, #ff7a1f, #ffb36e 60%, transparent); clip-path: polygon(0 0, 100% 0, calc(100% - 2rem) 100%, 0 100%); }
+.theme-disco #shelf.L-tema .shelf-track { left: 6rem; right: 6rem; top: 9.4rem; bottom: 13.4rem; height: auto; border: .2rem solid #3a3d48;
+  background: repeating-linear-gradient(0deg, rgba(255,255,255,.025) 0 .2rem, transparent .2rem .4rem), #1a1c23; mask-image: none; overflow: hidden; }
+.theme-disco #shelf.L-tema .item { background: #23262f; outline: .15rem solid #3a3d48; }
+.theme-disco #shelf.L-tema .item img { object-fit: cover; filter: none; }
+.theme-disco #shelf.L-tema .item.focus { outline: .35rem solid #ff7a1f; box-shadow: 0 0 0 .6rem rgba(255, 122, 31, .25); }
+.theme-disco #shelf.L-tema .item.focus::after { display: none; }
+.theme-disco #shelf.L-tema .shelf-info { left: 6rem; right: 6rem; width: auto; top: auto; bottom: 5.2rem; height: 7.4rem; padding: 1rem 1.6rem; background: #0c0d11; border-left: .5rem solid #3cd2ff;
+  clip-path: polygon(0 0, calc(100% - 2rem) 0, 100% 2rem, 100% 100%, 0 100%); }
+.theme-disco #shelf.L-tema .shelf-logo { display: none; }
+.theme-disco #shelf.L-tema .shelf-info::before { content: attr(data-title); display: block; font-size: 1.6rem; font-weight: 800; color: #3cd2ff; text-transform: uppercase; letter-spacing: .04em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.theme-disco #shelf.L-tema .meta { margin-top: .3rem; }
+.theme-disco #shelf.L-tema .desc { display: none; }
+.theme-disco #shelf.L-tema .shelf-side { right: 7rem; top: 5.6rem; color: #121318; }
+.theme-disco #shelf.L-tema .pos { color: #121318; font-weight: 800; }
+
+.theme-disco #detail.D-tema .detail-main { left: 6rem; right: 6rem; width: auto; padding: 2rem 2.4rem 2rem 3rem; background: rgba(12, 13, 17, .9); border-left: .6rem solid #ff7a1f;
+  clip-path: polygon(0 0, calc(100% - 3rem) 0, 100% 3rem, 100% 100%, 3rem 100%, 0 calc(100% - 3rem)); }
+.theme-disco #detail.D-tema .detail-logo h1 { text-transform: uppercase; font-weight: 800; letter-spacing: .02em; }
+.theme-disco #detail.D-tema #dSub { color: #3cd2ff; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; font-size: .9rem; }
+.theme-disco #detail.D-tema .chips span { border-radius: 0; background: #23262f; border: 0; border-left: .25rem solid #3cd2ff; }
+.theme-disco #detail.D-tema .act { border-radius: 0; clip-path: polygon(0 0, calc(100% - .9rem) 0, 100% .9rem, 100% 100%, 0 100%); background: #23262f; border: 0; text-transform: uppercase; letter-spacing: .08em; font-weight: 800; }
+.theme-disco #detail.D-tema .act.focus { background: #ff7a1f; color: #121318; transform: none; box-shadow: none; }

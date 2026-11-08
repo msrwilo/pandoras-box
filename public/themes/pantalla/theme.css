@@ -1,0 +1,102 @@
+/* Tema «Pantalla»: inspirado en el Game Boy original. Cuatro tonos de verde, texto grueso en mayúsculas y puntos visibles. */
+:root {
+  --font: 'Sora', system-ui, sans-serif;
+  --gb0: #0f380f; --gb1: #306230; --gb2: #8bac0f; --gb3: #9bbc0f;
+  --tint: 155, 188, 15;
+  --backdrop: #9bbc0f;
+  --violet: #306230; --glow: #0f380f; --text: #0f380f; --muted: rgba(15, 56, 15, .78); --faint: rgba(15, 56, 15, .5);
+  --line: rgba(15, 56, 15, .3); --glass: rgba(139, 172, 15, .92); --glass-strong: #8bac0f;
+  --focus: #0f380f; --focus-line: #0f380f; --tile-focus: #9bbc0f;
+  --row-focus: rgba(48, 98, 48, .25); --chip-bg: #8bac0f;
+  --primary: #0f380f; --primary-fg: #9bbc0f;
+  --act-focus: #0f380f; --act-focus-fg: #9bbc0f; --act-focus-line: #306230; --glow-shadow: rgba(15, 56, 15, .4);
+  --pill: #306230; --pill-fg: #9bbc0f; --pill-line: transparent;
+  --ph: linear-gradient(160deg, #8bac0f, #306230);
+  --floor: linear-gradient(180deg, rgba(48, 98, 48, .2), transparent);
+  --particle: transparent;
+  color-scheme: light;
+}
+.theme-pantalla #particles { display: none; }
+.theme-pantalla #themeCanvas { image-rendering: pixelated; }
+/* Rejilla de puntos de la pantalla sobre todo. */
+.theme-pantalla #app::after { content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 50;
+  background: repeating-linear-gradient(0deg, rgba(15,56,15,.07) 0 1px, transparent 1px 4px), repeating-linear-gradient(90deg, rgba(15,56,15,.07) 0 1px, transparent 1px 4px); }
+.theme-pantalla h1, .theme-pantalla .meta { text-transform: uppercase; letter-spacing: .04em; font-weight: 700; }
+.theme-pantalla #backdrop.media .bg-layer, .theme-pantalla #backdrop.media #bgVideo { filter: grayscale(1) contrast(1.4) brightness(.9) sepia(1) hue-rotate(40deg) saturate(2.4); }
+.theme-pantalla #backdrop.media .bg-tint { background: rgba(155, 188, 15, .55); }
+.theme-pantalla .tile img, .theme-pantalla .shelf-art, .theme-pantalla #dArt { filter: grayscale(1) contrast(1.3) sepia(1) hue-rotate(40deg) saturate(1.8) brightness(.85); }
+.theme-pantalla .gl.round { box-shadow: none; }
+.theme-pantalla .sheet { border: .3rem solid #0f380f; border-radius: .2rem; }
+.theme-pantalla .act, .theme-pantalla .chip { border-radius: .2rem; }
+
+.gb-bar { position: absolute; left: 4rem; right: 4rem; top: 5rem; height: 5rem; background: #0f380f; color: #9bbc0f; display: flex; align-items: center; justify-content: space-between; padding: 0 2rem; }
+.gb-bar b { font-size: 2.3rem; font-weight: 800; letter-spacing: .12em; }
+.gb-bar i { font-style: normal; font-size: 1.6rem; }
+.gb-bar i.off { opacity: .25; }
+.gb-box { position: absolute; top: 12rem; height: 34rem; border: .4rem solid #0f380f; box-shadow: inset 0 0 0 .3rem #8bac0f, inset 0 0 0 .55rem #306230; background: #9bbc0f; }
+.gb-left { left: 4rem; width: 52rem; }
+.gb-right { left: 58rem; right: 4rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.6rem; padding: 2rem; }
+.gb-list { position: absolute; inset: 1.6rem 1.4rem; overflow: hidden; }
+.gb-row { position: absolute; left: 0; right: 0; top: 0; height: 3.6rem; display: flex; align-items: center; gap: 1rem; color: #306230; font-size: 1.4rem; font-weight: 800; letter-spacing: .06em; cursor: pointer; }
+.gb-row em { font-style: normal; width: 1.6rem; color: transparent; }
+.gb-row span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gb-row.on { color: #0f380f; }
+#homeTheme.gb-blink .gb-row.on em { color: #0f380f; }
+.gb-sprite { width: 22rem; height: 18rem; display: grid; place-items: center; }
+.gb-sprite img { width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated;
+  filter: grayscale(1) contrast(1.6) brightness(.8) sepia(1) hue-rotate(40deg) saturate(2.4) drop-shadow(.4rem .4rem 0 #306230); }
+.gb-sprite .ico { position: static; opacity: 1; }
+.gb-sprite svg { width: 12rem; height: 12rem; fill: none; stroke: #0f380f; stroke-width: 2; stroke-linecap: square; stroke-linejoin: miter; }
+.gb-cap { text-align: center; display: flex; flex-direction: column; gap: .4rem; color: #0f380f; }
+.gb-cap b { font-size: 1.4rem; font-weight: 800; letter-spacing: .06em; }
+.gb-cap span { font-size: 1rem; font-weight: 700; color: #306230; }
+.gb-sprite { position: relative; }
+.gb-video { position: absolute; inset: -1rem -3rem; width: calc(100% + 6rem); height: calc(100% + 2rem); object-fit: contain; opacity: 0; transition: opacity .4s steps(4);
+  filter: grayscale(1) contrast(1.5) brightness(.85) sepia(1) hue-rotate(40deg) saturate(2.6); image-rendering: pixelated; background: #9bbc0f; }
+.gb-video.on { opacity: 1; }
+.gb-bar .gl { background: #9bbc0f; color: #0f380f; }
+
+/* ===== Vista «Del tema»: menú con cursor ▶ en cuadro de doble borde (lista) y ficha de enciclopedia de bolsillo ===== */
+@keyframes gb-tri { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+.theme-pantalla #shelf.L-tema .shelf-track { left: 4rem; width: 50rem; top: 5.6rem; bottom: 5.8rem; mask-image: none; overflow: hidden; padding: 0;
+  background: #9bbc0f; border: .5rem double #0f380f; border-radius: .6rem; box-shadow: inset 0 0 0 .3rem #9bbc0f, inset 0 0 0 .5rem #306230; }
+.theme-pantalla #shelf.L-tema .row-item { width: 47rem; padding: 0 1rem 0 3rem; background: none; box-shadow: none; color: #0f380f; text-transform: uppercase; font-weight: 800; letter-spacing: .04em; }
+.theme-pantalla #shelf.L-tema .row-item .s { color: #306230; font-weight: 800; }
+.theme-pantalla #shelf.L-tema .row-item.focus::before { content: '▶'; position: absolute; left: .9rem; font-size: 1.1rem; color: #0f380f; }
+.theme-pantalla #shelf.L-tema .row-item.focus { background: none; box-shadow: none; }
+.theme-pantalla #shelf.L-tema .fav-badge { color: #0f380f; }
+.theme-pantalla #shelf.L-tema .shelf-floor { display: none; }
+.theme-pantalla #shelf.L-tema .shelf-art { display: block; left: 57rem; top: 5.6rem; width: 34rem; height: 19rem; object-position: center; padding: 1rem;
+  background: #8bac0f; border: .35rem solid #0f380f; border-radius: .6rem; box-sizing: border-box; filter: none; }
+.theme-pantalla #shelf.L-tema .shelf-info { left: 57rem; width: 34rem; top: 26rem; bottom: 5.8rem; padding: 1.2rem 1.4rem; background: #9bbc0f; border: .5rem double #0f380f; border-radius: .6rem;
+  display: flex; flex-direction: column; overflow: hidden; }
+.theme-pantalla #shelf.L-tema .shelf-logo { height: auto; }
+.theme-pantalla #shelf.L-tema .shelf-logo img { display: none; }
+.theme-pantalla #shelf.L-tema .shelf-logo h1 { display: none; }
+.theme-pantalla #shelf.L-tema .shelf-logo::before { content: attr(data-title); font-size: 1.35rem; font-weight: 800; text-transform: uppercase; line-height: 1.25; }
+.theme-pantalla #shelf.L-tema .meta { margin-top: .5rem; font-size: .9rem; }
+.theme-pantalla #shelf.L-tema .desc { color: #0f380f; -webkit-line-clamp: 4; font-size: .95rem; text-shadow: none; }
+.theme-pantalla #shelf.L-tema .shelf-side { right: 6.4rem; top: auto; bottom: 7rem; }
+
+.theme-pantalla #detail.D-tema .thumbs, .theme-pantalla #detail.D-tema .chips, .theme-pantalla #detail.D-tema .stats { display: none; }
+.theme-pantalla #detail.D-tema .detail-art { left: 4rem; right: auto; top: 5.6rem; width: 34rem; height: 26.4rem; padding: 1.2rem; box-sizing: border-box; background: #8bac0f;
+  border: .35rem solid #0f380f; border-radius: .6rem; }
+.theme-pantalla #detail.D-tema .detail-art img { inset: 1.2rem; width: calc(100% - 2.4rem); height: calc(100% - 2.4rem); filter: none; }
+.theme-pantalla #detail.D-tema .detail-main { position: absolute; left: 40rem; right: 4rem; top: 5.6rem; bottom: 5.8rem; width: auto; display: block; color: #0f380f; }
+.theme-pantalla #detail.D-tema .detail-main::before { content: 'No.' attr(data-year); display: block; font-weight: 800; font-size: 1.1rem; letter-spacing: .08em; }
+.theme-pantalla #detail.D-tema .detail-logo { min-height: 0; height: auto; display: block; }
+.theme-pantalla #detail.D-tema .detail-logo img, .theme-pantalla #detail.D-tema .detail-logo h1 { display: none; }
+.theme-pantalla #detail.D-tema .detail-logo::before { content: attr(data-title); display: block; font-size: 2.3rem; font-weight: 800; text-transform: uppercase; line-height: 1.15; }
+.theme-pantalla #detail.D-tema #dSub { font-weight: 700; text-transform: uppercase; padding-bottom: .6rem; border-bottom: .3rem solid #0f380f; }
+.theme-pantalla #detail.D-tema .facts { display: grid; grid-template-columns: auto 1fr; gap: .1rem 1.2rem; margin-top: .9rem; }
+.theme-pantalla #detail.D-tema .facts > div:nth-child(n+8) { display: none; }
+.theme-pantalla #detail.D-tema .facts dt { color: #306230; font-size: .85rem; font-weight: 800; }
+.theme-pantalla #detail.D-tema .facts dd { color: #0f380f; font-weight: 800; text-transform: uppercase; font-size: .95rem; }
+.theme-pantalla #detail.D-tema .actions { position: absolute; left: 0; bottom: 0; margin: 0; }
+.theme-pantalla #detail.D-tema .act { border-radius: .3rem; background: #8bac0f; color: #0f380f; border: .25rem solid #0f380f; text-transform: uppercase; font-weight: 800; }
+.theme-pantalla #detail.D-tema .act.focus { background: #0f380f; color: #9bbc0f; transform: none; }
+/* La descripción va abajo, en el cuadro de texto, como los diálogos de la consola. */
+.theme-pantalla #detail.D-tema .desc-box { position: fixed; left: 4rem; right: 4rem; top: 33rem; height: auto; max-height: none; margin: 0; padding: 1.2rem 1.6rem; overflow: hidden; mask-image: none; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 5;
+  background: #9bbc0f; border: .5rem double #0f380f; border-radius: .6rem; color: #0f380f; font-weight: 700; font-size: 1.05rem; line-height: 1.55; }
+.theme-pantalla #detail.D-tema .desc-box::after { content: '▼'; position: absolute; right: 1.2rem; bottom: .6rem; animation: gb-tri 1s steps(1) infinite; }
+.theme-pantalla #detail.D-tema .detail-main { bottom: 22rem; }

@@ -1,0 +1,114 @@
+/* Tema «Símbolo»: inspirado en MS-DOS y los administradores de archivos en modo texto. Paleta de 16 colores,
+   letra de ancho fijo, marcos de línea doble y un tubo con líneas de barrido. */
+:root {
+  --font: 'Cascadia Mono', Consolas, 'Lucida Console', 'Courier New', monospace;
+  --tint: 0, 0, 170;
+  --backdrop: #0000aa;
+  --violet: #00aaaa; --glow: #ffff55; --text: #ffffff; --muted: #aaaaaa; --faint: #6f6f9f;
+  --line: #55ffff; --glass: #0000aa; --glass-strong: #0000aa;
+  --focus: #00aaaa; --focus-line: #55ffff; --tile-focus: #ffffff;
+  --row-focus: #00aaaa; --chip-bg: #0000aa;
+  --primary: #00aaaa; --primary-fg: #000;
+  --act-focus: #00aaaa; --act-focus-fg: #000; --act-focus-line: #55ffff; --glow-shadow: transparent;
+  --pill: #00aaaa; --pill-fg: #000; --pill-line: transparent;
+  --ph: linear-gradient(160deg, #0000aa, #000080);
+  --floor: none;
+  --particle: transparent;
+}
+.theme-simbolo #particles { display: none; }
+.theme-simbolo body, .theme-simbolo { font-family: var(--font); }
+.theme-simbolo #backdrop { background: #0000aa; }
+.theme-simbolo h1 { font-weight: 700; letter-spacing: 0; text-transform: uppercase; color: #ffff55; }
+.theme-simbolo .meta { color: #55ffff; }
+.theme-simbolo .act, .theme-simbolo .chip, .theme-simbolo .sheet, .theme-simbolo .kbd, .theme-simbolo .item, .theme-simbolo .row-item { border-radius: 0 !important; }
+.theme-simbolo .sheet { background: #00aaaa; color: #000; border: .35rem double #000; box-shadow: .8rem .8rem 0 #000; backdrop-filter: none; }
+.theme-simbolo .sheet .mrow.focus { background: #000; color: #fff; box-shadow: none; }
+.theme-simbolo .sheet .mrow .val { color: #0000aa; }
+.theme-simbolo .sheet .mrow.focus .val { color: #ffff55; }
+/* Tubo: líneas de barrido y un leve viñeteo en toda la pantalla. */
+.theme-simbolo #app::after { content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 50;
+  background: repeating-linear-gradient(0deg, rgba(0,0,0,.22) 0 1px, transparent 1px 3px), radial-gradient(ellipse at center, transparent 65%, rgba(0,0,0,.45)); }
+
+.ds-menu { position: absolute; left: 0; right: 0; top: 0; height: 2.2rem; background: #00aaaa; color: #000; display: flex; align-items: center; gap: 3rem; padding: 0 3rem; font-size: 1.05rem; }
+.ds-menu span:first-letter { color: #ffff55; }
+.theme-simbolo #topbar { top: 0; height: 2.2rem; padding-top: 0; padding-bottom: 0; align-items: center; }
+.theme-simbolo #clock { color: #000; font-size: 1.05rem; font-weight: 400; }
+.theme-simbolo.at-home #crumbs, .theme-simbolo.at-home .back { display: none; }
+.ds-panes { position: absolute; left: 1.2rem; right: 1.2rem; top: 2.8rem; bottom: 6.4rem; display: grid; grid-template-columns: 22rem 1fr 28rem; gap: .4rem; }
+.ds-pane { position: relative; border: .35rem double #55ffff; padding: 1.6rem .6rem 2.6rem; display: flex; flex-direction: column; min-height: 0; color: #55ffff; }
+.ds-ptitle { position: absolute; left: 50%; top: -.95rem; transform: translateX(-50%); background: #0000aa; padding: 0 .6rem; color: #fff; font-size: 1rem; white-space: nowrap; max-width: 90%; overflow: hidden; }
+.ds-list { flex: 1; overflow: hidden; }
+.ds-row { display: flex; align-items: center; gap: 1rem; height: 1.9rem; padding: 0 .6rem; font-size: 1.1rem; white-space: nowrap; cursor: pointer; color: #55ffff; }
+.ds-row span { flex: none; white-space: pre; }
+.ds-row i { flex: 1; font-style: normal; overflow: hidden; text-overflow: ellipsis; color: #aaaaff; }
+.ds-row em { font-style: normal; margin-left: auto; white-space: pre; color: #ffffff; }
+.ds-row.up { color: #ffffff; }
+.ds-row.on { background: #00aaaa; color: #000; }
+.ds-row.on i, .ds-row.on em { color: #000; }
+#homeTheme.ds-in .ds-pane:first-child .ds-row.on { background: #000080; color: #55ffff; }
+#homeTheme:not(.ds-in) .ds-pane:nth-child(2) .ds-row { opacity: .7; }
+.ds-foot { position: absolute; left: .6rem; right: .6rem; bottom: .5rem; border-top: .15rem solid #55ffff; padding-top: .3rem; font-size: .95rem; color: #fff; }
+.ds-frame { position: relative; flex: 1; display: grid; place-items: center; border: .15rem solid #55ffff; background: #000; overflow: hidden; }
+.ds-view { position: absolute; inset: 1rem; display: grid; place-items: center; }
+.ds-view img { width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; }
+.ds-view .ico { position: static; opacity: 1; }
+.ds-view svg { width: 7rem; height: 7rem; fill: none; stroke: #55ffff; stroke-width: 1.6; stroke-linecap: square; }
+.ds-frame video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; image-rendering: pixelated; }
+.ds-frame video.on { opacity: 1; }
+.ds-vinfo { white-space: pre-line; padding-top: .8rem; font-size: 1rem; color: #fff; line-height: 1.5; max-height: 6.5rem; overflow: hidden; }
+.ds-prompt { position: absolute; left: 1.8rem; right: 1.8rem; bottom: 4rem; font-size: 1.15rem; color: #aaaaaa; display: flex; align-items: center; white-space: pre; }
+.ds-prompt i { width: .7rem; height: 1.15rem; background: #aaaaaa; margin-left: .1rem; opacity: 0; }
+#homeTheme.ds-blink .ds-prompt i { opacity: 1; }
+.ds-keys { position: absolute; left: 0; right: 0; bottom: 2rem; height: 1.8rem; display: grid; grid-template-columns: repeat(10, 1fr); font-size: 1rem; }
+.ds-keys span { display: flex; }
+.ds-keys b { color: #fff; background: #000; padding: 0 .3rem; font-weight: 400; }
+.ds-keys em { flex: 1; font-style: normal; background: #00aaaa; color: #000; padding: 0 .3rem; margin-right: .4rem; }
+.theme-simbolo.at-home #hints { bottom: 0; height: 2rem; padding-top: 0; padding-bottom: 0; background: #000; color: #aaa; }
+
+/* ===== Vista «Del tema»: panel de archivos en modo texto (lista) y TYPE del archivo (ficha) ===== */
+.theme-simbolo #shelf.L-tema .shelf-track { left: 3rem; width: 54rem; top: 6.4rem; bottom: 5.4rem; overflow: hidden; mask-image: none; padding: 0;
+  background: #0000aa; border: .4rem double #55ffff; }
+.theme-simbolo #shelf.L-tema::before { content: ' C:\\JUEGOS\\' attr(data-plat) ' '; position: absolute; left: 3rem; width: 54rem; top: 5.7rem; z-index: 5; text-align: center;
+  font-size: 1rem; line-height: 1.4rem; color: #000; pointer-events: none; }
+.theme-simbolo #shelf.L-tema::before { background: linear-gradient(90deg, transparent calc(50% - 14rem), #00aaaa calc(50% - 14rem), #00aaaa calc(50% + 14rem), transparent calc(50% + 14rem)); }
+.theme-simbolo #shelf.L-tema .row-item { width: calc(54rem - .8rem); height: 3.4rem; padding: 0 1rem; color: #55ffff; background: none; font-weight: 400; font-size: 1.1rem; }
+.theme-simbolo #shelf.L-tema .row-item .t { text-transform: uppercase; }
+.theme-simbolo #shelf.L-tema .row-item .s { color: #ffffff; font-size: 1rem; font-weight: 400; }
+.theme-simbolo #shelf.L-tema .row-item.focus { background: #00aaaa; color: #000; box-shadow: none; }
+.theme-simbolo #shelf.L-tema .row-item.focus .s { color: #000; }
+.theme-simbolo #shelf.L-tema .fav-badge { display: none; }
+.theme-simbolo #shelf.L-tema .shelf-art { display: none !important; }
+.theme-simbolo #shelf.L-tema .shelf-info { left: 59rem; width: 33rem; top: 6.4rem; bottom: 5.4rem; padding: 1.4rem 1.6rem; background: #0000aa; border: .4rem double #ffffff;
+  display: flex; flex-direction: column; }
+.theme-simbolo #shelf.L-tema .shelf-info::before { content: attr(data-title); display: block; color: #ffff55; font-size: 1.6rem; font-weight: 700; text-transform: uppercase; line-height: 1.25;
+  padding-bottom: .8rem; margin-bottom: .6rem; border-bottom: .2rem solid #55ffff; }
+.theme-simbolo #shelf.L-tema .shelf-logo { display: none; }
+.theme-simbolo #shelf.L-tema .meta { color: #55ffff; font-size: 1rem; }
+.theme-simbolo #shelf.L-tema .desc { color: #ffffff; -webkit-line-clamp: 14; font-size: .98rem; max-width: none; }
+.theme-simbolo #shelf.L-tema .shelf-side { right: 4.8rem; top: auto; bottom: 6.2rem; }
+.theme-simbolo #shelf.L-tema .pos { color: #ffff55; }
+.theme-simbolo #shelf.L-tema .shelf-floor { display: none; }
+
+.theme-simbolo #detail.D-tema .detail-art, .theme-simbolo #detail.D-tema .thumbs { display: none; }
+.theme-simbolo #detail.D-tema .detail-main { left: 3rem; right: 3rem; top: 5.6rem; bottom: 5.4rem; width: auto; padding: 1.4rem 2rem; background: #000; color: #aaaaaa;
+  border: .3rem solid #555; overflow: hidden; }
+.theme-simbolo #detail.D-tema .detail-main::before { content: 'C:\\JUEGOS> TYPE ' attr(data-file); color: #aaaaaa; font-size: 1.1rem; margin-bottom: 1rem; }
+.theme-simbolo #detail.D-tema .detail-logo img { display: none; }
+.theme-simbolo #detail.D-tema .detail-logo::before { content: attr(data-title); display: block; color: #ffffff; font-size: 2rem; font-weight: 700; text-transform: uppercase; }
+.theme-simbolo #detail.D-tema .detail-logo h1 { display: none; }
+.theme-simbolo #detail.D-tema .detail-logo { height: auto; min-height: 0; display: block; margin-bottom: .6rem; }
+.theme-simbolo #detail.D-tema .detail-logo::after { content: '════════════════════════════════════════'; display: block; color: #555; overflow: hidden; white-space: nowrap; }
+
+.theme-simbolo #detail.D-tema #dSub { color: #aaaaaa; }
+.theme-simbolo #detail.D-tema .chips { display: none; }
+.theme-simbolo #detail.D-tema .facts { display: grid; grid-template-columns: 16rem 1fr; gap: .1rem 1rem; margin-top: 1rem; }
+.theme-simbolo #detail.D-tema .facts dt { color: #55ffff; font-size: 1rem; letter-spacing: 0; padding: 0; }
+.theme-simbolo #detail.D-tema .facts dt::after { content: ' ....'; color: #555; }
+.theme-simbolo #detail.D-tema .facts dd { color: #ffffff; font-weight: 400; font-size: 1rem; }
+.theme-simbolo #detail.D-tema .desc-box { color: #aaaaaa; mask-image: none; font-size: 1rem; line-height: 1.5; margin-top: 1.2rem; }
+.theme-simbolo #detail.D-tema .stats { display: none; }
+.theme-simbolo #detail.D-tema .actions { gap: 1.6rem; }
+.theme-simbolo #detail.D-tema .act { background: none; border: 0; color: #aaaaaa; height: 2.4rem; padding: 0 .4rem; backdrop-filter: none; font-weight: 400; }
+.theme-simbolo #detail.D-tema .act::before { content: '['; } .theme-simbolo #detail.D-tema .act::after { content: ']'; }
+.theme-simbolo #detail.D-tema .act .gl { display: none; }
+.theme-simbolo #detail.D-tema .act.focus { background: #aaaaaa; color: #000; transform: none; box-shadow: none; }
