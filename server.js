@@ -572,7 +572,9 @@ const server = http.createServer(async (req, res) => {
 function start(port = cfg.port) {
   return new Promise((ok, ko) => {
     // Si no hay LaunchBox, Pandora arranca igual y la interfaz guía para elegir la carpeta.
-    if (!isLaunchBox(LB)) { const found = findLaunchBox(); if (found.length === 1) { LB = found[0]; log('LaunchBox encontrado en ' + LB); } }
+    // Nunca se elige sola una biblioteca: la primera vez, la bienvenida muestra las que encontró
+    // y la persona confirma cuál es la suya (así una copia compartida no abre la biblioteca de otro).
+    if (!isLaunchBox(LB)) { LB = ''; const found = findLaunchBox(); if (found.length) log('LaunchBox encontrado (falta confirmarlo): ' + found.join(', ')); }
     loadLibrary();
     server.once('error', ko);
     server.listen(port, '127.0.0.1', () => {

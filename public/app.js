@@ -1965,7 +1965,7 @@ const Setup = {
     const s = await fetch('/api/setup').then(r => r.json()).catch(() => ({ candidates: [] }));
     this.first = first; this.error = '';
     this.rows = [
-      ...s.candidates.map(c => ({ label: 'Usar ' + c, sub: 'Encontré LaunchBox aquí', run: () => this.use(c) })),
+      ...s.candidates.map(c => ({ label: 'Usar ' + c, sub: 'Encontré una biblioteca de LaunchBox aquí', run: () => this.use(c) })),
       ...(window.pandora?.pickFolder ? [{ label: 'Buscar la carpeta…', sub: 'Abre el explorador para elegirla', run: () => this.pick() }] : []),
       { label: 'Escribir la ruta', sub: 'Por ejemplo D:\\LaunchBox', input: true },
       ...(first ? [] : [{ label: 'Cancelar', run: () => this.close() }]),
@@ -1981,8 +1981,8 @@ const Setup = {
   },
   paint() {
     const card = h('div', { class: 'setup-card' },
-      h('div', { class: 'setup-mark' }), h('h2', { text: this.first ? 'Bienvenido a Pandora' : 'Carpeta de LaunchBox' }),
-      h('p', { text: this.first ? 'Pandora muestra tu biblioteca de LaunchBox sin modificarla. Dime dónde está la carpeta de LaunchBox (la que tiene adentro Data, Images y Videos).' : 'Elige otra carpeta de LaunchBox. Tus favoritos y ajustes de Pandora se conservan.' }),
+      h('div', { class: 'setup-mark' }), h('h2', { text: this.first ? 'Bienvenido a Pandora’s Box' : 'Carpeta de LaunchBox' }),
+      h('p', { text: this.first ? 'Pandora’s Box muestra tu biblioteca de LaunchBox sin modificarla. Elige tu carpeta de LaunchBox (la que tiene adentro Data, Images y Videos).' : 'Elige otra carpeta de LaunchBox. Tus favoritos y ajustes de Pandora se conservan.' }),
       h('div', { class: 'setup-rows' }, ...this.rows.map((r, i) => {
         const el = h('div', { class: 'setup-row' + (i === this.i ? ' focus' : '') }, h('b', { text: r.label }), h('span', { text: r.sub || '' }));
         if (r.input) { const inp = h('input', { class: 'setup-input', placeholder: 'D:\\LaunchBox', spellcheck: 'false' }); inp.value = this.typed || ''; inp.addEventListener('input', () => { this.typed = inp.value; }); inp.addEventListener('keydown', e => { if (e.key === 'Enter') this.use(inp.value); }); el.append(inp); }
