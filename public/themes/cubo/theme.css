@@ -658,7 +658,7 @@ img[src^="/dl/"] { background: rgba(255, 255, 255, .94); border-radius: .5em; pa
   filter: drop-shadow(0 0 .05rem rgba(0,0,0,.8)) drop-shadow(0 .12rem .5rem rgba(0,0,0,.55)); }
 
 /* Filtro CRT: el lienzo ocupa el lugar del video, que sigue sonando oculto debajo. */
-.crt-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.crt-canvas { position: absolute; left: 0; top: 0; pointer-events: none; }
 video.crt-src { clip-path: inset(50%); }
 
 /* Modo depuración: lo que le falta al juego, fijo arriba a la derecha de la ficha, igual en todos los temas. */

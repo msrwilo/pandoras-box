@@ -70,11 +70,20 @@ export function attach(video, want) {
 }
 export function detach(video) { const it = items.get(video); if (it) { it.canvas.remove(); video.classList.remove('crt-src'); items.delete(video); } }
 
+// Vigila el documento: cualquier <video> que exista o aparezca recibe el filtro si quiere(video) lo pide.
+export function watchAll(want) {
+  const add = v => attach(v, () => want(v));
+  const scan = n => { if (n.nodeType !== 1) return; if (n.tagName === 'VIDEO') add(n); else n.querySelectorAll?.('video').forEach(add); };
+  scan(document.documentElement);
+  new MutationObserver(ms => { for (const m of ms) m.addedNodes.forEach(scan); }).observe(document.documentElement, { childList: true, subtree: true });
+}
+
 // Se llama en cada cuadro de la interfaz.
 export function frame() {
   if (failed) return;
   for (const [video, it] of items) {
     if (!video.isConnected) { detach(video); continue; }
+    if (it.canvas.previousSibling !== video) video.after(it.canvas); // el tema movió el video: el lienzo lo sigue
     const on = !!it.want() && video.readyState >= 2 && video.videoWidth > 0;
     if (on !== it.on) { it.on = on; it.canvas.hidden = !on; video.classList.toggle('crt-src', on); it.last = -1; }
     if (!on) continue;
@@ -85,6 +94,14 @@ export function frame() {
       // El lienzo copia la opacidad y los filtros del video, que queda oculto debajo.
       if (c.style.opacity !== cs.opacity) c.style.opacity = cs.opacity;
       if (c.dataset.f !== cs.filter) { c.dataset.f = cs.filter; c.style.filter = cs.filter === 'none' ? '' : cs.filter; }
+      // …y su lugar exacto: cada tema coloca su video a su manera (marco, esquinas, giro, capa).
+      const geo = `${video.offsetLeft}|${video.offsetTop}|${video.offsetWidth}|${video.offsetHeight}|${cs.borderRadius}|${cs.transform}|${cs.transformOrigin}|${cs.zIndex}|${cs.visibility}|${cs.display}`;
+      if (c.dataset.g !== geo) {
+        c.dataset.g = geo;
+        Object.assign(c.style, { left: video.offsetLeft + 'px', top: video.offsetTop + 'px', width: video.offsetWidth + 'px', height: video.offsetHeight + 'px',
+          borderRadius: cs.borderRadius, transform: cs.transform === 'none' ? '' : cs.transform, transformOrigin: cs.transformOrigin,
+          zIndex: cs.zIndex === 'auto' ? '' : cs.zIndex, visibility: cs.visibility, display: cs.display === 'none' ? 'none' : '' });
+      }
       const bw = video.clientWidth, bh = video.clientHeight; if (!bw || !bh) continue;
       const k = Math.min(devicePixelRatio || 1, 1920 / bw), W = Math.round(bw * k), H = Math.round(bh * k);
       const sized = c.width !== W || c.height !== H;
