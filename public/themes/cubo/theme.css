@@ -661,9 +661,6 @@ img[src^="/dl/"] { background: rgba(255, 255, 255, .94); border-radius: .5em; pa
 :is(.theme-canales, .theme-doble, .theme-lavanda, .theme-manzana, .theme-plaza, .theme-relieve, .theme-luna, .theme-naranja, .theme-paneles) #detail .detail-logo img[data-tone="light"] {
   filter: drop-shadow(0 0 .05rem rgba(0,0,0,.8)) drop-shadow(0 .12rem .5rem rgba(0,0,0,.55)); }
 
-/* Filtro CRT: el lienzo ocupa el lugar del video, que sigue sonando oculto debajo. */
-.crt-canvas { position: absolute; left: 0; top: 0; pointer-events: none; }
-video.crt-src { clip-path: inset(50%); }
 
 /* Modo depuración: lo que le falta al juego, fijo arriba a la derecha de la ficha, igual en todos los temas. */
 #dbgMissing { position: fixed; top: 3.6rem; right: 1.6rem; z-index: 40; max-width: 15rem; display: flex; flex-direction: column; gap: .25rem;

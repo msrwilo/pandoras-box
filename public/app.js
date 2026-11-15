@@ -2,7 +2,6 @@
 import { Spring, onFrame, onAction, draggable, project, rubberband, rem, sticks, reducedMotion, $, h, setTextSink, setCapture, getInputMode, setPadLayout } from './core.js';
 import * as S from './sound.js';
 import { Manual, MODES as MANUAL_MODES } from './manual.js';
-import * as CRT from './crt.js';
 // Las peticiones que cambian algo (abrir juegos, guardar ajustes…) llevan esta marca: una página web
 // cualquiera no puede ponerla, así que no puede pedirle nada a Pandora aunque encuentre el puerto.
 { const f = window.fetch.bind(window); window.fetch = (u, o = {}) => (o.method || 'GET').toUpperCase() === 'POST' ? f(u, { ...o, headers: { ...(o.headers || {}), 'X-Pandora': '1' } }) : f(u, o); }
@@ -30,7 +29,7 @@ const DEFAULTS = {
   theme: 'cubo', soundTheme: 'auto', volume: 0.7, ambient: 0.6, favFirst: true,
   audioMode: 'video', autoVideo: true, imageType: 'box',
   shelfLayout: 'tema', detailLayout: 'tema', manualMode: 'doble',
-  cinemaDelay: 8, spectatorIdle: 5, crtVideo: 'off', debugMissing: false,
+  cinemaDelay: 8, spectatorIdle: 5, debugMissing: false,
   // Qué aparece en el inicio, búsqueda y combinación para cerrar un juego.
   logoSound: true, marcas: true, padLayout: 'xbox',
   sections: { all: true, Consoles: true, Handhelds: true, Arcade: true, Computers: true, modes: true, genres: true, developers: true, series: true },
@@ -218,36 +217,6 @@ const Back = {
   get playing() { return !!this.video && bgVideo.style.opacity === '1' && !bgVideo.paused; },
   refresh() { backdrop.classList.toggle('media', !!(this.img || this.video)); },
 };
-// Filtro CRT (crt-lottes) en los videos: apagado, solo en plataformas 2D o en todos.
-const PLAT_2D = new Set(['Nintendo Entertainment System', 'Sega Master System', 'NEC TurboGrafx-16', 'NEC TurboGrafx-CD', 'PC Engine SuperGrafx',
-  'Sega Genesis', 'Super Nintendo Entertainment System', 'Sega CD', 'Sega 32X', 'Sega Saturn', 'Nintendo Game Boy', 'Nintendo Game Boy Color',
-  'Nintendo Game Boy Advance', 'Sega Game Gear', 'Nintendo Virtual Boy', 'SNK Neo Geo Pocket Color', 'WonderSwan', 'WonderSwan Color', 'Atari 2600',
-  "Arcade 80's", "Arcade 90's", 'Arcade Y2K', 'Daphne', 'Microsoft MSX', 'MS-DOS', 'Sharp X68000', 'Philips CD-i', 'ScummVM'].map(x => x.toLowerCase().replace(/[^a-z0-9]/g, '')));
-const is2D = name => PLAT_2D.has(String(name || '').toLowerCase().replace(/[^a-z0-9]/g, ''));
-// De qué plataforma es un video: primero los videos de plataforma de la biblioteca, luego la carpeta del archivo
-// (Videos/<plataforma>/…) y, si no, el juego que está en pantalla.
-let platVideos = null;
-function videoPlatform(url) {
-  if (library && platVideos?.lib !== library) {
-    platVideos = new Map(); platVideos.lib = library;
-    for (const c of library.categories || []) for (const p of c.platforms || []) if (p.media?.video) platVideos.set(p.media.video, p.name);
-  }
-  const norm = u => { try { const x = new URL(u, location.href); return decodeURIComponent(x.pathname) + x.search; } catch { return u; } };
-  const full = norm(url), path = full.split('?')[0];
-  for (const [k, name] of platVideos || []) if (norm(k) === full) return name;
-  const x = /\/Videos\/([^/]+)\/([^/?]+)/i.exec(path);
-  if (x && !/^Platform/i.test(x[1])) return x[1];
-  if (x) return x[2].replace(/\.[a-z0-9]+$/i, '');
-  return currentGame?.platform || '';
-}
-function crtFor(url) {
-  const m = settings?.crtVideo;
-  if (!url || !m || m === 'off') return false;
-  return m === 'all' || is2D(videoPlatform(url));
-}
-// Todos los videos de la app (el de fondo, «Ver video» y los que cada tema pone en su inicio) pasan por el filtro.
-CRT.watchAll(v => crtFor(v.currentSrc || v.src));
-onFrame(() => CRT.frame());
 bgVideo.addEventListener('playing', () => {
   if (!Back.video) return;
   bgVideo.style.opacity = 1; backdrop.classList.add('vid'); Back.refresh(); updateAudio();
@@ -1938,7 +1907,6 @@ const Menu = {
       { name: 'Videos', rows: [
         yes('autoVideo', 'Reproducir videos', 'Muestra el video del juego o consola cuando te detienes en él.'),
         opt('cinemaDelay', 'Modo cine', { 0: 'Nunca', 2: 'A los 2 s', 3: 'A los 3 s', 5: 'A los 5 s', 8: 'A los 8 s', 15: 'A los 15 s', 30: 'A los 30 s' }, 'Si no tocas nada, oculta los textos y deja el video a pantalla completa.'),
-        opt('crtVideo', 'Filtro CRT en los videos', { off: 'No', '2d': 'Solo consolas 2D', all: 'En todos' }, 'Pasa el video por el filtro crt-lottes de RetroArch (líneas, máscara y curvatura) para que no se vea pixelado. Se aplica a todos los videos: fondo, inicio de cada tema y «Ver video».'),
         opt('spectatorIdle', 'Modo espectador', { 0: 'Nunca', 3: 'A los 3 min', 5: 'A los 5 min', 10: 'A los 10 min' }, 'En el inicio, si no tocas nada, pasa videos de tu colección uno tras otro.'),
       ] },
       { name: 'Inicio', rows: [
