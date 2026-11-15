@@ -76,3 +76,7 @@ body.theme-mosaicos { font-weight: 600; }
 .theme-mosaicos #detail.D-tema .act { border-radius: .3rem; background: #4a4a4a; border-color: transparent; }
 .theme-mosaicos #detail.D-tema .act.focus { background: #4a4a4a; color: #fff; box-shadow: 0 0 0 .25rem #00c3e3; transform: none; }
 .theme-mosaicos #detail.D-tema .facts > div:nth-child(n+7) { display: none; }
+
+/* Tanda 2: la ficha y la lista ya no ponen texto directo sobre el arte. */
+.theme-mosaicos #backdrop.clear .bg-layer, .theme-mosaicos #backdrop.clear #bgVideo,
+.theme-mosaicos #backdrop.dim .bg-layer, .theme-mosaicos #backdrop.dim #bgVideo { filter: brightness(.28) blur(.25rem); }

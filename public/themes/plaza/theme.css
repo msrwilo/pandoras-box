@@ -74,3 +74,4 @@
 .theme-plaza #detail.D-tema .detail-main { padding: 1.6rem 2rem; border-radius: 1.6rem; background: #fff; box-shadow: 0 .4rem 1.4rem rgba(26, 163, 232, .2); }
 .theme-plaza #detail.D-tema .desc-box { position: relative; padding: 1rem 1.2rem; border-radius: 1.2rem; background: #eaf3f8; mask-image: none; }
 .theme-plaza #detail.D-tema .act { border-radius: 99rem; }
+.theme-plaza .chips span.star { color: #8a5a00; }

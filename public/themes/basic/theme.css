@@ -85,3 +85,7 @@
 .theme-basic #detail.D-tema .act { height: 2.2rem; padding: 0 .4rem; border: 0; border-radius: 0; background: none; color: #fff; font-weight: 400; font-size: 1.2rem; backdrop-filter: none; text-transform: lowercase; }
 .theme-basic #detail.D-tema .act .gl { display: none; }
 .theme-basic #detail.D-tema .act.focus { background: #fff; color: #5455ed; transform: none; box-shadow: none; }
+
+/* Tanda 2: el arte casi no se ve detrás del texto de BASIC. */
+.theme-basic #backdrop.clear .bg-layer, .theme-basic #backdrop.clear #bgVideo,
+.theme-basic #backdrop.dim .bg-layer, .theme-basic #backdrop.dim #bgVideo { filter: brightness(.35) saturate(.4) blur(.3rem); opacity: .5; }

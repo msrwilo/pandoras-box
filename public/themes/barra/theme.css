@@ -38,9 +38,9 @@ body.theme-barra { font-weight: 300; }
 /* ===== Vista «Del tema»: columna vertical de la barra cruzada (lista) y banda de información (ficha) ===== */
 .theme-barra #shelf.L-tema::before { content: attr(data-plat); position: absolute; left: 12rem; top: 6.2rem; font-size: 1rem; font-weight: 300; letter-spacing: .04em; color: rgba(255,255,255,.75); }
 .theme-barra #shelf.L-tema::after { content: ''; position: absolute; left: 12rem; right: 12rem; top: 8.4rem; height: 1px; background: linear-gradient(90deg, rgba(255,255,255,.5), transparent); }
-.theme-barra #shelf.L-tema .shelf-track { left: 12rem; width: 50rem; top: 9.6rem; bottom: 5.6rem; padding: 0; mask-image: linear-gradient(180deg, transparent, #000 22%, #000 78%, transparent); }
-.theme-barra #shelf.L-tema .row-item { width: 48rem; background: none; box-shadow: none; font-weight: 300; font-size: 1.15rem; color: rgba(255,255,255,.6); transition: font-size .18s, color .18s; }
-.theme-barra #shelf.L-tema .row-item .s { font-weight: 300; color: rgba(255,255,255,.35); }
+.theme-barra #shelf.L-tema .shelf-track { left: 12rem; width: 50rem; top: 9.6rem; bottom: 5.6rem; padding: 0; mask-image: linear-gradient(180deg, transparent, #000 10%, #000 90%, transparent); }
+.theme-barra #shelf.L-tema .row-item { width: 48rem; background: none; box-shadow: none; font-weight: 300; font-size: 1.15rem; color: rgba(255,255,255,.85); transition: font-size .18s, color .18s; }
+.theme-barra #shelf.L-tema .row-item .s { font-weight: 300; color: rgba(255,255,255,.6); }
 .theme-barra #shelf.L-tema .row-item.focus { font-size: 1.75rem; color: #fff; text-shadow: 0 0 1rem rgba(170, 215, 255, .9); background: none; box-shadow: none; }
 .theme-barra #shelf.L-tema .row-item.focus .s { color: rgba(255,255,255,.75); font-size: 1rem; }
 .theme-barra #shelf.L-tema .shelf-floor { display: none; }
@@ -62,3 +62,9 @@ body.theme-barra { font-weight: 300; }
 .theme-barra #detail.D-tema .desc-box { font-weight: 300; }
 .theme-barra #detail.D-tema .act { background: none; border: 0; border-radius: 0; font-weight: 300; font-size: 1.15rem; padding: 0 1rem; color: rgba(255,255,255,.65); }
 .theme-barra #detail.D-tema .act.focus { color: #fff; background: none; transform: none; box-shadow: none; text-shadow: 0 0 1rem rgba(170, 215, 255, .95); border-bottom: 1px solid #fff; }
+
+/* Tanda 2: arte más oscuro; los juegos sin enfocar se leen. */
+.theme-barra #backdrop.clear .bg-layer, .theme-barra #backdrop.clear #bgVideo,
+.theme-barra #backdrop.dim .bg-layer, .theme-barra #backdrop.dim #bgVideo { filter: brightness(.3) blur(.25rem); }
+.theme-barra #shelf .row-item { opacity: 1; }
+.theme-barra { --muted: rgba(235, 240, 255, .78); --faint: rgba(235, 240, 255, .55); }

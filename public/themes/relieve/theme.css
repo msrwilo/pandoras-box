@@ -83,3 +83,6 @@
 .theme-relieve #detail.D-tema .act { border-radius: 99rem; }
 .theme-relieve #detail.D-tema .stats { display: none; }
 .theme-relieve #detail.D-tema .actions { margin-top: .8rem; }
+
+/* Tanda 2: la calificación (estrella) se lee sobre blanco. */
+.theme-relieve .chips span.star { color: #8a5a00; }

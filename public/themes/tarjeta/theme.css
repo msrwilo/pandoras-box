@@ -62,3 +62,7 @@
 .theme-tarjeta #detail.D-tema .detail-art img { inset: 1rem 1rem 2.2rem; width: calc(100% - 2rem); height: calc(100% - 3.2rem); object-fit: cover; border-radius: .4rem; filter: none; }
 .theme-tarjeta #detail.D-tema .thumbs { top: 33rem; bottom: auto; }
 .theme-tarjeta #detail.D-tema .act { border-radius: .4rem; }
+
+/* Tanda 2: arte de fondo más oscuro bajo la lista y la ficha. */
+.theme-tarjeta #backdrop.clear .bg-layer, .theme-tarjeta #backdrop.clear #bgVideo,
+.theme-tarjeta #backdrop.dim .bg-layer, .theme-tarjeta #backdrop.dim #bgVideo { filter: brightness(.28) blur(.25rem); }

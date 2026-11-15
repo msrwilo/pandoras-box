@@ -95,3 +95,6 @@
 .theme-doble #detail.D-tema .actions { margin-top: .8rem; }
 .theme-doble #detail.D-tema .act { flex: 1; justify-content: center; height: 3.6rem; border-radius: .9rem; background: #fff; border: .18rem solid #c9d1db; color: #2c3440; font-weight: 800; }
 .theme-doble #detail.D-tema .act.focus { border-color: #2d8cff; background: #e8f2ff; color: #1f74d8; transform: none; }
+
+/* Tanda 2: la calificación (estrella) se lee sobre blanco. */
+.theme-doble .chips span.star { color: #8a5a00; }

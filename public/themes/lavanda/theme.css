@@ -99,3 +99,8 @@
 .theme-lavanda #detail.D-tema .act { border-radius: 99rem; }
 .theme-lavanda #detail.D-tema .act.primary { background: linear-gradient(180deg, #8a80e0, #5b4fbf); }
 .theme-lavanda #detail.D-tema .detail-art:has(img[hidden]) { visibility: hidden; }
+
+/* Tanda 2: textos de la ficha más oscuros y calificación legible sobre fondo claro. */
+.theme-lavanda { --muted: #4b4b5c; --faint: #6b6b7c; }
+.theme-lavanda #backdrop.media:not(.ghost) .bg-tint { background: linear-gradient(90deg, rgba(var(--tint), .97), rgba(var(--tint), .9)); }
+.theme-lavanda .chips span.star { color: #8a5a00; }

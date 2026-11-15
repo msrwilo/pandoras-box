@@ -103,3 +103,6 @@
 /* Legibilidad sobre el arte de fondo. */
 .theme-pantalla #detail.D-tema .detail-main { background: #9bbc0f; border: .5rem double #0f380f; border-radius: .6rem; padding: 1rem 1.4rem; }
 .theme-pantalla #detail.D-tema .detail-main { left: 39.4rem; }
+
+/* Tanda 2: la barra de ayudas se lee sobre el verde. */
+.theme-pantalla #hints { color: #0f380f; font-weight: 700; }

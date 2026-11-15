@@ -44,8 +44,8 @@
 /* ===== Vista «Del tema»: lista en profundidad y visor con marco de alambre (lista), ficha en dos planos (ficha) ===== */
 .theme-rojo #shelf.L-tema .shelf-track { left: 4rem; width: 44rem; top: 7rem; bottom: 6rem; padding: 0; transform: perspective(60rem) rotateY(16deg); transform-origin: left center; background: #000; box-shadow: 0 0 0 .15rem #3a0000;
   mask-image: linear-gradient(180deg, transparent, #000 18%, #000 82%, transparent); }
-.theme-rojo #shelf.L-tema .row-item { width: 42rem; background: none; box-shadow: none; color: #b00000; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
-.theme-rojo #shelf.L-tema .row-item .s { color: #6a0000; }
+.theme-rojo #shelf.L-tema .row-item { width: 42rem; background: none; box-shadow: none; color: #e81c1c; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+.theme-rojo #shelf.L-tema .row-item .s { color: #b00000; }
 .theme-rojo #shelf.L-tema .row-item.focus { color: #ff4a4a; background: none; outline: .12rem solid #ff0000; outline-offset: -.2rem;
   text-shadow: 0 0 .9rem #ff0000, .25rem 0 0 rgba(255, 0, 0, .35), -.25rem 0 0 rgba(120, 0, 0, .5); box-shadow: none; }
 .theme-rojo #shelf.L-tema .fav-badge { color: #ff2a2a; }
@@ -71,3 +71,8 @@
 .theme-rojo #detail.D-tema .act { border-radius: 0; letter-spacing: .12em; text-transform: uppercase; }
 .theme-rojo #detail.D-tema .act.focus { outline: .12rem solid #ff6a6a; outline-offset: .3rem; transform: none; }
 .theme-rojo #detail.D-tema::before { content: attr(data-plat); position: absolute; right: 6rem; top: 5rem; color: #6a0000; letter-spacing: .3em; font-weight: 700; text-transform: uppercase; }
+
+/* Tanda 2: el arte de fondo, mucho más oscuro para que se lea el rojo; textos secundarios más claros. */
+.theme-rojo { --muted: #ff4a4a; --faint: #c01010; }
+.theme-rojo .bg-layer, .theme-rojo #bgVideo { filter: grayscale(1) brightness(.3) sepia(1) saturate(6) hue-rotate(-50deg) contrast(1.2) !important; }
+.theme-rojo #hints { color: #ff4a4a; }

@@ -213,7 +213,7 @@ body:not(.theme-cubo) #homeTheme { display: block; }
 #shelf.L-rejilla .shelf-logo { height: 4.6rem; }
 #shelf.L-rejilla .shelf-logo h1 { font-size: 2.2rem; }
 #shelf.L-rejilla .desc { display: none; }
-#shelf.L-rejilla .shelf-track { top: 15.5rem; bottom: 1rem; height: auto;
+#shelf.L-rejilla .shelf-track { top: 15.5rem; bottom: 4.6rem; height: auto;
   mask-image: linear-gradient(180deg, transparent 0, #000 1.6rem, #000 85%, transparent); }
 #shelf.L-rejilla .shelf-floor { display: none; }
 #shelf.L-rejilla .item { transform-origin: 50% 50%; }
@@ -540,7 +540,7 @@ img[src^="/dl/"] { background: rgba(255, 255, 255, .94); border-radius: .5em; pa
 .shelf-stats { display: none; }
 #shelf.L-biblioteca::before { content: ''; position: absolute; left: 62rem; right: 4.6rem; top: 5rem; bottom: 2.4rem; border-radius: 1.2rem;
   background: var(--bib-panel, rgba(12, 14, 24, .78)); border: 1px solid var(--line); backdrop-filter: blur(1.4rem); pointer-events: none; }
-#shelf.L-biblioteca .shelf-track { left: 2.4rem; right: auto; width: 58rem; top: 5rem; bottom: 1rem; height: auto;
+#shelf.L-biblioteca .shelf-track { left: 2.4rem; right: auto; width: 58rem; top: 5rem; bottom: 4.6rem; height: auto;
   mask-image: linear-gradient(180deg, transparent 0, #000 1.2rem, #000 92%, transparent); }
 #shelf.L-biblioteca .shelf-floor { display: none; }
 #shelf.L-biblioteca .item { transform-origin: 50% 50%; }
@@ -639,3 +639,7 @@ img[src^="/dl/"] { background: rgba(255, 255, 255, .94); border-radius: .5em; pa
 /* Marca «pandora's box»: la «o» de box es la caja. */
 .boot-word b { font-weight: 700; letter-spacing: .14em; color: #fff; }
 .boot-o { display: inline-block; width: 1.05em; height: 1.05em; vertical-align: -.16em; margin: 0 .3em 0 .05em; overflow: visible; }
+
+/* Tanda 2 (14 nov 2026): barra de ayudas más grande para la tele de 720p. */
+#hints { font-size: 1rem; gap: 2rem; }
+#hints .gl { font-size: .85em; }

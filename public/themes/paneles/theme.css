@@ -92,3 +92,4 @@
 .theme-paneles #detail.D-tema .desc-box { color: #444; mask-image: none; }
 .theme-paneles #detail.D-tema .act { border-radius: .3rem; }
 .theme-paneles #detail.D-tema .desc-box { min-height: 0; overflow: hidden; }
+.theme-paneles .chips span.star { color: #8a5a00; }

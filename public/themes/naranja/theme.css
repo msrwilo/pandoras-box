@@ -92,3 +92,4 @@
 .theme-naranja #detail.D-tema .detail-main { overflow: visible; }
 .theme-naranja #detail.D-tema .facts > div:nth-child(n+7) { display: none; }
 .theme-naranja #detail.D-tema .desc-box { flex: 1 1 auto; min-height: 0; overflow: hidden; }
+.theme-naranja .chips span.star { color: #8a5a00; }

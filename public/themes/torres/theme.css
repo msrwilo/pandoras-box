@@ -78,3 +78,8 @@
 .theme-torres #detail.D-tema .chips span { border-radius: .2rem; background: rgba(40, 80, 190, .3); border-color: rgba(150, 195, 255, .4); font-weight: 400; }
 .theme-torres #detail.D-tema .act { border-radius: .2rem; background: rgba(40, 80, 190, .35); border: 1px solid rgba(150, 195, 255, .5); font-weight: 400; }
 .theme-torres #detail.D-tema .act.focus { background: rgba(120, 175, 255, .9); color: #01030c; box-shadow: 0 0 1.6rem rgba(120, 175, 255, .8); transform: none; }
+
+/* Tanda 2: arte más oscuro; texto de la ficha más claro. */
+.theme-torres #backdrop.clear .bg-layer, .theme-torres #backdrop.clear #bgVideo,
+.theme-torres #backdrop.dim .bg-layer, .theme-torres #backdrop.dim #bgVideo { filter: brightness(.26) blur(.25rem); }
+.theme-torres { --muted: rgba(225, 235, 255, .82); }
