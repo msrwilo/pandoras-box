@@ -439,7 +439,8 @@ function renderChrome() {
   if (key === 'menu') hints = Menu.hints();
   if (key === 'picker' && !Picker.game) hints = [['ud', 'Elegir'], ['a', 'Aceptar'], ['b', 'Cerrar']];
   // La A de la ficha activa el botón que tengas marcado: la ayuda dice cuál es.
-  if (key === 'detail' && screens.detail.acts?.[screens.detail.ai]) hints = hints.map(x => x[0] === 'a' ? ['a', screens.detail.acts[screens.detail.ai].label] : x);
+  const dAct = key === 'detail' && screens.detail.acts?.[screens.detail.ai];
+  if (dAct && !dAct.primary) hints = hints.map(x => x[0] === 'a' ? ['a', dAct.label] : x); // «Jugar» ya lo dice la X
   if (key === 'detail' && detailLay() === 'galeria') hints = [hints[0], ['lbrb', 'Imágenes'], ...hints.slice(1)];
   if (key === 'platforms' && screens.platforms.cat?.letters) hints = [hints[0], ['ltrt', 'Letra'], ...hints.slice(1)];
   if (key === 'platforms' && screens.platforms.cat?.kind === 'developers' && screens.platforms.focused?.mode) hints = [hints[0], ['x', 'Logo'], ...hints.slice(1)];
