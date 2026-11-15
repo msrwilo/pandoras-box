@@ -89,7 +89,7 @@ body.theme-canales { font-weight: 600; }
 .theme-canales #detail.D-tema .detail-art { left: 9rem; right: 9rem; width: auto; top: 5.4rem; height: 31rem; border-radius: 2.4rem; overflow: hidden; background: #fff;
   box-shadow: inset 0 0 0 .5rem #fff, 0 0 0 .3rem #d5dbdf, 0 1rem 2.4rem rgba(0, 0, 0, .18); }
 .theme-canales #detail.D-tema .detail-art img { inset: .5rem; width: calc(100% - 1rem); height: calc(100% - 1rem); border-radius: 2rem; object-fit: cover; filter: none; transform: none !important; }
-.theme-canales #detail.D-tema .detail-main { left: 9rem; right: 9rem; width: auto; top: 34rem; bottom: 5.4rem; display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto auto 1fr;
+.theme-canales #detail.D-tema .detail-main { left: 9rem; right: 9rem; width: auto; top: 34rem; bottom: 5.4rem; display: grid; grid-template-columns: minmax(24rem, 1fr) auto; grid-template-rows: auto auto 1fr;
   column-gap: 2rem; align-content: start; }
 .theme-canales #detail.D-tema .detail-logo { grid-column: 1; min-height: 0; height: auto; display: block; }
 .theme-canales #detail.D-tema .detail-logo img, .theme-canales #detail.D-tema .detail-logo h1 { display: none; }
@@ -97,7 +97,7 @@ body.theme-canales { font-weight: 600; }
 .theme-canales #detail.D-tema #dSub { grid-column: 1; }
 .theme-canales #detail.D-tema .desc-box { grid-column: 1; max-height: 3.2rem; overflow: hidden; margin-top: .4rem; mask-image: none; font-size: .95rem; }
 .theme-canales #detail.D-tema .actions { grid-column: 2; grid-row: 1 / span 3; margin: 0; align-self: center; flex-wrap: nowrap; gap: 1.2rem; }
-.theme-canales #detail.D-tema .act { height: 4.4rem; min-width: 14rem; justify-content: center; border-radius: 99rem; background: linear-gradient(180deg, #fff, #eef1f3); color: #3a3d40;
+.theme-canales #detail.D-tema .act { height: 4.4rem; min-width: 10rem; justify-content: center; border-radius: 99rem; background: linear-gradient(180deg, #fff, #eef1f3); color: #3a3d40;
   border: .25rem solid #c9d0d5; font-size: 1.15rem; font-weight: 800; }
 .theme-canales #detail.D-tema .act.primary { color: #1a9fd0; }
 .theme-canales #detail.D-tema .act.focus { border-color: #34beed; box-shadow: 0 0 1.4rem rgba(52, 190, 237, .6); background: linear-gradient(180deg, #fff, #eef1f3); color: #1a9fd0; }

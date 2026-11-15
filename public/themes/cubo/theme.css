@@ -266,7 +266,7 @@ body:not(.theme-cubo) #homeTheme { display: block; }
 .stats { margin-top: 1rem; display: flex; gap: 2rem; font-size: .9rem; color: var(--muted); }
 .stats b { display: block; color: var(--text); font-size: 1.15rem; font-weight: 600; }
 .actions { margin-top: 1.6rem; display: flex; gap: .8rem; flex-wrap: wrap; }
-.act { display: inline-flex; align-items: center; gap: .6rem; height: 3.2rem; padding: 0 1.4rem; border-radius: 99rem;
+.act { display: inline-flex; align-items: center; gap: .6rem; height: 3.2rem; padding: 0 1.4rem; border-radius: 99rem; white-space: nowrap; flex: none;
   font-size: 1.02rem; font-weight: 600; background: var(--glass); border: 1px solid var(--line); backdrop-filter: blur(1rem);
   transition: transform .12s ease-out, background .2s; }
 .act.primary { background: var(--primary); color: var(--primary-fg); }

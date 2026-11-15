@@ -1333,24 +1333,62 @@ screens.detail = {
     clearTimeout(this.vt);
     if (settings.autoVideo && m.video && Back.video !== m.video) this.vt = setTimeout(() => { if (currentGame === game && top() === 'detail') Back.setVideo(m.video); }, 700);
   },
+  // Los botones de la ficha van siempre en un solo renglón. Si no caben (juegos con video, manual,
+  // música, versiones…), los menos usados se juntan en «Más», que abre una lista con ellos.
   buildActions() {
     const game = this.game, m = game.media;
-    this.acts = [
+    this.all = [
       { label: 'Jugar', g: 'x', primary: true, run: () => play(game) },
-      m.video && { label: 'Ver video', run: () => Viewer.show({ kind: 'video', url: m.video }) },
-      this.images.length && { label: 'Imágenes', n: this.images.length, run: () => Viewer.show({ kind: 'images', items: this.images, index: 0 }) },
-      m.manual && { label: 'Manual', run: () => Viewer.show({ kind: 'manual', url: m.manual }) },
-      m.music && { label: settings.audioMode === 'musica' ? 'Música sonando' : 'Escuchar música', run: () => { if (settings.audioMode !== 'musica') setAudio('musica'); } },
-      game.apps?.length && { label: 'Versiones', n: game.apps.length + 1, run: () => Picker.show(game) },
-      { label: game.favorite ? 'En favoritos' : 'Favorito', star: true, run: () => toggleFavorite(game).then(() => this.buildActions()) },
+      m.video && { label: 'Ver video', keep: 5, run: () => Viewer.show({ kind: 'video', url: m.video }) },
+      this.images.length && { label: 'Imágenes', keep: 4, n: this.images.length, run: () => Viewer.show({ kind: 'images', items: this.images, index: 0 }) },
+      m.manual && { label: 'Manual', keep: 3, run: () => Viewer.show({ kind: 'manual', url: m.manual }) },
+      m.music && { label: settings.audioMode === 'musica' ? 'Música sonando' : 'Escuchar música', keep: 1, run: () => { if (settings.audioMode !== 'musica') setAudio('musica'); } },
+      game.apps?.length && { label: 'Versiones', keep: 2, n: game.apps.length + 1, run: () => Picker.show(game) },
+      { label: game.favorite ? 'En favoritos' : 'Favorito', keep: 2.5, star: true, run: () => toggleFavorite(game).then(() => this.buildActions()) },
     ].filter(Boolean);
+    this.hidden = new Set();
+    this.renderActions();
+    this.fitActions();
+  },
+  renderActions() {
+    const game = this.game, more = this.all.filter(a => this.hidden.has(a));
+    this.acts = this.all.filter(a => !this.hidden.has(a));
+    if (more.length) this.acts.push({ label: 'Más', n: more.length, more: true, run: () => Picker.menu(game.title, more.map(a => ({ name: a.label + (a.n ? ` (${a.n})` : ''), run: a.run })), 'Más opciones de este juego') });
     this.ai = clamp(this.ai, 0, this.acts.length - 1);
     $('#dActions').replaceChildren(...this.acts.map((a, i) => {
-      const b = h('button', { class: 'act' + (a.primary ? ' primary' : '') + (a.star && game.favorite ? ' fav' : '') }, a.g ? glyph(a.g) : null, a.star ? h('span', { class: 'star-i', text: game.favorite ? '★' : '☆' }) : null, a.label, a.n ? h('span', { class: 'n', text: a.n }) : null);
+      const b = h('button', { class: 'act' + (a.primary ? ' primary' : '') + (a.more ? ' more' : '') + (a.star && game.favorite ? ' fav' : '') }, a.g ? glyph(a.g) : null, a.star ? h('span', { class: 'star-i', text: game.favorite ? '★' : '☆' }) : null, a.label, a.n ? h('span', { class: 'n', text: a.n }) : null);
       b.addEventListener('click', () => { this.ai = i; this.paint(); S.play('select'); a.run(); });
       return b;
     }));
     this.paint();
+  },
+  actionsFit() {
+    const box = $('#dActions'), bs = [...box.children];
+    if (bs.length < 2) return true;
+    const r = bs.map(b => b.getBoundingClientRect());
+    if (r.some(x => Math.abs((x.top + x.bottom) - (r[0].top + r[0].bottom)) > r[0].height)) return false; // más de un renglón
+    if (r.some(x => x.height > r[0].height * 1.5)) return false; // un texto se partió en dos líneas
+    let right = innerWidth - rem();
+    for (let e = box; e && e !== document.body; e = e.parentElement) {
+      if (e !== box && getComputedStyle(e).position === 'static' && e !== this.el) continue;
+      const er = e.getBoundingClientRect(), cs = getComputedStyle(e);
+      if (er.width) right = Math.min(right, er.right - (e === box ? 0 : parseFloat(cs.paddingRight) || 0));
+      if (e === this.el) break;
+    }
+    return Math.max(...r.map(x => x.right)) <= right + 1 && box.scrollWidth <= box.clientWidth + 1;
+  },
+  fitActions() {
+    if (top() !== 'detail' || !this.el.getBoundingClientRect().width) return;
+    const tf = this.el.style.transform; this.el.style.transform = 'none'; // se mide sin la animación de entrada
+    const order = this.all.filter(a => a.keep).sort((a, b) => a.keep - b.keep);
+    for (let k = 0; k < 8 && !this.actionsFit(); k++) {
+      // El primero que se guarda arrastra a otro: «Más» con una sola opción no ahorra lugar.
+      const next = order.filter(a => !this.hidden.has(a)).slice(0, this.hidden.size ? 1 : 2);
+      if (!next.length) break;
+      next.forEach(a => this.hidden.add(a));
+      this.renderActions();
+    }
+    this.el.style.transform = tf;
   },
   paintActions() { if (this.game) this.buildActions(); },
   resume() { Back.setLook('clear'); currentGame = this.game; updateAudio(); },
@@ -1388,6 +1426,8 @@ screens.detail = {
     if (!reducedMotion.matches) $('#dArt').style.transform = `translateY(${(Math.sin(this.t * 2 * Math.PI / 8) * 0.5).toFixed(3)}rem) rotate(${(Math.sin(this.t * 2 * Math.PI / 11) * 0.6).toFixed(3)}deg)`;
   },
 };
+addEventListener('resize', () => { if (top() === 'detail') screens.detail.paintActions(); });
+document.fonts?.ready.then(() => { if (top() === 'detail') screens.detail.paintActions(); });
 function setAudio(mode) {
   settings.audioMode = mode; saveSettings(); renderChrome(); updateAudio(); syncHomeVideos(); toast(`Audio: ${AUDIO_MODES[mode]}`);
   if (top() === 'detail') screens.detail.paintActions();
@@ -1765,18 +1805,16 @@ const Menu = {
     ];
     const detailRows = [opt('detailLayout', 'Acomodo de la ficha', DETAIL_LAYOUTS, '«Del tema» usa la ficha propia del tema. Las demás opciones sirven en cualquier tema.')];
     this.tabs = [
-      ...(t === 'shelf' ? [{ name: 'Esta lista', rows: shelfRows }] : t === 'detail' ? [{ name: 'Esta ficha', rows: detailRows }] : []),
       { name: 'Apariencia', rows: [
         opt('theme', 'Tema', { aleatorio: 'Aleatorio', ...themes }, 'Cambia todo el aspecto de Pandora. A abre la lista completa. «Aleatorio» cambia de tema cada vez que abres Pandora.'),
+        opt('buttonStyle', 'Botones en pantalla', { auto: 'Según el tema', ...Object.fromEntries(Object.entries(BUTTON_STYLES).map(([k, x]) => [k, x.label])) }, 'Cómo se dibujan los botones en las ayudas de abajo.'),
+        ...shelfRows.slice(0, 2),
+        ...detailRows,
         ...(settings.themeRandom ? [
-          { sec: 'Temas que pueden salir' },
+          { sec: 'Temas que pueden salir con «Aleatorio»' },
           act('rndAll', 'Marcar todos', 'Activa todos los temas para el aleatorio.'),
           ...Object.entries(themes).map(([k, l]) => yes('rnd.' + k, l, 'Si está activado, este tema puede salir al abrir Pandora. Debe quedar al menos uno.')),
-          { sec: 'Más opciones' },
         ] : []),
-        opt('buttonStyle', 'Botones en pantalla', { auto: 'Según el tema', ...Object.fromEntries(Object.entries(BUTTON_STYLES).map(([k, x]) => [k, x.label])) }, 'Cómo se dibujan los botones en las ayudas de abajo.'),
-        ...(t === 'shelf' ? [] : shelfRows.slice(0, 2)),
-        ...(t === 'detail' ? [] : detailRows),
       ] },
       { name: 'Sonido', rows: [
         rng('volume', 'Volumen general', 'Volumen de todo lo que suena en Pandora.'),
@@ -1798,6 +1836,7 @@ const Menu = {
         ...Object.entries(COLLECTIONS).filter(([k]) => (library[k] || []).length).map(([k, c]) => yes('sections.' + k, c.label, 'Muestra u oculta esta sección en el inicio.')),
       ] },
       { name: 'Listas', rows: [
+        shelfRows[2],
         yes('search', 'Búsqueda con teclado', 'Con Y se abre un teclado para buscar por nombre.'),
         yes('letterBar', 'Barra de letras', 'La barra con el abecedario a la derecha; LT y RT saltan de letra.'),
         { sec: 'Datos que se muestran' },
@@ -1825,14 +1864,16 @@ const Menu = {
         ...(window.pandora?.app ? [{ sec: 'Pandora’s Box' }, act('quit', 'Salir de Pandora’s Box', 'Cierra la aplicación.')] : []),
       ] },
     ];
-    const want = t === 'shelf' || t === 'detail' ? 0 : this.tabs.findIndex(x => x.name === this.lastTab);
-    this.setTab(want >= 0 ? want : 0);
+    // Las pestañas son siempre las mismas y en el mismo orden; se abre en Apariencia.
+    // Desde una lista o una ficha, el cursor cae en el acomodo de esa pantalla.
+    this.setTab(0);
+    const at = this.rows.findIndex(r => r.id === (t === 'shelf' ? 'shelfLayout' : t === 'detail' ? 'detailLayout' : 'theme'));
+    if (at >= 0) this.i = at;
   },
   setTab(ti) {
     this.ti = clamp(ti, 0, this.tabs.length - 1);
     this.rows = this.tabs[this.ti].rows;
     this.i = Math.max(0, this.rows.findIndex(r => !r.sec));
-    if (top() !== 'shelf' && top() !== 'detail') this.lastTab = this.tabs[this.ti].name;
   },
   get(id) { if (id.startsWith('rnd.')) return randomPool().includes(id.slice(4)); return id.startsWith('fields.') ? settings.fields[id.slice(7)] : id.startsWith('sections.') ? secOn(id.slice(9)) : settings[id]; },
   setv(id, v) {
@@ -1986,9 +2027,11 @@ const Menu = {
     const n = clamp(L.i + d, 0, L.keys.length - 1);
     if (n !== L.i) { L.i = n; S.play('move', n); this.paint(); } else S.play('error');
   },
-  action(a) {
+  action(a, rep) {
     if (this.list) return this.listAction(a);
     if (a === 'b' || a === 'menu') return this.close();
+    // Los valores cambian de uno en uno: mantener izquierda o derecha no los recorre (solo el volumen sigue).
+    if (rep && (a === 'left' || a === 'right' || a === 'lb' || a === 'rb') && !(this.rows[this.i]?.range && a.length > 2)) return;
     if (a === 'lb' || a === 'rb') {
       const n = clamp(this.ti + (a === 'lb' ? -1 : 1), 0, this.tabs.length - 1);
       if (n === this.ti) return S.play('error');
@@ -2179,7 +2222,7 @@ async function restore() {
     if (g && g.id === L.game) go('detail', { game: g, platform: p.mode ? { name: g.platform } : p }, true);
   }
 }
-onAction(a => {
+onAction((a, src, rep) => {
   if (!S.running()) { S.unlock(); applySound(); }
   if (!started) { if (library) start(); return; }
   const swallowed = poke() && top() !== 'spectator';
@@ -2190,7 +2233,7 @@ onAction(a => {
   if (Keyboard.open) return Keyboard.action(a);
   if (Picker.open) return Picker.action(a);
   if (Viewer.open) return Viewer.action(a);
-  if (Menu.open) return Menu.action(a);
+  if (Menu.open) return Menu.action(a, rep);
   if (a === 'menu') return Menu.show();
   if (a === 'b') { if (top() === 'home' && homeImpl.back?.()) return; if (top() !== 'home' && screens[top()].back?.()) return; back(); return; }
   if (a === 'view') { cycleAudio(); return; }

@@ -38,7 +38,7 @@ Están en pestañas (LB / RB). Debajo de cada opción hay una explicación corta
 
 | Pestaña | Contenido |
 |---|---|
-| Esta lista / Esta ficha | Aparece primero si abres los ajustes desde una lista o una ficha |
+| (orden fijo) | Las pestañas son siempre las mismas y se abre en Apariencia; desde una lista o una ficha el cursor cae en su acomodo. Izquierda/derecha cambia un valor por pulsación |
 | Apariencia | Tema, estilo de botones, acomodo de lista y ficha |
 | Sonido | Volumen, audio de fondo, ambiente y efectos |
 | Videos | Reproducir videos, modo cine y modo espectador |

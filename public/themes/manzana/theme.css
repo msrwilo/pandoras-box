@@ -53,7 +53,11 @@
 .theme-manzana #shelf.L-tema .item.focus::after { display: none; }
 .theme-manzana #shelf.L-tema .item.focus > .cap { display: block; position: absolute; left: -2rem; right: -2rem; top: calc(100% + .7rem); text-align: center; font-size: .9rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-.theme-manzana #detail.D-tema .detail-main { padding: 2rem 2.4rem; border-radius: 1.6rem; background: rgba(28, 28, 32, .82); backdrop-filter: blur(2rem); }
+.theme-manzana #detail.D-tema .detail-main { bottom: 5.6rem; padding: 2rem 2.4rem; border-radius: 1.6rem; background: rgba(28, 28, 32, .82); backdrop-filter: blur(2rem); }
 .theme-manzana #detail.D-tema .detail-art img { border-radius: 1.2rem; filter: drop-shadow(0 1.4rem 2.4rem rgba(0,0,0,.6)); }
 .theme-manzana #detail.D-tema .act { border-radius: .8rem; }
 .theme-manzana #detail.D-tema .act.primary { background: #fff; color: #111; }
+/* Con muchos datos la tarjeta se quedaba corta y los botones se salían: logo más bajo y hasta siete datos. */
+.theme-manzana #detail.D-tema .detail-logo { min-height: 0; }
+.theme-manzana #detail.D-tema .detail-logo img { height: 6.5rem; }
+.theme-manzana #detail.D-tema .facts > div:nth-child(n+8) { display: none; }

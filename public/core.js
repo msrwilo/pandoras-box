@@ -55,12 +55,12 @@ export const rem = () => parseFloat(getComputedStyle(document.documentElement).f
 const listeners = new Set();
 export function onAction(fn) { listeners.add(fn); return () => listeners.delete(fn); }
 let inputMode = 'pad';
-function emit(action, source) {
+function emit(action, source, rep = false) {
   if (source === 'touch') document.body.classList.add('touch');
   else if (source !== inputMode) document.body.classList.remove('touch');
   inputMode = source;
   if (source !== 'touch') document.body.classList.add('no-cursor');
-  for (const fn of listeners) { try { fn(action, source); } catch (e) { console.error(e); } }
+  for (const fn of listeners) { try { fn(action, source, rep); } catch (e) { console.error(e); } }
 }
 export const getInputMode = () => inputMode;
 
@@ -88,7 +88,7 @@ addEventListener('keydown', e => {
   if (!a) return;
   e.preventDefault();
   if (inInput) document.activeElement.blur();
-  emit(a, 'key');
+  emit(a, 'key', e.repeat);
 });
 addEventListener('pointermove', e => { if (e.pointerType === 'mouse') document.body.classList.remove('no-cursor'); });
 addEventListener('pointerdown', e => {
@@ -129,12 +129,15 @@ function pollGamepads(now) {
   if (quiet) { if (!pressed.size) quiet = false; return; }
   for (const a of pressed) {
     const h = held.get(a);
-    if (!h) { held.set(a, { since: now, next: now + 380 }); emit(a, 'pad'); }
+    // La siguiente repetición se cuenta desde que la interfaz terminó de responder: si un cambio tarda
+    // (cambiar de acomodo, rearmar el inicio), no se acumulan pulsaciones ni salen varias de golpe.
+    if (!h) { const n = { since: now, next: Infinity }; held.set(a, n); emit(a, 'pad'); n.next = performance.now() + 420; }
     else if (DIRS.has(a) || a === 'lb' || a === 'rb') {
       if (now >= h.next) {
         const t = now - h.since;
-        h.next = now + (t > 1800 ? 45 : t > 900 ? 70 : 110); // acelera al mantener
-        emit(a, 'pad');
+        h.next = Infinity;
+        emit(a, 'pad', true);
+        h.next = performance.now() + (t > 1800 ? 45 : t > 900 ? 70 : 110); // acelera al mantener
       }
     }
   }

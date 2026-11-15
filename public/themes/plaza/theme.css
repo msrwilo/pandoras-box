@@ -71,7 +71,11 @@
 .theme-plaza #shelf.L-tema .shelf-side { right: 5rem; top: 3.8rem; }
 
 .theme-plaza #detail.D-tema .detail-art img { filter: drop-shadow(0 .6rem 1.2rem rgba(43, 53, 64, .25)); }
-.theme-plaza #detail.D-tema .detail-main { padding: 1.6rem 2rem; border-radius: 1.6rem; background: #fff; box-shadow: 0 .4rem 1.4rem rgba(26, 163, 232, .2); }
+.theme-plaza #detail.D-tema .detail-main { bottom: 5.6rem; padding: 1.6rem 2rem; border-radius: 1.6rem; background: #fff; box-shadow: 0 .4rem 1.4rem rgba(26, 163, 232, .2); }
 .theme-plaza #detail.D-tema .desc-box { position: relative; padding: 1rem 1.2rem; border-radius: 1.2rem; background: #eaf3f8; mask-image: none; }
 .theme-plaza #detail.D-tema .act { border-radius: 99rem; }
 .theme-plaza .chips span.star { color: #8a5a00; }
+/* Con muchos datos la tarjeta se quedaba corta y los botones se salían: logo más bajo y hasta siete datos. */
+.theme-plaza #detail.D-tema .detail-logo { min-height: 0; }
+.theme-plaza #detail.D-tema .detail-logo img { height: 6.5rem; }
+.theme-plaza #detail.D-tema .facts > div:nth-child(n+8) { display: none; }
