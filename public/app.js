@@ -299,9 +299,9 @@ function cycleAudio() {
 function play(game, app) { Playing.launch(game, app); }
 
 let toastTimer;
-function toast(msg) {
+function toast(msg, ms = 2600) {
   const t = $('#toast'); t.textContent = msg; t.classList.add('show');
-  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("show"), ms);
 }
 
 // ======================================================================
@@ -381,8 +381,10 @@ function renderChrome() {
   const key = Setup.open ? 'setup' : Capture.open ? 'capture' : Keyboard.open ? 'keyboard' : Playing.active ? 'playing' : Picker.open ? 'picker' : Menu.open ? 'menu' : Viewer.open ? Viewer.kind : top();
   let hints = (key === 'home' && homeImpl.hints) ? homeImpl.hints() : (HINTS[key] || []);
   if (key === 'menu') hints = Menu.hints();
+  if (key === 'picker' && !Picker.game) hints = [['ud', 'Elegir'], ['a', 'Aceptar'], ['b', 'Cerrar']];
   if (key === 'detail' && detailLay() === 'galeria') hints = [hints[0], ['lbrb', 'Imágenes'], ...hints.slice(1)];
   if (key === 'platforms' && screens.platforms.cat?.letters) hints = [hints[0], ['ltrt', 'Letra'], ...hints.slice(1)];
+  if (key === 'platforms' && screens.platforms.cat?.kind === 'developers' && screens.platforms.focused?.mode) hints = [hints[0], ['x', 'Logo'], ...hints.slice(1)];
   if (key === 'shelf') {
     const extra = [];
     extra.push(settings.search ? ['y', 'Buscar'] : ['y', 'Imagen']);
@@ -848,6 +850,25 @@ screens.platforms = {
     else if (a === 'rb') this.focus(this.idx + 5);
     else if (a === 'lt' || a === 'rt') this.letter(a === 'lt' ? -1 : 1);
     else if (a === 'a') this.open();
+    else if (a === 'x' && this.cat?.kind === 'developers' && this.focused?.mode) this.logoMenu(this.focused);
+  },
+  // Revisar el logo de una desarrolladora: quitarlo si está mal o buscarlo de nuevo.
+  logoMenu(p) {
+    const has = !!p.media.logo;
+    const send = async action => {
+      const r = await fetch('/api/devlogo', { method: 'POST', body: JSON.stringify({ name: p.name, action }) }).then(x => x.json()).catch(() => null);
+      if (!r) { S.play('error'); toast('No se pudo cambiar el logo'); return; }
+      for (const d of [...(library.developers || []), ...(library.developersAll || [])]) if (d.label === p.name) d.logo = r.logo || null;
+      const i = this.idx; this.enter(this.cat.name === ALL_DEVS.name ? collectionCategory('devAll') : collectionCategory('developers')); this.focus(i);
+      if (action === 'quitar') toast('Logo quitado. Quedó en datos\\logos\\papelera');
+      else { toast('Buscando el logo de ' + p.name + '…'); DevLogos.watch(); }
+    };
+    Picker.menu('Logo de ' + p.name, [
+      ...(has ? [{ name: 'Quitar este logo (está mal)', run: () => send('quitar') }] : []),
+      { name: has ? 'Buscar otro logo' : 'Buscar el logo otra vez', run: () => send('buscar') },
+      { name: 'Usar mi propia imagen', run: () => { toast('Pon «' + p.name + '.png» en datos\\logos\\desarrolladoras y reinicia', 6000); } },
+      { name: 'Cancelar', run: () => S.play('back') },
+    ], has ? 'Si el logo no es de esta empresa, quítalo o busca otro.' : 'Esta desarrolladora no tiene logo.');
   },
   frame(dt) {
     this.pos.step(dt);
@@ -1572,12 +1593,13 @@ function fmtClock(s) { const m = Math.floor(s / 60), x = s % 60; return `${m}:${
 const Picker = {
   open: false, i: 0, rows: [], el: $('#picker'),
   show(game) {
-    this.game = game;
+    this.game = game; this.title = game.title;
     this.rows = [{ name: 'Versión principal', app: null }, ...game.apps.map(a => ({ name: a.name, app: a }))];
     this.i = 0; this.open = true; this.el.hidden = false; this.paint(); S.play('open'); renderChrome();
   },
   paint() {
-    $('#pickTitle').textContent = this.game.title;
+    $('#pickTitle').textContent = this.title;
+    $('#pickSub').textContent = this.game ? 'Elige qué versión abrir' : (this.sub || '');
     $('#pickRows').replaceChildren(...this.rows.map((r, i) => {
       const el = h('div', { class: 'mrow' + (i === this.i ? ' focus' : '') }, h('span', { text: r.name }));
       el.addEventListener('click', () => { this.i = i; this.pick(); });
@@ -1586,7 +1608,9 @@ const Picker = {
     $('#pickRows').children[this.i]?.scrollIntoView({ block: 'nearest' });
   },
   close() { this.open = false; this.el.hidden = true; S.play('back'); renderChrome(); },
-  pick() { const r = this.rows[this.i]; this.open = false; this.el.hidden = true; renderChrome(); play(this.game, r.app); },
+  // Lista de opciones cualquiera: cada fila trae su propia acción.
+  menu(title, rows, sub = '') { this.game = null; this.title = title; this.sub = sub; this.rows = rows; this.i = 0; this.open = true; this.el.hidden = false; this.paint(); S.play('open'); renderChrome(); },
+  pick() { const r = this.rows[this.i]; this.open = false; this.el.hidden = true; renderChrome(); if (r.run) r.run(); else play(this.game, r.app); },
   action(a) {
     if (a === 'b') return this.close();
     if (a === 'up' || a === 'down') { const n = clamp(this.i + (a === 'up' ? -1 : 1), 0, this.rows.length - 1); if (n !== this.i) { this.i = n; S.play('move', n); this.paint(); } }

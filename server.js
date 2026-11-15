@@ -452,6 +452,7 @@ function api(pathname, q) {
   if (pathname === '/api/reload') { loadLibrary(); return { ok: true, total: lib.games.size }; }
   if (pathname === '/api/devlogos') {
     if (q.get('retry')) { devLogos.retry(); fetchDevLogos(true); }
+    if (q.get('name')) return { logo: devLogos.url(q.get('name')), origen: devLogos.origin(q.get('name')) };
     return { pending: devLogos.pending(), logos: Object.fromEntries((lib.developersAll || lib.developers).map(d => [d.label, devLogos.url(d.label)])) };
   }
   if (pathname === '/api/setup') return { ok: isLaunchBox(LB), path: LB, candidates: findLaunchBox(), dataDir: DATA_DIR };
@@ -537,6 +538,16 @@ const server = http.createServer(async (req, res) => {
         out = { ok: true, path: LB, total: lib.games.size };
       }
       res.writeHead(200, { 'Content-Type': 'application/json' }); return res.end(JSON.stringify(out));
+    }
+    // Revisar logos de desarrolladoras: quitar uno equivocado o buscarlo otra vez (nunca se borra: va a logos/papelera).
+    if (req.method === 'POST' && p === '/api/devlogo') {
+      const body = JSON.parse(await readBody(req) || '{}');
+      const name = String(body.name || '');
+      if (!name || !(lib.developersAll || []).some(d => d.label === name)) { res.writeHead(400); return res.end('{}'); }
+      if (body.action === 'quitar') devLogos.remove(name);
+      else if (body.action === 'buscar') devLogos.research(name);
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ ok: true, logo: devLogos.url(name), pending: devLogos.pending() }));
     }
     // Borrar datos propios de Pandora (nunca toca LaunchBox).
     if (req.method === 'POST' && p === '/api/reset') {
