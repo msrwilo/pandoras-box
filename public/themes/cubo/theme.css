@@ -92,7 +92,11 @@ h1, h2, p, dl, dd { margin: 0; }
 
 /* Modo cine: el video completo, sin recortar, con el fanart difuminado de relleno. */
 body.cine #backdrop .bg-layer { filter: brightness(.38) blur(2.6rem) saturate(1.2); transform: scale(1.1); }
-body.cine #backdrop #bgVideo { object-fit: contain; filter: none; }
+/* Va con !important: varios temas oscurecen y difuminan el fondo con reglas más específicas, y en modo cine
+   el video se quedaba así. Virtual Boy conserva su rojo, pero con el brillo completo. */
+body.cine #backdrop #bgVideo { object-fit: contain; filter: none !important; }
+body.cine.theme-rojo #backdrop #bgVideo { filter: grayscale(1) brightness(.9) sepia(1) saturate(6) hue-rotate(-50deg) contrast(1.4) !important; }
+body.cine.theme-pantalla #backdrop #bgVideo { filter: grayscale(1) contrast(1.4) brightness(.9) sepia(1) hue-rotate(40deg) saturate(2.4) !important; }
 body.cine #backdrop.ghost.vid #bgVideo { opacity: 1 !important; }
 body.cine #backdrop .bg-tint, body.cine #particles { opacity: 0 !important; }
 #app, #topbar, #hints { transition: opacity .9s ease; }
