@@ -99,6 +99,11 @@ addEventListener('pointerdown', e => {
 // Botones del mapeo estándar (Xbox, Switch Pro y los virtuales de Sunshine).
 const BTN = { 0: 'a', 1: 'b', 2: 'x', 3: 'y', 4: 'lb', 5: 'rb', 6: 'lt', 7: 'rt', 8: 'view', 9: 'menu', 10: 'ls', 11: 'rs', 12: 'up', 13: 'down', 14: 'left', 15: 'right' };
 const DIRS = new Set(['up', 'down', 'left', 'right']);
+// Distribución de botones: «xbox» (abajo = A) o «switch» (derecha = A, abajo = B; X e Y también cambian).
+// Solo afecta a la navegación; al grabar una combinación se usan los botones físicos.
+const SWAP = { a: 'b', b: 'a', x: 'y', y: 'x' };
+let padLayout = 'xbox';
+export function setPadLayout(v) { padLayout = v === 'switch' ? 'switch' : 'xbox'; held.clear(); }
 const held = new Map(); // acción -> {since, next}
 export const sticks = { rx: 0, ry: 0 };
 function pollGamepads(now) {
@@ -113,7 +118,7 @@ function pollGamepads(now) {
   }
   for (const p of pads) {
     if (!p || !p.connected) continue;
-    p.buttons.forEach((b, i) => { if ((b.pressed || b.value > 0.6) && BTN[i]) pressed.add(BTN[i]); });
+    p.buttons.forEach((b, i) => { if ((b.pressed || b.value > 0.6) && BTN[i]) pressed.add(padLayout === 'switch' && SWAP[BTN[i]] || BTN[i]); });
     const [lx = 0, ly = 0, rx = 0, ry = 0] = p.axes;
     if (lx < -0.5) pressed.add('left'); if (lx > 0.5) pressed.add('right');
     if (ly < -0.5) pressed.add('up'); if (ly > 0.5) pressed.add('down');

@@ -1,5 +1,5 @@
 // Pandora — pantallas y lógica de la interfaz.
-import { Spring, onFrame, onAction, draggable, project, rubberband, rem, sticks, reducedMotion, $, h, setTextSink, setCapture, getInputMode } from './core.js';
+import { Spring, onFrame, onAction, draggable, project, rubberband, rem, sticks, reducedMotion, $, h, setTextSink, setCapture, getInputMode, setPadLayout } from './core.js';
 import * as S from './sound.js';
 import { Manual, MODES as MANUAL_MODES } from './manual.js';
 
@@ -28,7 +28,7 @@ const DEFAULTS = {
   shelfLayout: 'tema', detailLayout: 'tema', manualMode: 'doble',
   cinemaDelay: 8, spectatorIdle: 5,
   // Qué aparece en el inicio, búsqueda y combinación para cerrar un juego.
-  logoSound: true,
+  logoSound: true, padLayout: 'xbox',
   sections: { all: true, Consoles: true, Handhelds: true, Arcade: true, Computers: true, modes: true, genres: true, developers: true },
   search: true, letterBar: true,
   exitCombo: ['ls', 'rs', 'b'], exitHold: 0, exitFromLaunchBox: true, buttonStyle: 'auto',
@@ -79,7 +79,7 @@ const shelfLay = () => settings.shelfLayout === 'tema' ? (THEMES[settings.theme]
 const detailLay = () => settings.detailLayout === 'tema' ? (THEMES[settings.theme]?.detail || 'clasica') : DETAIL_LAYOUTS[settings.detailLayout] ? settings.detailLayout : 'clasica';
 const THEME_SOUND = Object.fromEntries(Object.entries(THEMES).map(([k, t]) => [k, t.sound]));
 const soundTheme = () => settings.soundTheme === 'auto' ? (THEME_SOUND[settings.theme] || 'cubo') : settings.soundTheme;
-function applySound() { S.configure({ theme: soundTheme(), volume: settings.volume, ambientLevel: settings.ambient }); }
+function applySound() { setPadLayout(settings.padLayout); S.configure({ theme: soundTheme(), volume: settings.volume, ambientLevel: settings.ambient }); }
 const imageType = () => IMAGE_TYPES.find(t => t.id === settings.imageType) || IMAGE_TYPES[0];
 
 const SHORT = {
@@ -132,9 +132,14 @@ const THEME_BUTTONS = { cubo: 'gamecube', barra: 'playstation', mosaicos: 'ninte
   orbita: 'sega', tarjeta: 'turbo', ficha: 'arcade', simbolo: 'neutral', luna: 'xbox', doble: 'nintendo', basic: 'neutral', relieve: 'nintendo', alas: 'playstation', monolito: 'xbox', plaza: 'nintendo', indigo: 'super', rojo: 'neutral', vitrina: 'xbox', vapor: 'xbox', manzana: 'neutral' };
 const btnStyleId = () => { const s = settings?.buttonStyle; return BUTTON_STYLES[s] ? s : (THEMES[settings?.theme]?.buttons || THEME_BUTTONS[settings?.theme] || 'xbox'); };
 const btnStyle = () => BUTTON_STYLES[btnStyleId()];
-function glyph(name) {
+// Con la distribución de Switch las letras se dibujan como en ese control: quien abre es la A (derecha).
+// «physical» es para botones físicos (el atajo de cierre): ahí la B de Xbox es la A de Switch.
+const SW_FACE = { a: 'b', b: 'a', x: 'y', y: 'x' };
+const isSwitch = () => settings?.padLayout === 'switch';
+function glyph(name, physical) {
   const st = btnStyle(), sid = btnStyleId();
   if (['a', 'b', 'x', 'y'].includes(name)) {
+    if (isSwitch()) { const n = physical ? SW_FACE[name] : name; return h('span', { class: `gl round st-nintendo ${SW_FACE[n]}`, text: n.toUpperCase() }); }
     if (st.shapes) { const s = h('span', { class: `gl round st-${sid} ${name}` }); s.innerHTML = PS_SHAPES[name]; return s; }
     return h('span', { class: `gl round st-${sid} ${name}`, text: st.face[name] });
   }
@@ -162,10 +167,10 @@ function exitCombo() {
 }
 function comboGlyphs(list) {
   const out = [];
-  (list?.length ? list : ['ls', 'rs', 'b']).forEach((b, i) => { if (i) out.push('+'); out.push(glyph(b)); });
+  (list?.length ? list : ['ls', 'rs', 'b']).forEach((b, i) => { if (i) out.push('+'); out.push(glyph(b, true)); });
   return out;
 }
-const btnName = b => { const st = btnStyle(); return st.names?.[b] || st.face?.[b] || st.sh[b] || BTN_NAMES[b] || b.toUpperCase(); };
+const btnName = b => { const st = btnStyle(); if (isSwitch() && SW_FACE[b]) return SW_FACE[b].toUpperCase(); return st.names?.[b] || st.face?.[b] || st.sh[b] || BTN_NAMES[b] || b.toUpperCase(); };
 const comboText = list => (list?.length ? list : ['ls', 'rs', 'b']).map(b => ['ls', 'rs'].includes(b) ? (b === 'ls' ? 'palanca izquierda' : 'palanca derecha') : btnName(b)).join(' + ');
 const BTN_NAMES = { a: 'A', b: 'B', x: 'X', y: 'Y', lb: 'LB', rb: 'RB', lt: 'LT', rt: 'RT', ls: 'LS', rs: 'RS', view: 'Vista', menu: 'Menú', up: '↑', down: '↓', left: '←', right: '→' };
 const ARROW = { up: 'M6 1l5 7H1z', down: 'M6 11l5-7H1z', left: 'M1 6l7-5v10z', right: 'M11 6L4 1v10z' };
@@ -366,7 +371,7 @@ const HINTS = {
   spectator: [['lr', 'Otro juego'], ['ud', 'Filtro'], ['a', 'Ficha'], ['x', 'Jugar'], ['b', 'Salir']],
   images: [['lr', 'Cambiar'], ['b', 'Cerrar']],
   video: [['a', 'Pausa'], ['lr', '10 s'], ['b', 'Cerrar']],
-  manual: [['lr', 'Página'], ['ud', 'Desplazar'], ['a', 'Zoom'], ['b', 'Cerrar']],
+  manual: [['lr', 'Página'], ['lbrb', '10 páginas'], ['ltrt', 'Zoom'], ['rs', 'Mover'], ['a', 'Vista'], ['b', 'Cerrar']],
   menu: [['ud', 'Elegir'], ['lr', 'Cambiar'], ['b', 'Cerrar']],
 };
 function renderChrome() {
@@ -1454,8 +1459,10 @@ const Viewer = {
       if (a === 'right') this.video.currentTime += 10;
     } else if (this.kind === 'manual' && this.manual) {
       const M = this.manual;
-      if (['left', 'right', 'lb', 'rb', 'lt', 'rt'].includes(a)) { if (M.turn(['left', 'lb', 'lt'].includes(a) ? -1 : 1)) S.play('move', M.page); else S.play('error'); }
-      else if (a === 'up' || a === 'down') { if (M.mode === 'ancho') M.scroll((a === 'up' ? -1 : 1) * 8 * rem()); else if (M.turn(a === 'up' ? -1 : 1)) S.play('move', M.page); }
+      if (a === 'left' || a === 'right') { if (M.turn(a === 'left' ? -1 : 1)) S.play('move', M.page); else S.play('error'); }
+      else if (a === 'lb' || a === 'rb') { if (M.jump(a === 'lb' ? -10 : 10)) S.play('rotate'); else S.play('error'); }
+      else if (a === 'lt' || a === 'rt') { if (M.zoomBy(a === 'rt' ? 1 : -1)) { S.play('toggle'); toast(M.zoom === 1 ? 'Tamaño normal' : `Zoom ×${String(M.zoom).replace('.', ',')}`); } else S.play('error'); }
+      else if (a === 'up' || a === 'down') { if (M.mode === 'ancho' || M.zoom > 1) M.scroll((a === 'up' ? -1 : 1) * 8 * rem()); else if (M.turn(a === 'up' ? -1 : 1)) S.play('move', M.page); }
       else if (a === 'a' || a === 'y') { settings.manualMode = M.cycleMode(); saveSettings(); S.play('toggle'); toast(MANUAL_MODES[M.mode]); }
     }
   },
@@ -1739,6 +1746,7 @@ const Menu = {
         ...Object.entries(FIELDS).map(([k, label]) => yes('fields.' + k, label, 'Muestra u oculta este dato en las listas y en la ficha.')),
       ] },
       { name: 'Control', rows: [
+        opt('padLayout', 'Distribución de botones', { xbox: 'Como en Xbox', switch: 'Como en Switch' }, 'En Switch, A es el botón de la derecha y B el de abajo (X e Y también cambian). Los botones en pantalla se dibujan igual que en tu control.'),
         ...(lbExit ? [yes('exitFromLaunchBox', 'Usar el atajo de LaunchBox', 'Cierra los juegos con la misma combinación que tienes en LaunchBox.')] : []),
         act('exitCombo', lbMode ? 'Atajo para cerrar un juego' : 'Combinación para cerrar un juego',
           lbMode ? 'Es el atajo de LaunchBox. Para usar uno propio, desactiva la opción de arriba.' : 'A para grabar una nueva: sostén los botones hasta que se llene la barra.', { show: () => comboText(exitCombo().list) }),
@@ -1801,6 +1809,7 @@ const Menu = {
     }
     $('#menuTabs').replaceChildren(...this.tabs.map((tb, i) => {
       const el = h('button', { class: 'mtab' + (i === this.ti ? ' on' : ''), text: tb.name });
+      if (i === this.ti) requestAnimationFrame(() => el.scrollIntoView({ block: 'nearest', inline: 'nearest' }));
       el.addEventListener('click', () => { this.setTab(i); S.play('rotate'); this.paint(); renderChrome(); });
       return el;
     }));
@@ -1833,7 +1842,8 @@ const Menu = {
     if (r.id === 'soundTheme') setTimeout(() => S.preview(), 120); else S.play('toggle');
     if (r.id === 'favFirst' && t === 'shelf') screens.shelf.resort();
     if (r.id === 'exitFromLaunchBox') { const ti = this.ti, i = this.i; this.build(); this.setTab(ti); this.i = i; this.paint(); }
-    if (r.id === 'buttonStyle' && t === 'detail') screens.detail.buildActions?.();
+    if ((r.id === 'buttonStyle' || r.id === 'padLayout') && t === 'detail') screens.detail.buildActions?.();
+    if (r.id === 'padLayout') toast(isSwitch() ? 'Botones como en Switch: A es el de la derecha' : 'Botones como en Xbox: A es el de abajo');
     if ((r.id === 'letterBar' || r.id === 'search') && t === 'shelf') { screens.shelf.buildLetters(); screens.shelf.paintLetters(); }
     if (t === 'shelf' && (r.id === 'shelfLayout' || r.id === 'imageType')) screens.shelf.refreshLayout();
     if (t === 'detail' && r.id === 'detailLayout') screens.detail.enter(screens.detail.params);
