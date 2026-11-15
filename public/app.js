@@ -382,6 +382,7 @@ function renderChrome() {
   let hints = (key === 'home' && homeImpl.hints) ? homeImpl.hints() : (HINTS[key] || []);
   if (key === 'menu') hints = Menu.hints();
   if (key === 'detail' && detailLay() === 'galeria') hints = [hints[0], ['lbrb', 'Imágenes'], ...hints.slice(1)];
+  if (key === 'platforms' && screens.platforms.cat?.letters) hints = [hints[0], ['ltrt', 'Letra'], ...hints.slice(1)];
   if (key === 'shelf') {
     const extra = [];
     extra.push(settings.search ? ['y', 'Buscar'] : ['y', 'Imagen']);
@@ -435,13 +436,21 @@ const COLLECTIONS = {
   genres: { name: '_genres', label: 'Géneros', unit: 'géneros', icon: m => genreIcon(m) },
   developers: { name: '_devs', label: 'Desarrolladoras', unit: 'desarrolladoras', icon: () => 'dev' },
 };
+const ALL_DEVS = { name: '_devsAll', label: 'Todas las desarrolladoras', unit: 'desarrolladoras' };
 function collectionCategory(kind) {
+  if (kind === 'devAll') return {
+    name: ALL_DEVS.name, label: ALL_DEVS.label, kind: 'developers', modes: true, unit: ALL_DEVS.unit, letters: true,
+    platforms: (library.developersAll || []).map(m => ({ name: m.label, mode: m.id, count: m.count, notes: m.desc, manufacturer: '', year: null, generation: null, media: m.logo ? { logo: m.logo } : {}, icon: 'dev' })),
+  };
   const C = COLLECTIONS[kind];
   return {
     name: C.name, label: C.label, kind, modes: true, unit: C.unit,
-    platforms: (library[kind] || []).map(m => ({ name: m.label, mode: m.id, count: m.count, notes: m.desc, manufacturer: '', year: null, generation: null, media: m.logo ? { logo: m.logo } : {}, icon: C.icon(m) })),
+    platforms: [...(library[kind] || []).map(m => ({ name: m.label, mode: m.id, count: m.count, notes: m.desc, manufacturer: '', year: null, generation: null, media: m.logo ? { logo: m.logo } : {}, icon: C.icon(m) })),
+      ...(kind === 'developers' && (library.developersAll || []).length > (library.developers || []).length ? [allDevsEntry()] : [])],
   };
 }
+// Entrada «Todas las desarrolladoras»: al final de las grandes; abre la lista completa de la A a la Z.
+const allDevsEntry = () => ({ name: ALL_DEVS.label, goAll: true, countLabel: `${fmtN((library.developersAll || []).length)} desarrolladoras`, notes: 'Todas las desarrolladoras de tu biblioteca, de la A a la Z. LT y RT saltan de letra.', manufacturer: '', year: null, generation: null, media: {}, icon: 'dev' });
 // «Todo»: la lista completa de juegos, de todas las plataformas.
 const secOn = k => settings.sections?.[k] !== false;
 const allShelf = () => ({ name: 'Todo', label: 'Todo', mode: 'all', count: library.total, notes: 'Todos tus juegos, de todas las plataformas', manufacturer: '', year: null, generation: null, media: {}, icon: 'all' });
@@ -709,7 +718,8 @@ const themeAPI = {
     for (const c of L.categories) out.push({ key: c.name, label: c.label, icon: c.name, video: c.video, items: c.platforms.map(p => ({ p, label: p.name, sub: [p.year, ord(p.generation), `${fmtN(p.count)} juegos`].filter(Boolean).join(' · '), desc: p.notes, run: () => themeAPI.openPlatform(p) })) });
     if ((L.modes || []).length) out.push({ key: '_modes', label: 'Modo de juego', icon: 'modes', items: L.modes.map(m => coll(m, 'mode_' + m.id)) });
     if ((L.genres || []).length) out.push({ key: '_genres', label: 'Géneros', icon: 'genre', items: L.genres.map(m => coll(m, genreIcon(m))) });
-    if ((L.developers || []).length) out.push({ key: '_devs', label: 'Desarrolladoras', icon: 'dev', items: L.developers.map(m => coll(m, 'dev')) });
+    if ((L.developers || []).length) out.push({ key: '_devs', label: 'Desarrolladoras', icon: 'dev', items: [...L.developers.map(m => coll(m, 'dev')),
+      ...((library.developersAll || []).length > L.developers.length ? [{ ic: 'dev', label: ALL_DEVS.label, sub: `${fmtN(library.developersAll.length)} · de la A a la Z`, desc: 'Todas las desarrolladoras de tu biblioteca, de la A a la Z.', run: () => { S.play('open'); go('platforms', collectionCategory('devAll')); } }] : [])] });
     if (spectator) out.push({ key: '_spectator', label: 'Espectador', icon: 'spectator', items: [{ ic: 'spectator', label: 'Toda la biblioteca', sub: 'Videos al azar', run: () => themeAPI.openSpectator(null) },
       ...L.categories.map(c => ({ ic: c.name, label: c.label, sub: 'Videos al azar de ' + c.label.toLowerCase(), run: () => themeAPI.openSpectator(c.name) }))] });
     if (system) out.push({ key: '_settings', label: 'Ajustes', icon: 'settings', items: [{ ic: 'settings', label: 'Ajustes de Pandora', sub: 'Tema, sonido, inicio y control', run: () => themeAPI.openSettings() },
@@ -778,6 +788,7 @@ screens.platforms = {
   el: $('#platforms'), cat: null, idx: 0, pos: new Spring(0, { response: 0.38, damping: 1 }), tiles: [], memo: {},
   get focused() { return this.cat?.platforms[this.idx]; },
   enter(cat) {
+    if (cat?.name !== ALL_DEVS.name && this.prev && this.cat !== cat && top() !== 'platforms') this.prev = null;
     this.cat = cat; this.idx = clamp(this.memo[cat.name] || 0, 0, cat.platforms.length - 1); this.pos.jump(this.idx);
     this.tiles = cat.platforms.map((p, i) => {
       const t = h('button', { class: 'tile' + (p.icon ? ' tile-mode' : '') }, p.media.logo ? h('img', { src: p.media.logo, alt: p.name })
@@ -798,7 +809,7 @@ screens.platforms = {
   info(now) {
     const p = this.focused;
     $('#platTitle').textContent = p.name;
-    $('#platMeta').textContent = [p.manufacturer, p.year, ord(p.generation), `${fmtN(p.count)} juegos`].filter(Boolean).join(' · ');
+    $('#platMeta').textContent = p.goAll ? p.countLabel : [p.manufacturer, p.year, ord(p.generation), `${fmtN(p.count)} ${p.count === 1 ? 'juego' : 'juegos'}`].filter(Boolean).join(' · ');
     $('#platNotes').textContent = p.notes;
     clearTimeout(this.t); clearTimeout(this.vt);
     const apply = () => {
@@ -811,12 +822,31 @@ screens.platforms = {
     if (now) apply(); else this.t = setTimeout(apply, 140);
     this.tiles.forEach((t, i) => t.classList.toggle('focus', i === this.idx));
   },
-  open() { S.play('select'); go('shelf', this.focused); },
+  open() {
+    // «Todas las desarrolladoras»: la misma pantalla cambia a la lista completa; B regresa a las grandes.
+    if (this.focused?.goAll) { S.play('open'); this.prev = { cat: this.cat, idx: this.idx }; this.memo[this.cat.name] = this.idx; this.enter(collectionCategory('devAll')); renderChrome(); return; }
+    S.play('select'); go('shelf', this.focused);
+  },
+  back() {
+    if (!this.prev) return false;
+    const p = this.prev; this.prev = null; this.memo[this.cat.name] = this.idx; this.memo[p.cat.name] = p.idx;
+    S.play('back'); this.enter(p.cat); renderChrome(); return true;
+  },
+  // LT / RT: letra anterior o siguiente (útil en la lista de todas las desarrolladoras).
+  letter(d) {
+    const L = this.cat.platforms, ch = i => { const c = (L[i]?.name || '').normalize('NFD').replace(/[^A-Za-z0-9]/g, '').charAt(0).toUpperCase(); return !c || /\d/.test(c) ? '#' : c; };
+    const cur = ch(this.idx); let i = this.idx;
+    if (d > 0) { while (i < L.length - 1 && ch(i) === cur) i++; }
+    else { i--; while (i > 0 && ch(i) === cur) i--; const c = ch(i); while (i > 0 && ch(i - 1) === c) i--; }
+    if (i < 0 || i === this.idx) { S.play('error'); return; }
+    this.focus(i); toast(ch(i));
+  },
   action(a) {
     if (a === 'left') this.focus(this.idx - 1);
     else if (a === 'right') this.focus(this.idx + 1);
     else if (a === 'lb') this.focus(this.idx - 5);
     else if (a === 'rb') this.focus(this.idx + 5);
+    else if (a === 'lt' || a === 'rt') this.letter(a === 'lt' ? -1 : 1);
     else if (a === 'a') this.open();
   },
   frame(dt) {
@@ -824,6 +854,8 @@ screens.platforms = {
     const r = rem(), tw = 17 * r, slot = 19.5 * r, cx = innerWidth / 2 - tw / 2;
     this.tiles.forEach((t, i) => {
       const off = i - this.pos.x, f = Math.max(0, 1 - Math.abs(off));
+      // Con listas largas (todas las desarrolladoras) solo se mueven las que se ven.
+      if (Math.abs(off) > 9) { if (!t.hidden) t.hidden = true; return; } else if (t.hidden) t.hidden = false;
       const x = cx + off * slot + Math.sign(off) * Math.min(Math.abs(off), 1) * tw * 0.1;
       const s = 0.88 + 0.2 * f, o = Math.max(0.12, 1 - Math.max(0, Math.abs(off) - 1) * 0.2);
       t.style.transform = `translate3d(${x.toFixed(1)}px, ${(-f * 0.6 * r).toFixed(1)}px, 0) scale(${s.toFixed(3)})`;
@@ -2033,7 +2065,7 @@ const DevLogos = {
       const r = await fetch('/api/devlogos').then(x => x.json()).catch(() => null);
       if (!r || !library) return;
       let changed = false;
-      for (const d of library.developers || []) { const u = r.logos[d.label] || null; if (u !== (d.logo || null)) { d.logo = u; changed = true; } }
+      for (const d of [...(library.developers || []), ...(library.developersAll || [])]) { const u = r.logos[d.label] || null; if (u !== (d.logo || null)) { d.logo = u; changed = true; } }
       if (changed && performance.now() - lastInput > 4000 && top() !== 'home') rebuildHome();
       else if (changed) this.dirty = true;
       if (r.pending > 0) this.watch();
@@ -2076,7 +2108,7 @@ async function restore() {
   const cats = visibleLibrary().categories;
   const cat = modeCat || (direct ? null : cats.find(c => c.name === L.cat));
   const pool = cat ? cat.platforms : cats.flatMap(c => c.platforms);
-  const p = L.mode ? pool.find(x => x.mode === L.mode) : pool.find(x => x.name === L.platform);
+  const p = L.mode ? (pool.find(x => x.mode === L.mode) || (ck === 'developers' ? collectionCategory('devAll').platforms.find(x => x.mode === L.mode) : null)) : pool.find(x => x.name === L.platform);
   if (cat && !direct) {
     if (p) screens.platforms.memo[cat.name] = cat.platforms.indexOf(p);
     cubeHome.restore({ cat: cat.name, tilt: 0 });

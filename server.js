@@ -92,7 +92,7 @@ function readXML(file) {
 let lib = null;
 function loadLibrary() {
   const t0 = Date.now();
-  if (!isLaunchBox(LB)) { lib = { games: new Map(), apps: new Map(), platforms: [], modes: [], genres: [], developers: [], collections: new Map(), loadedAt: Date.now(), empty: true }; return; }
+  if (!isLaunchBox(LB)) { lib = { games: new Map(), apps: new Map(), platforms: [], modes: [], genres: [], developers: [], developersAll: [], collections: new Map(), loadedAt: Date.now(), empty: true }; return; }
   const data = path.join(LB, 'Data');
   const platformsXml = readXML(path.join(data, 'Platforms.xml'));
   const platforms = records(platformsXml, 'Platform');
@@ -165,11 +165,14 @@ function loadLibrary() {
   const genres = [...group(g => g.genres)].map(([label, ids]) => ({ id: 'g:' + label, label, ids, desc: `Juegos de ${label.toLowerCase()}.` }))
     .sort((a, b) => b.ids.length - a.ids.length);
   const devName = d => d.split(';')[0].replace(/\s*\((?:Japan|US|USA|Europe|UK)\)\s*$/i, '').replace(/,?\s+(?:Inc|Ltd|Co|Corp|LLC)\.?$/i, '').trim();
-  const developers = [...group(g => g.developer ? [devName(g.developer)] : [])].filter(([, ids]) => ids.length >= 10)
+  // Todas las desarrolladoras (de la A a la Z); en el inicio solo salen las grandes (10 juegos o más)
+  // y al final una entrada «Todas las desarrolladoras».
+  const developersAll = [...group(g => g.developer ? [devName(g.developer)] : [])]
     .map(([label, ids]) => ({ id: 'd:' + label, label, ids, desc: `Juegos desarrollados por ${label}.` }))
-    .sort((a, b) => b.ids.length - a.ids.length);
-  const collections = new Map([...modes, ...genres, ...developers].map(c => [c.id, c]));
-  lib = { games, apps, platforms: plats, modes, genres, developers, collections, loadedAt: Date.now() };
+    .sort((a, b) => a.label.localeCompare(b.label, 'es', { sensitivity: 'base' }));
+  const developers = developersAll.filter(d => d.ids.length >= 10).sort((a, b) => b.ids.length - a.ids.length);
+  const collections = new Map([...modes, ...genres, ...developersAll].map(c => [c.id, c]));
+  lib = { games, apps, platforms: plats, modes, genres, developers, developersAll, collections, loadedAt: Date.now() };
   launcher.load(records, readXML);
   mediaCache.clear();
   gameMedia.clear();
@@ -356,7 +359,8 @@ function api(pathname, q) {
       }));
     const pub = list => list.map(m => ({ id: m.id, label: m.label, desc: m.desc, count: m.ids.length }));
     const devs = pub(lib.developers).map(d => ({ ...d, logo: devLogos.url(d.label) }));
-    return { categories, total: lib.games.size, modes: pub(lib.modes), genres: pub(lib.genres), developers: devs, empty: !!lib.empty, path: LB };
+    const devsAll = pub(lib.developersAll || []).map(d => ({ ...d, logo: devLogos.url(d.label) }));
+    return { categories, total: lib.games.size, modes: pub(lib.modes), genres: pub(lib.genres), developers: devs, developersAll: devsAll, empty: !!lib.empty, path: LB };
   }
   if (pathname === '/api/games' && q.get('mode') === 'all') {
     return { mode: 'all', games: [...lib.games.values()].map(g => publicGame(g)) };
@@ -426,7 +430,7 @@ function api(pathname, q) {
   if (pathname === '/api/reload') { loadLibrary(); return { ok: true, total: lib.games.size }; }
   if (pathname === '/api/devlogos') {
     if (q.get('retry')) { devLogos.retry(); fetchDevLogos(true); }
-    return { pending: devLogos.pending(), logos: Object.fromEntries(lib.developers.map(d => [d.label, devLogos.url(d.label)])) };
+    return { pending: devLogos.pending(), logos: Object.fromEntries((lib.developersAll || lib.developers).map(d => [d.label, devLogos.url(d.label)])) };
   }
   if (pathname === '/api/setup') return { ok: isLaunchBox(LB), path: LB, candidates: findLaunchBox(), dataDir: DATA_DIR };
   return null;
@@ -594,7 +598,9 @@ if (require.main === module) start().catch(e => { console.error(e.message); proc
 function fetchDevLogos(force) {
   const s = readJSON(SETTINGS_FILE, {});
   if (!force && s.devLogos === false) return;
-  if (lib?.developers?.length) devLogos.want(lib.developers.map(d => d.label));
+  // Se buscan logos de las que tienen 5 juegos o más; las demás muestran su nombre.
+  const list = (lib?.developersAll || []).filter(d => d.ids.length >= 5);
+  if (list.length) devLogos.want(list.sort((a, b) => b.ids.length - a.ids.length).map(d => d.label));
 }
 // Indexa los medios de cada plataforma en segundo plano para que abrirlas sea instantáneo.
 function warmUp() {
