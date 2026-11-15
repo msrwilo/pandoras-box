@@ -450,7 +450,7 @@ function renderChrome() {
   if (['home', 'platforms', 'shelf', 'detail', 'spectator'].includes(key)) hints = [...hints, ['view', 'Audio: ' + AUDIO_SHORT[settings.audioMode]]];
   if (key === 'playing') hints = [['exitcombo', exitCombo().text + ' para cerrar el juego']];
   $('#hints').replaceChildren(...hints.map(([g, t]) => {
-    const el = h('span', {}, glyph(g), t);
+    const el = h('span', {}, glyph(g), t); el.dataset.k = g; // la acción lógica, para las pruebas
     const tap = TAPS[g]?.(key);
     if (tap) { el.classList.add('tap'); el.addEventListener('click', tap); }
     return el;
