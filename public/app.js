@@ -144,6 +144,9 @@ function glyph(name, physical) {
   const st = btnStyle(), sid = btnStyleId();
   if (['a', 'b', 'x', 'y'].includes(name)) {
     if (isSwitch()) { const n = physical ? SW_FACE[name] : name; return h('span', { class: `gl round st-nintendo ${SW_FACE[n]}`, text: n.toUpperCase() }); }
+    // Con un control de Xbox, las letras que ves tienen que ser las que están impresas en él: los estilos
+    // Nintendo y Super Nintendo cambian la posición de las letras y confundían (X dibujada donde está la Y).
+    if (sid === 'nintendo' || sid === 'super') return h('span', { class: `gl round st-${sid} ${name}`, text: name.toUpperCase() });
     if (st.shapes) { const s = h('span', { class: `gl round st-${sid} ${name}` }); s.innerHTML = PS_SHAPES[name]; return s; }
     return h('span', { class: `gl round st-${sid} ${name}`, text: st.face[name] });
   }
@@ -435,6 +438,8 @@ function renderChrome() {
   let hints = (key === 'home' && homeImpl.hints) ? homeImpl.hints() : (HINTS[key] || []);
   if (key === 'menu') hints = Menu.hints();
   if (key === 'picker' && !Picker.game) hints = [['ud', 'Elegir'], ['a', 'Aceptar'], ['b', 'Cerrar']];
+  // La A de la ficha activa el botón que tengas marcado: la ayuda dice cuál es.
+  if (key === 'detail' && screens.detail.acts?.[screens.detail.ai]) hints = hints.map(x => x[0] === 'a' ? ['a', screens.detail.acts[screens.detail.ai].label] : x);
   if (key === 'detail' && detailLay() === 'galeria') hints = [hints[0], ['lbrb', 'Imágenes'], ...hints.slice(1)];
   if (key === 'platforms' && screens.platforms.cat?.letters) hints = [hints[0], ['ltrt', 'Letra'], ...hints.slice(1)];
   if (key === 'platforms' && screens.platforms.cat?.kind === 'developers' && screens.platforms.focused?.mode) hints = [hints[0], ['x', 'Logo'], ...hints.slice(1)];
@@ -1473,7 +1478,7 @@ screens.detail = {
   paintActions() { if (this.game) this.buildActions(); },
   resume() { Back.setLook('clear'); currentGame = this.game; updateAudio(); },
   leave() { clearTimeout(this.vt); Back.setLook('dim'); },
-  paint() { [...$('#dActions').children].forEach((b, i) => b.classList.toggle('focus', i === this.ai)); },
+  paint() { [...$('#dActions').children].forEach((b, i) => b.classList.toggle('focus', i === this.ai)); if (top() === 'detail') renderChrome(); },
   cycleLayout() {
     const k = Object.keys(DETAIL_LAYOUTS);
     settings.detailLayout = k[(k.indexOf(settings.detailLayout) + 1) % k.length];
