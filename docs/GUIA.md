@@ -47,6 +47,15 @@ Están en pestañas (LB / RB). Debajo de cada opción hay una explicación corta
 | Control | Distribución de botones (Xbox o Switch), atajo para cerrar un juego y registro detallado del control |
 | Biblioteca | Carpeta de LaunchBox, logos, modo depuración (en la ficha muestra qué datos o medios le faltan al juego), borrar datos y salir |
 
+## Series
+
+La sección **Series** del inicio junta los juegos de una misma saga sin importar la consola (Zelda, Metal Slug, Mario…). Sale del campo «Series» de LaunchBox; si un juego tiene varias separadas por punto y coma (`Mario Kart; Mario`), aparece en todas.
+
+- En el inicio salen tus series favoritas y las que tienen 8 juegos o más. Al final está **Todas las series**, de la A a la Z (LT/RT saltan de letra).
+- Con **clic del stick izquierdo** sobre una serie la marcas como favorita: sale primero y con una estrella. Se guarda en `datos/favoritos.json`, junto con tus juegos favoritos.
+- En la ficha de un juego, el botón **Serie** abre los demás juegos de su serie.
+- Solo se muestran las series con 2 juegos o más. Se oculta desde Ajustes › Inicio.
+
 ## Temas
 
 Arcade, Dreamcast, Game Boy, Game Boy Advance, GameCube, Genesis, MS-DOS, MSX, NES, Nintendo 3DS, Nintendo 64, Nintendo DS, Playnite, PS1, PS2, PS3, PS5, Saturn, Super Nintendo, Switch, TurboGrafx-16, Virtual Boy, Wii, Wii U, Windows XP, Xbox, Xbox 360 y Xbox Series X.

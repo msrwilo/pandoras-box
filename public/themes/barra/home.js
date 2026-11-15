@@ -26,6 +26,7 @@ export default function barra(api, root) {
         })) }] : []),
         ...(api.genres.length ? [{ name: '_genres', label: 'Géneros', icon: 'genre', items: api.genres.map(m => ({ label: m.label, sub: `${fmtN(m.count)} juegos`, iconKey: api.genreIcon(m), run: () => api.openCollection(m) })) }] : []),
         ...(api.developers.length ? [{ name: '_devs', label: 'Desarrolladoras', icon: 'dev', items: api.developers.map(m => ({ label: m.label, sub: `${fmtN(m.count)} juegos`, iconKey: 'dev', img: m.logo || null, run: () => api.openCollection(m) })) }] : []),
+        ...(api.series.length ? [{ name: '_series', label: 'Series', icon: 'series', items: [...api.series.map(m => ({ label: (m.favorite ? '★ ' : '') + m.label, sub: `${fmtN(m.count)} juegos`, iconKey: 'series', img: m.logo || null, run: () => api.openCollection(m) })), { label: 'Todas las series', sub: 'De la A a la Z', iconKey: 'series', run: () => api.openKind('serAll') }] }] : []),
         { name: '_spectator', label: 'Espectador', icon: 'spectator', items: [
           { label: 'Toda la biblioteca', sub: 'Videos al azar', run: () => api.openSpectator(null) },
           ...lib.categories.map(c => ({ label: c.label, sub: 'Solo ' + c.label.toLowerCase(), run: () => api.openSpectator(c.name) })),

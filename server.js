@@ -113,7 +113,7 @@ function readXML(file) {
 let lib = null;
 function loadLibrary() {
   const t0 = Date.now();
-  if (!isLaunchBox(LB)) { lib = { games: new Map(), apps: new Map(), platforms: [], modes: [], genres: [], developers: [], developersAll: [], collections: new Map(), loadedAt: Date.now(), empty: true }; return; }
+  if (!isLaunchBox(LB)) { lib = { games: new Map(), apps: new Map(), platforms: [], modes: [], genres: [], developers: [], developersAll: [], seriesAll: [], collections: new Map(), loadedAt: Date.now(), empty: true }; return; }
   const data = path.join(LB, 'Data');
   const platformsXml = readXML(path.join(data, 'Platforms.xml'));
   const platforms = records(platformsXml, 'Platform');
@@ -192,8 +192,13 @@ function loadLibrary() {
     .map(([label, ids]) => ({ id: 'd:' + label, label, ids, desc: `Juegos desarrollados por ${label}.` }))
     .sort((a, b) => a.label.localeCompare(b.label, 'es', { sensitivity: 'base' }));
   const developers = developersAll.filter(d => d.ids.length >= 10).sort((a, b) => b.ids.length - a.ids.length);
-  const collections = new Map([...modes, ...genres, ...developersAll].map(c => [c.id, c]));
-  lib = { games, apps, platforms: plats, modes, genres, developers, developersAll, collections, loadedAt: Date.now() };
+  // Series (el campo «Series» de LaunchBox; un juego puede estar en varias). Solo cuentan las que juntan 2 juegos o más.
+  const seriesAll = [...group(g => g.seriesList || [])].filter(([, ids]) => ids.length >= 2)
+    .map(([label, ids]) => ({ id: 's:' + label, label, ids, desc: `Los ${ids.length} juegos de la serie ${label} que tienes, de todas las consolas.` }))
+    .sort((a, b) => a.label.localeCompare(b.label, 'es', { sensitivity: 'base' }));
+  const collections = new Map([...modes, ...genres, ...developersAll, ...seriesAll].map(c => [c.id, c]));
+  seriesLogos.clear();
+  lib = { games, apps, platforms: plats, modes, genres, developers, developersAll, seriesAll, collections, loadedAt: Date.now() };
   launcher.load(records, readXML);
   mediaCache.clear();
   gameMedia.clear();
@@ -366,6 +371,24 @@ function categoryVideo(name) {
   return null;
 }
 
+// La imagen de una serie: el logo de su juego más antiguo que tenga uno.
+const seriesLogos = new Map();
+function seriesLogo(s) {
+  if (seriesLogos.has(s.id)) return seriesLogos.get(s.id);
+  let logo = null;
+  const byAge = s.ids.map(id => lib.games.get(id)).sort((a, b) => (a.year || 9999) - (b.year || 9999));
+  for (const g of byAge.slice(0, 12)) { const m = mediaFor(g); if (m.logo && m.logo[0]) { logo = m.logo[0]; break; } }
+  seriesLogos.set(s.id, logo);
+  return logo;
+}
+// En el inicio salen primero tus series favoritas y luego las grandes (8 juegos o más); el resto está en «Todas las series».
+const SERIES_HOME = 8;
+function seriesLists() {
+  const all = (lib.seriesAll || []).map(s => ({ id: s.id, label: s.label, desc: s.desc, count: s.ids.length, logo: seriesLogo(s), favorite: favorites[s.id] === true }));
+  const home = all.filter(s => s.favorite || s.count >= SERIES_HOME).sort((a, b) => (b.favorite - a.favorite) || b.count - a.count || a.label.localeCompare(b.label, 'es'));
+  return { all: [...all].sort((a, b) => (b.favorite - a.favorite) || 0), home };
+}
+
 // ---------- API ----------
 function publicGame(g, withMedia = true) {
   const o = { ...g };
@@ -399,7 +422,8 @@ function api(pathname, q) {
     const pub = list => list.map(m => ({ id: m.id, label: m.label, desc: m.desc, count: m.ids.length }));
     const devs = pub(lib.developers).map(d => ({ ...d, logo: devLogos.url(d.label) }));
     const devsAll = pub(lib.developersAll || []).map(d => ({ ...d, logo: devLogos.url(d.label) }));
-    return { categories, total: lib.games.size, modes: pub(lib.modes), genres: pub(lib.genres), developers: devs, developersAll: devsAll, empty: !!lib.empty, path: LB };
+    const ser = seriesLists();
+    return { categories, total: lib.games.size, modes: pub(lib.modes), genres: pub(lib.genres), developers: devs, developersAll: devsAll, series: ser.home, seriesAll: ser.all, empty: !!lib.empty, path: LB };
   }
   if (pathname === '/api/games' && q.get('mode') === 'all') {
     return { mode: 'all', games: [...lib.games.values()].map(g => publicGame(g)) };

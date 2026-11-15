@@ -12,7 +12,7 @@ export default function canales(api, root) {
     },
     build() {
       const lib = api.library;
-      const specials = [['all', 'Todo', 'all'], ['modes', 'Modo de juego', 'modes'], ['genres', 'Géneros', 'genre'], ['developers', 'Desarrolladoras', 'dev']]
+      const specials = [['all', 'Todo', 'all'], ['modes', 'Modo de juego', 'modes'], ['genres', 'Géneros', 'genre'], ['developers', 'Desarrolladoras', 'dev'], ['series', 'Series', 'series']]
         .filter(([k]) => k === 'all' ? api.all : api[k].length).map(([k, name, ic]) => ({ special: k, name, ic, media: {} }));
       this.list = [...specials, ...lib.categories.flatMap(c => c.platforms)];
       root.replaceChildren();

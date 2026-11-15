@@ -669,3 +669,6 @@ video.crt-src { clip-path: inset(50%); }
 #dbgMissing b { color: #f0a53a; font-size: .74rem; letter-spacing: .06em; text-transform: uppercase; }
 #dbgMissing span::before { content: '· '; color: #f0a53a; }
 #dbgMissing.ok { border-color: #4fbf7a; } #dbgMissing.ok b { color: #4fbf7a; }
+
+/* Series favoritas: una estrella en la esquina de su casilla. */
+.tile.tile-fav::after { content: '★'; position: absolute; top: .5rem; right: .7rem; font-size: 1.1rem; color: #ffd76a; text-shadow: 0 .1rem .3rem rgba(0,0,0,.6); }

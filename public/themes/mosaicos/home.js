@@ -24,6 +24,7 @@ export default function mosaicos(api, root) {
         ...(api.modes.length ? [{ label: 'Modo de juego', icon: 'modes', run: () => api.openModes() }] : []),
         ...(api.genres.length ? [{ label: 'Géneros', icon: 'genre', run: () => api.openKind('genres') }] : []),
         ...(api.developers.length ? [{ label: 'Desarrolladoras', icon: 'dev', run: () => api.openKind('developers') }] : []),
+        ...(api.series.length ? [{ label: 'Series', icon: 'series', run: () => api.openKind('series') }] : []),
         { label: 'Volver a leer LaunchBox', icon: '_other', run: () => api.reload() },
         { label: 'Ajustes', icon: 'settings', run: () => api.openSettings() },
       ];

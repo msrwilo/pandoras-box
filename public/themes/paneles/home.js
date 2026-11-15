@@ -2,7 +2,7 @@
 // los anteriores se apilan a la izquierda y los siguientes a la derecha, cada uno con su color.
 export default function paneles(api, root) {
   const { h, Spring, rem, clamp, fmtN, ord, S, Back } = api;
-  const COLORS = { _all: '#3c8dde', _genres: '#d6488f', _devs: '#2e9c8f', _modes: '#8a5cd6', _spectator: '#f08a24', Consoles: '#5fb336', Handhelds: '#2b9fd8', Arcade: '#d83a32', Computers: '#7d8590', _settings: '#55595f' };
+  const COLORS = { _all: '#3c8dde', _genres: '#d6488f', _devs: '#2e9c8f', _series: '#c9a227', _modes: '#8a5cd6', _spectator: '#f08a24', Consoles: '#5fb336', Handhelds: '#2b9fd8', Arcade: '#d83a32', Computers: '#7d8590', _settings: '#55595f' };
   const self = {
     paintScale: 0.3,
     blades: [], bi: 1, rows: {}, pos: new Spring(1, { response: 0.5, damping: 0.95 }), t: 0, orbs: null,
@@ -17,6 +17,7 @@ export default function paneles(api, root) {
         ...(api.modes.length ? [{ key: '_modes', label: 'Modo de juego', items: api.modes.map(m => ({ mode: m, label: m.label, sub: `${fmtN(m.count)} juegos`, run: () => api.openCollection(m) })) }] : []),
         ...(api.genres.length ? [{ key: '_genres', label: 'Géneros', items: api.genres.map(m => ({ coll: m, ic: api.genreIcon(m), label: m.label, sub: `${fmtN(m.count)} juegos`, run: () => api.openCollection(m) })) }] : []),
         ...(api.developers.length ? [{ key: '_devs', label: 'Desarrolladoras', items: api.developers.map(m => ({ coll: m, ic: 'dev', label: m.label, sub: `${fmtN(m.count)} juegos`, ...(m.logo ? { p: { name: m.label, media: { logo: m.logo } } } : {}), run: () => api.openCollection(m) })) }] : []),
+        ...(api.series.length ? [{ key: '_series', label: 'Series', items: [...api.series.map(m => ({ coll: m, ic: 'series', label: (m.favorite ? '★ ' : '') + m.label, sub: `${fmtN(m.count)} juegos`, ...(m.logo ? { p: { name: m.label, media: { logo: m.logo } } } : {}), run: () => api.openCollection(m) })), { ic: 'series', label: 'Todas las series', sub: 'De la A a la Z', run: () => api.openKind('serAll') }] }] : []),
         { key: '_settings', label: 'Sistema', items: [{ label: 'Ajustes de Pandora', sub: 'Tema, sonido, vistas', run: () => api.openSettings() }, { label: 'Volver a leer LaunchBox', sub: 'Si agregaste juegos', run: () => api.reload() }] },
       ];
       root.replaceChildren();

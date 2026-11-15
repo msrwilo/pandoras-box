@@ -33,7 +33,7 @@ const DEFAULTS = {
   cinemaDelay: 8, spectatorIdle: 5, crtVideo: 'off', debugMissing: false,
   // Qué aparece en el inicio, búsqueda y combinación para cerrar un juego.
   logoSound: true, marcas: true, padLayout: 'xbox',
-  sections: { all: true, Consoles: true, Handhelds: true, Arcade: true, Computers: true, modes: true, genres: true, developers: true },
+  sections: { all: true, Consoles: true, Handhelds: true, Arcade: true, Computers: true, modes: true, genres: true, developers: true, series: true },
   search: true, letterBar: true,
   exitCombo: ['ls', 'rs', 'b'], exitHold: 0, exitFromLaunchBox: true, buttonStyle: 'auto',
   fields: Object.fromEntries(Object.keys(FIELDS).map(k => [k, true])),
@@ -438,6 +438,7 @@ function renderChrome() {
   if (key === 'detail' && detailLay() === 'galeria') hints = [hints[0], ['lbrb', 'Imágenes'], ...hints.slice(1)];
   if (key === 'platforms' && screens.platforms.cat?.letters) hints = [hints[0], ['ltrt', 'Letra'], ...hints.slice(1)];
   if (key === 'platforms' && screens.platforms.cat?.kind === 'developers' && screens.platforms.focused?.mode) hints = [hints[0], ['x', 'Logo'], ...hints.slice(1)];
+  if (key === 'platforms' && screens.platforms.cat?.kind === 'series' && screens.platforms.focused?.mode) hints = [hints[0], ['ls', screens.platforms.focused.favorite ? 'Quitar favorita' : 'Favorita'], ...hints.slice(1)];
   if (key === 'shelf') {
     const extra = [];
     extra.push(settings.search ? ['y', 'Buscar'] : ['y', 'Imagen']);
@@ -490,22 +491,28 @@ const COLLECTIONS = {
   modes: { name: '_modes', label: 'Modo de juego', unit: 'modos', icon: m => 'mode_' + m.id },
   genres: { name: '_genres', label: 'Géneros', unit: 'géneros', icon: m => genreIcon(m) },
   developers: { name: '_devs', label: 'Desarrolladoras', unit: 'desarrolladoras', icon: () => 'dev' },
+  series: { name: '_series', label: 'Series', unit: 'series', icon: () => 'series' },
 };
-const ALL_DEVS = { name: '_devsAll', label: 'Todas las desarrolladoras', unit: 'desarrolladoras' };
+// Listas completas de la A a la Z (el inicio solo muestra las grandes y, en series, tus favoritas).
+const ALL_DEVS = { name: '_devsAll', label: 'Todas las desarrolladoras', unit: 'desarrolladoras', kind: 'developers', src: 'developersAll', key: 'devAll', icon: 'dev' };
+const ALL_SERIES = { name: '_seriesAll', label: 'Todas las series', unit: 'series', kind: 'series', src: 'seriesAll', key: 'serAll', icon: 'series' };
+const ALLS = { devAll: ALL_DEVS, serAll: ALL_SERIES }, ALL_OF = { developers: ALL_DEVS, series: ALL_SERIES };
+const isAllCat = cat => cat?.name === ALL_DEVS.name || cat?.name === ALL_SERIES.name;
+const collEntry = (m, ic) => ({ name: m.label, mode: m.id, count: m.count, notes: m.desc, manufacturer: '', year: null, generation: null, media: m.logo ? { logo: m.logo } : {}, icon: ic, favorite: !!m.favorite });
 function collectionCategory(kind) {
-  if (kind === 'devAll') return {
-    name: ALL_DEVS.name, label: ALL_DEVS.label, kind: 'developers', modes: true, unit: ALL_DEVS.unit, letters: true,
-    platforms: (library.developersAll || []).map(m => ({ name: m.label, mode: m.id, count: m.count, notes: m.desc, manufacturer: '', year: null, generation: null, media: m.logo ? { logo: m.logo } : {}, icon: 'dev' })),
-  };
-  const C = COLLECTIONS[kind];
+  if (ALLS[kind]) { const A = ALLS[kind]; return {
+    name: A.name, label: A.label, kind: A.kind, modes: true, unit: A.unit, letters: true,
+    platforms: (library[A.src] || []).map(m => collEntry(m, A.icon)),
+  }; }
+  const C = COLLECTIONS[kind], A = ALL_OF[kind];
   return {
     name: C.name, label: C.label, kind, modes: true, unit: C.unit,
-    platforms: [...(library[kind] || []).map(m => ({ name: m.label, mode: m.id, count: m.count, notes: m.desc, manufacturer: '', year: null, generation: null, media: m.logo ? { logo: m.logo } : {}, icon: C.icon(m) })),
-      ...(kind === 'developers' && (library.developersAll || []).length > (library.developers || []).length ? [allDevsEntry()] : [])],
+    platforms: [...(library[kind] || []).map(m => collEntry(m, C.icon(m))),
+      ...(A && (library[A.src] || []).length > (library[kind] || []).length ? [allEntry(A)] : [])],
   };
 }
-// Entrada «Todas las desarrolladoras»: al final de las grandes; abre la lista completa de la A a la Z.
-const allDevsEntry = () => ({ name: ALL_DEVS.label, goAll: true, countLabel: `${fmtN((library.developersAll || []).length)} desarrolladoras`, notes: 'Todas las desarrolladoras de tu biblioteca, de la A a la Z. LT y RT saltan de letra.', manufacturer: '', year: null, generation: null, media: {}, icon: 'dev' });
+// Entrada «Todas las…»: al final de las grandes; abre la lista completa de la A a la Z.
+const allEntry = A => ({ name: A.label, goAll: A.key, countLabel: `${fmtN((library[A.src] || []).length)} ${A.unit}`, notes: `Todas las ${A.unit} de tu biblioteca, de la A a la Z. LT y RT saltan de letra.`, manufacturer: '', year: null, generation: null, media: {}, icon: A.icon });
 // «Todo»: la lista completa de juegos, de todas las plataformas.
 const secOn = k => settings.sections?.[k] !== false;
 const allShelf = () => ({ name: 'Todo', label: 'Todo', mode: 'all', count: library.total, notes: 'Todos tus juegos, de todas las plataformas', manufacturer: '', year: null, generation: null, media: {}, icon: 'all' });
@@ -519,10 +526,10 @@ function visibleLibrary() {
   for (const kind of Object.keys(COLLECTIONS)) if (!secOn(kind)) viewLib[kind] = [];
   return viewLib;
 }
-const kindOfId = id => id === 'all' ? 'all' : id.startsWith('g:') ? 'genres' : id.startsWith('d:') ? 'developers' : 'modes';
+const kindOfId = id => id === 'all' ? 'all' : id.startsWith('g:') ? 'genres' : id.startsWith('d:') ? 'developers' : id.startsWith('s:') ? 'series' : 'modes';
 const kindOfCat = name => Object.keys(COLLECTIONS).find(k => COLLECTIONS[k].name === name);
 const modesCategory = () => collectionCategory('modes');
-const modeShelf = m => { const id = m.id || m.mode; if (id === 'all') return allShelf(); return collectionCategory(kindOfId(id)).platforms.find(p => p.mode === id); };
+const modeShelf = m => { const id = m.id || m.mode; if (id === 'all') return allShelf(); const k = kindOfId(id); return collectionCategory(k).platforms.find(p => p.mode === id) || (ALL_OF[k] ? collectionCategory(ALL_OF[k].key).platforms.find(p => p.mode === id) : null); };
 
 // ======================================================================
 // Inicio: el cubo
@@ -541,6 +548,7 @@ const ICONS = {
   mode_p34: '<circle cx="12" cy="12" r="8.5"/><path d="M13.6 15.6V8.4L8.7 13.6h6.6"/>',
   genre: '<path d="M3.5 12.6V4.5a1 1 0 0 1 1-1h8.1l8 8a1.4 1.4 0 0 1 0 2l-7.1 7.1a1.4 1.4 0 0 1-2 0z"/><circle cx="8" cy="8" r="1.6"/>',
   dev: '<path d="M3 20.5h18M5 20.5V9l5 3V9l5 3V5h4v15.5"/><path d="M8 16h1M12 16h1M16 16h1"/>',
+  series: '<rect x="3.5" y="8" width="11" height="12.5" rx="1.6"/><path d="M7 5.5h10.5a1.6 1.6 0 0 1 1.6 1.6V17M10 3h10a1.6 1.6 0 0 1 1.6 1.6V14"/>',
   mode_p5: '<circle cx="12" cy="12" r="8.5"/><path d="M14.6 8.4H10l-.6 3.6a3 3 0 1 1-.4 3.2"/>',
   _other: '<rect x="4" y="4" width="7" height="7" rx="1.2"/><rect x="13" y="4" width="7" height="7" rx="1.2"/><rect x="4" y="13" width="7" height="7" rx="1.2"/><rect x="13" y="13" width="7" height="7" rx="1.2"/>',
   all: '<rect x="3.5" y="9" width="17" height="11.5" rx="1.6"/><path d="M5.5 6h13M7.5 3h9"/><path d="M9.5 13h5"/>',
@@ -612,7 +620,7 @@ const cubeHome = {
     for (const d of [-1, 0, 1, 2]) {
       const it = this.items[mod(c + d, this.N)];
       const f = this.faces[mod(c + d, 4)];
-      if (it && f.dataset.k !== it.name) { f.dataset.k = it.name; f.replaceChildren(icon(it.all ? 'all' : it.kind === 'genres' ? 'genre' : it.kind === 'developers' ? 'dev' : it.modes ? 'modes' : it.name)); }
+      if (it && f.dataset.k !== it.name) { f.dataset.k = it.name; f.replaceChildren(icon(it.all ? 'all' : it.kind === 'genres' ? 'genre' : it.kind === 'developers' ? 'dev' : it.kind === 'series' ? 'series' : it.modes ? 'modes' : it.name)); }
     }
     this.paintOn();
   },
@@ -758,6 +766,7 @@ const themeAPI = {
   get modes() { return visibleLibrary().modes || []; },
   get genres() { return visibleLibrary().genres || []; },
   get developers() { return visibleLibrary().developers || []; },
+  get series() { return visibleLibrary().series || []; },
   openModes: () => { S.play('open'); go('platforms', modesCategory()); },
   openKind: kind => { S.play('open'); go('platforms', collectionCategory(kind)); },
   openCollection: m => { S.play('select'); go('shelf', modeShelf(m)); },
@@ -773,6 +782,8 @@ const themeAPI = {
     if ((L.genres || []).length) out.push({ key: '_genres', label: 'Géneros', icon: 'genre', items: L.genres.map(m => coll(m, genreIcon(m))) });
     if ((L.developers || []).length) out.push({ key: '_devs', label: 'Desarrolladoras', icon: 'dev', items: [...L.developers.map(m => coll(m, 'dev')),
       ...((library.developersAll || []).length > L.developers.length ? [{ ic: 'dev', label: ALL_DEVS.label, sub: `${fmtN(library.developersAll.length)} · de la A a la Z`, desc: 'Todas las desarrolladoras de tu biblioteca, de la A a la Z.', run: () => { S.play('open'); go('platforms', collectionCategory('devAll')); } }] : [])] });
+    if ((L.series || []).length) out.push({ key: '_series', label: 'Series', icon: 'series', items: [...L.series.map(m => ({ ...coll(m, 'series'), label: (m.favorite ? '★ ' : '') + m.label })),
+      ...((library.seriesAll || []).length > L.series.length ? [{ ic: 'series', label: ALL_SERIES.label, sub: `${fmtN(library.seriesAll.length)} · de la A a la Z`, desc: 'Todas las series de tu biblioteca, de la A a la Z.', run: () => { S.play('open'); go('platforms', collectionCategory('serAll')); } }] : [])] });
     if (spectator) out.push({ key: '_spectator', label: 'Espectador', icon: 'spectator', items: [{ ic: 'spectator', label: 'Toda la biblioteca', sub: 'Videos al azar', run: () => themeAPI.openSpectator(null) },
       ...L.categories.map(c => ({ ic: c.name, label: c.label, sub: 'Videos al azar de ' + c.label.toLowerCase(), run: () => themeAPI.openSpectator(c.name) }))] });
     if (system) out.push({ key: '_settings', label: 'Ajustes', icon: 'settings', items: [{ ic: 'settings', label: 'Ajustes de Pandora', sub: 'Tema, sonido, inicio y control', run: () => themeAPI.openSettings() },
@@ -841,10 +852,10 @@ screens.platforms = {
   el: $('#platforms'), cat: null, idx: 0, pos: new Spring(0, { response: 0.38, damping: 1 }), tiles: [], memo: {},
   get focused() { return this.cat?.platforms[this.idx]; },
   enter(cat) {
-    if (cat?.name !== ALL_DEVS.name && this.prev && this.cat !== cat && top() !== 'platforms') this.prev = null;
+    if (!isAllCat(cat) && this.prev && this.cat !== cat && top() !== 'platforms') this.prev = null;
     this.cat = cat; this.idx = clamp(this.memo[cat.name] || 0, 0, cat.platforms.length - 1); this.pos.jump(this.idx);
     this.tiles = cat.platforms.map((p, i) => {
-      const t = h('button', { class: 'tile' + (p.icon ? ' tile-mode' : '') }, p.media.logo ? h('img', { src: p.media.logo, alt: p.name })
+      const t = h('button', { class: 'tile' + (p.icon ? ' tile-mode' : '') + (p.favorite ? ' tile-fav' : '') }, p.media.logo ? h('img', { src: p.media.logo, alt: p.name })
         : p.icon ? h('div', { class: 'tile-ico' }, icon(p.icon), h('span', { class: 'tname', text: p.name })) : h('span', { class: 'tname', text: p.name }));
       t.addEventListener('click', () => { if (this.dragged) return; if (i === this.idx) this.open(); else this.focus(i); });
       return t;
@@ -862,7 +873,7 @@ screens.platforms = {
   info(now) {
     const p = this.focused;
     $('#platTitle').textContent = p.name;
-    $('#platMeta').textContent = p.goAll ? p.countLabel : [p.manufacturer, p.year, ord(p.generation), `${fmtN(p.count)} ${p.count === 1 ? 'juego' : 'juegos'}`].filter(Boolean).join(' · ');
+    $('#platMeta').textContent = p.goAll ? p.countLabel : [p.favorite ? '★ Favorita' : '', p.manufacturer, p.year, ord(p.generation), `${fmtN(p.count)} ${p.count === 1 ? 'juego' : 'juegos'}`].filter(Boolean).join(' · ');
     $('#platNotes').textContent = p.notes;
     clearTimeout(this.t); clearTimeout(this.vt);
     const apply = () => {
@@ -877,7 +888,7 @@ screens.platforms = {
   },
   open() {
     // «Todas las desarrolladoras»: la misma pantalla cambia a la lista completa; B regresa a las grandes.
-    if (this.focused?.goAll) { S.play('open'); this.prev = { cat: this.cat, idx: this.idx }; this.memo[this.cat.name] = this.idx; this.enter(collectionCategory('devAll')); renderChrome(); return; }
+    if (this.focused?.goAll) { S.play('open'); this.prev = { cat: this.cat, idx: this.idx }; this.memo[this.cat.name] = this.idx; this.enter(collectionCategory(this.focused.goAll)); renderChrome(); return; }
     S.play('select'); go('shelf', this.focused);
   },
   back() {
@@ -902,6 +913,19 @@ screens.platforms = {
     else if (a === 'lt' || a === 'rt') this.letter(a === 'lt' ? -1 : 1);
     else if (a === 'a') this.open();
     else if (a === 'x' && this.cat?.kind === 'developers' && this.focused?.mode) this.logoMenu(this.focused);
+    else if (a === 'ls' && this.cat?.kind === 'series' && this.focused?.mode) this.favSeries(this.focused);
+  },
+  // Series favoritas: salen primero en el inicio y en la lista completa. Se guardan con tus demás favoritos.
+  async favSeries(p) {
+    const value = !p.favorite;
+    try { await fetch('/api/favorite', { method: 'POST', body: JSON.stringify({ id: p.mode, value }) }); } catch { toast('No pude guardar la favorita'); return; }
+    S.play('select'); toast(value ? `★ ${p.name} está en tus series favoritas` : `${p.name} ya no es favorita`);
+    const lib = await (await fetch('/api/library')).json();
+    library.series = lib.series; library.seriesAll = lib.seriesAll; viewLib = null;
+    const all = isAllCat(this.cat), cat = collectionCategory(all ? 'serAll' : 'series');
+    this.memo[cat.name] = Math.max(0, cat.platforms.findIndex(x => x.mode === p.mode));
+    if (this.memo[cat.name] === 0 && !cat.platforms.some(x => x.mode === p.mode)) this.memo[cat.name] = Math.min(this.idx, cat.platforms.length - 1);
+    this.enter(cat); renderChrome(); rebuildHome?.();
   },
   // Revisar el logo de una desarrolladora: quitarlo si está mal o buscarlo de nuevo.
   logoMenu(p) {
@@ -910,7 +934,7 @@ screens.platforms = {
       const r = await fetch('/api/devlogo', { method: 'POST', body: JSON.stringify({ name: p.name, action }) }).then(x => x.json()).catch(() => null);
       if (!r) { S.play('error'); toast('No se pudo cambiar el logo'); return; }
       for (const d of [...(library.developers || []), ...(library.developersAll || [])]) if (d.label === p.name) d.logo = r.logo || null;
-      const i = this.idx; this.enter(this.cat.name === ALL_DEVS.name ? collectionCategory('devAll') : collectionCategory('developers')); this.focus(i);
+      const i = this.idx; this.enter(isAllCat(this.cat) ? collectionCategory('devAll') : collectionCategory('developers')); this.focus(i);
       if (action === 'quitar') toast('Logo quitado. Quedó en datos\\logos\\papelera');
       else { toast('Buscando el logo de ' + p.name + '…'); DevLogos.watch(); }
     };
@@ -1394,6 +1418,12 @@ screens.detail = {
       m.manual && { label: 'Manual', keep: 3, run: () => Viewer.show({ kind: 'manual', url: m.manual }) },
       m.music && { label: settings.audioMode === 'musica' ? 'Música sonando' : 'Escuchar música', keep: 1, run: () => { if (settings.audioMode !== 'musica') setAudio('musica'); } },
       game.apps?.length && { label: 'Versiones', keep: 2, n: game.apps.length + 1, run: () => Picker.show(game) },
+      ...(() => {
+        const ss = (game.seriesList || []).map(n => (library.seriesAll || []).find(x => x.label === n)).filter(Boolean);
+        if (!ss.length || !secOn('series')) return [];
+        const abrir = m => { const sh = modeShelf(m); if (sh) { S.play('select'); go('shelf', sh); } };
+        return [{ label: 'Serie', keep: 1.5, n: ss.length > 1 ? ss.length : ss[0].count, run: () => ss.length === 1 ? abrir(ss[0]) : Picker.menu(game.title, ss.map(m => ({ name: `${m.label} (${m.count})`, run: () => abrir(m) })), 'Ver los demás juegos de la serie') }];
+      })(),
       { label: game.favorite ? 'En favoritos' : 'Favorito', keep: 2.5, star: true, run: () => toggleFavorite(game).then(() => this.buildActions()) },
     ].filter(Boolean);
     this.hidden = new Set();
@@ -2299,7 +2329,7 @@ async function restore() {
   const cats = visibleLibrary().categories;
   const cat = modeCat || (direct ? null : cats.find(c => c.name === L.cat));
   const pool = cat ? cat.platforms : cats.flatMap(c => c.platforms);
-  const p = L.mode ? (pool.find(x => x.mode === L.mode) || (ck === 'developers' ? collectionCategory('devAll').platforms.find(x => x.mode === L.mode) : null)) : pool.find(x => x.name === L.platform);
+  const p = L.mode ? (pool.find(x => x.mode === L.mode) || (ALL_OF[ck] ? collectionCategory(ALL_OF[ck].key).platforms.find(x => x.mode === L.mode) : null)) : pool.find(x => x.name === L.platform);
   if (cat && !direct) {
     if (p) screens.platforms.memo[cat.name] = cat.platforms.indexOf(p);
     cubeHome.restore({ cat: cat.name, tilt: 0 });
