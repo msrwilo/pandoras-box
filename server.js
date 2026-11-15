@@ -155,7 +155,7 @@ function loadLibrary() {
     const ids = byPlatform.get(p.Name) || [];
     if (!ids.length) continue; // plataformas sin juegos no se muestran
     ids.sort((a, b) => games.get(a).sortTitle.localeCompare(games.get(b).sortTitle, 'es'));
-    const info = meta.platformInfo(p.Name);
+    const info = meta.platformInfo(p.Name, p.ReleaseDate, parentOf[p.Name] || p.Category);
     plats.push({
       name: p.Name,
       category: parentOf[p.Name] || p.Category || 'Otros',
@@ -322,6 +322,24 @@ function mediaFor(game) {
   return m;
 }
 
+// Resumen de las imágenes y videos de las plataformas guardado en datos/: al abrir se usa al instante y se
+// revisa en segundo plano (con el disco frío, recorrer las carpetas de 42 plataformas llegó a tardar segundos).
+const PLAT_CACHE = path.join(DATA_DIR, 'cache-plataformas.json');
+let platCache = null, platCacheDirty = false;
+function cachedPlatform(kind, name, compute) {
+  if (!platCache) { const c = readJSON(PLAT_CACHE, {}); platCache = c.lb === LB ? c : { lb: LB, plats: {}, cats: {} }; }
+  const box = platCache[kind];
+  if (!(name in box)) { box[name] = compute(name); platCacheDirty = true; }
+  return box[name];
+}
+function refreshPlatCache() {
+  const fresh = { lb: LB, plats: {}, cats: {} };
+  for (const p of lib.platforms) fresh.plats[p.name] = platformMedia(p.name);
+  for (const c of new Set(lib.platforms.map(p => p.category))) fresh.cats[c] = categoryVideo(c);
+  const changed = JSON.stringify(fresh) !== JSON.stringify(platCache);
+  platCache = fresh;
+  if (changed || platCacheDirty) { writeData(PLAT_CACHE, fresh); platCacheDirty = false; if (changed) log('Imágenes de plataformas actualizadas (se verán al volver a abrir)'); }
+}
 function platformMedia(name) {
   const m = {};
   const types = { logo: 'Clear Logo', device: 'Device', banner: 'Banner', fanart: 'Fanart' };
@@ -368,7 +386,7 @@ function api(pathname, q) {
     for (const p of lib.platforms) {
       if (!cats.has(p.category)) cats.set(p.category, []);
       const { ids, ...rest } = p;
-      cats.get(p.category).push({ ...rest, media: platformMedia(p.name) });
+      cats.get(p.category).push({ ...rest, media: cachedPlatform('plats', p.name, platformMedia) });
     }
     const order = ['Consoles', 'Handhelds', 'Arcade', 'Computers'];
     const categories = [...cats.entries()]
@@ -376,7 +394,7 @@ function api(pathname, q) {
       .map(([name, platforms]) => ({
         name, label: meta.categoryLabel(name), platforms,
         games: platforms.reduce((s, p) => s + p.count, 0),
-        video: categoryVideo(name),
+        video: cachedPlatform('cats', name, categoryVideo),
       }));
     const pub = list => list.map(m => ({ id: m.id, label: m.label, desc: m.desc, count: m.ids.length }));
     const devs = pub(lib.developers).map(d => ({ ...d, logo: devLogos.url(d.label) }));
@@ -410,10 +428,6 @@ function api(pathname, q) {
     return { games: out };
   }
   if (pathname === '/api/status') return { ...launcher.status(), exitBinding: launcher.exitBinding() };
-  if (pathname === '/api/dry') {
-    const g = lib.games.get(q.get('id'));
-    return g ? launcher.build(g, q.get('app') ? lib.apps.get(q.get('app')) : null) : { error: 'no existe' };
-  }
   if (pathname === '/api/music') {
     // Una pista al azar. Primero la música de fondo que tengas en Music/Background,
     // si no hay, una pista de algún juego de esa plataforma o categoría.
@@ -449,7 +463,7 @@ function api(pathname, q) {
     return { packs: out };
   }
   if (pathname === '/api/marcas') return { temas: marcas() };
-  if (pathname === '/api/reload') { loadLibrary(); return { ok: true, total: lib.games.size }; }
+  if (pathname === '/api/reload') { loadLibrary(); platCache = { lb: LB, plats: {}, cats: {} }; platCacheDirty = true; return { ok: true, total: lib.games.size }; }
   if (pathname === '/api/devlogos') {
     if (q.get('retry')) { devLogos.retry(); fetchDevLogos(true); }
     if (q.get('name')) return { logo: devLogos.url(q.get('name')), origen: devLogos.origin(q.get('name')) };
@@ -505,9 +519,13 @@ function readBody(req) {
 }
 
 const server = http.createServer(async (req, res) => {
-  let url;
-  try { url = new URL(req.url, 'http://localhost'); } catch { res.writeHead(400); return res.end(); }
-  const p = decodeURIComponent(url.pathname);
+  let url, p;
+  try { url = new URL(req.url, 'http://localhost'); p = decodeURIComponent(url.pathname); } catch { res.writeHead(400); return res.end(); }
+  // Solo la interfaz de Pandora puede pedir cambios: los POST llevan la marca X-Pandora y, si traen Origin, es el propio.
+  if (req.method === 'POST') {
+    const origin = req.headers.origin;
+    if (req.headers['x-pandora'] !== '1' || (origin && !/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin))) { res.writeHead(403); return res.end(); }
+  }
   try {
     if (p === '/api/settings') {
       if (req.method === 'POST') {
@@ -643,6 +661,7 @@ function fetchDevLogos(force) {
 // Indexa los medios de cada plataforma en segundo plano para que abrirlas sea instantáneo.
 function warmUp() {
   setTimeout(() => fetchDevLogos(false), 4000);
+  setTimeout(() => { try { if (lib.platforms.length) refreshPlatCache(); } catch (e) { log('Resumen de plataformas: ' + e.message); } }, 3000);
   const names = lib.platforms.map(p => p.name);
   const t0 = Date.now();
   const next = () => {

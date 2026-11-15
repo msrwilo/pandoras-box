@@ -8,7 +8,9 @@ Pandora's Box **solo lee** LaunchBox: nunca modifica sus archivos. Juegos, imág
 
 Tus favoritos, estadísticas y ajustes están en `datos/`. Si un juego no se abre al frente o no se cierra con el atajo, revisa `datos/registro.txt`: ahí queda anotado qué pasó al abrir y cerrar cada juego.
 
-## Control (Xbox)
+## Control (Xbox o Switch)
+
+Las letras de la tabla son las de un control de Xbox. Si usas uno de Switch (por ejemplo, con Moonlight), en Ajustes › Control › «Distribución de botones» elige «Como en Switch»: A y B, X y Y se intercambian y las ayudas en pantalla lo muestran así.
 
 | Botón | Acción |
 |---|---|
@@ -24,7 +26,11 @@ Tus favoritos, estadísticas y ajustes están en `datos/`. Si un juego no se abr
 | Menú | Ajustes |
 | Cerrar juego | El mismo atajo que tengas en LaunchBox (por ejemplo, mantener RS y presionar B). En Ajustes › Control puedes grabar una combinación propia. |
 
-Al abrir un juego, Pandora's Box espera a que aparezca su ventana, la pone al frente con prioridad alta y se minimiza. Al cerrarlo, vuelve sola. Mientras no está al frente, pausa videos, música y sonido.
+En las desarrolladoras, **X** abre el menú del logo: quitarlo si está mal, buscar otro o usar tu propia imagen.
+
+En un manual: ← → cambian de página, LB / RB saltan 10 páginas, LT / RT acercan (×1,5, ×2, ×3) y con la palanca derecha o ↑ ↓ te mueves por la página. Cada manual recuerda la última página que viste.
+
+Al abrir un juego, Pandora's Box espera a que aparezca su ventana, la pone al frente con prioridad alta y se minimiza. Al cerrarlo, vuelve sola. Mientras no está al frente, pausa videos, música y sonido. Si el emulador se cierra con error en los primeros segundos, Pandora's Box avisa que el juego no abrió bien.
 
 ## Ajustes (botón Menú)
 
@@ -38,7 +44,7 @@ Están en pestañas (LB / RB). Debajo de cada opción hay una explicación corta
 | Videos | Reproducir videos, modo cine y modo espectador |
 | Inicio | Qué secciones se muestran en el inicio |
 | Listas | Búsqueda, barra de letras y qué datos se muestran |
-| Control | Atajo para cerrar un juego |
+| Control | Distribución de botones (Xbox o Switch), atajo para cerrar un juego y registro detallado del control |
 | Biblioteca | Carpeta de LaunchBox, logos, borrar datos y salir |
 
 ## Temas
@@ -46,6 +52,7 @@ Están en pestañas (LB / RB). Debajo de cada opción hay una explicación corta
 Arcade, Dreamcast, Game Boy, Game Boy Advance, GameCube, Genesis, MS-DOS, MSX, NES, Nintendo 3DS, Nintendo 64, Nintendo DS, Playnite, PS1, PS2, PS3, PS5, Saturn, Super Nintendo, Switch, TurboGrafx-16, Virtual Boy, Wii, Wii U, Windows XP, Xbox, Xbox 360 y Xbox Series X.
 
 - Son temas inspirados en cada consola; no usan sus logos ni sus sonidos.
+- Si quieres usar logos o sonidos que tengas tú, ponlos en `datos/marcas/<tema>/`: `logo.png` (sale al arrancar) y `startup`, `move`, `select`, `back`, `open`, `error`, `launch` (`.ogg`, `.mp3` o `.wav`). Lo que falte se queda sintetizado. Esa carpeta es tuya: no viene con la app. Se apaga en Ajustes › Sonido › «Logos y sonidos originales».
 - **Aleatorio** (primera opción de la lista): cada vez que abres la app sale otro tema; debajo eliges con interruptores cuáles pueden salir.
 - Los efectos de sonido siguen al tema (o elige otros en Ajustes › Sonido). La música de ambiente solo suena si eliges «Ambiente» como audio de fondo.
 
@@ -60,7 +67,9 @@ Vistas que sirven en cualquier tema:
 
 ## Logos de las desarrolladoras
 
-LaunchBox no los trae, así que la app los busca una sola vez en Wikidata y Wikipedia (necesita internet) y los guarda en `datos/logos/desarrolladoras`. Si alguno sale mal o no aparece, pon tu propia imagen ahí con el nombre exacto de la empresa (`.png`, `.svg`, `.jpg` o `.webp`). Ajustes › Biblioteca › «Buscar logos que faltan» vuelve a buscar.
+LaunchBox no los trae, así que la app los busca una sola vez en Wikidata y Wikipedia (necesita internet) y los guarda en `datos/logos/desarrolladoras`. Solo acepta un logo si el artículo es de una empresa y el nombre coincide completo. Si alguno sale mal, ponte sobre esa desarrolladora y presiona **X**: lo quitas (va a `datos/logos/papelera`, no se borra) o buscas otro. También puedes poner tu propia imagen con el nombre exacto de la empresa (`.png`, `.svg`, `.jpg` o `.webp`). Ajustes › Biblioteca › «Buscar logos de desarrolladores» vuelve a buscar los que faltan.
+
+En el inicio salen las desarrolladoras con 10 juegos o más, y al final «Todas las desarrolladoras», de la A a la Z (LT / RT saltan de letra).
 
 ## Compartir la app
 

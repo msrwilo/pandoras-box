@@ -2,6 +2,9 @@
 import { Spring, onFrame, onAction, draggable, project, rubberband, rem, sticks, reducedMotion, $, h, setTextSink, setCapture, getInputMode, setPadLayout } from './core.js';
 import * as S from './sound.js';
 import { Manual, MODES as MANUAL_MODES } from './manual.js';
+// Las peticiones que cambian algo (abrir juegos, guardar ajustes…) llevan esta marca: una página web
+// cualquiera no puede ponerla, así que no puede pedirle nada a Pandora aunque encuentre el puerto.
+{ const f = window.fetch.bind(window); window.fetch = (u, o = {}) => (o.method || 'GET').toUpperCase() === 'POST' ? f(u, { ...o, headers: { ...(o.headers || {}), 'X-Pandora': '1' } }) : f(u, o); }
 
 // ======================================================================
 // Ajustes
@@ -484,8 +487,6 @@ const ICONS = {
   mode_solo: '<circle cx="12" cy="8" r="3.2"/><path d="M6 20c.8-4 3.2-6 6-6s5.2 2 6 6"/>',
   mode_multi: '<circle cx="8" cy="8" r="2.6"/><circle cx="16.5" cy="8" r="2.6"/><path d="M3.5 18.5c.6-3 2.4-4.6 4.5-4.6s3.9 1.6 4.5 4.6M12 18.5c.6-3 2.4-4.6 4.5-4.6s3.9 1.6 4.5 4.6"/>',
   mode_coop: '<circle cx="7.5" cy="7" r="2.4"/><circle cx="16.5" cy="7" r="2.4"/><path d="M3 18c.5-3 2.3-4.6 4.5-4.6 1.4 0 2.6.6 3.5 1.8M21 18c-.5-3-2.3-4.6-4.5-4.6-1.4 0-2.6.6-3.5 1.8"/><path d="M9.5 17.5l2.5 2 2.5-2"/>',
-  mode_simul: '<path d="M3 11.5h7a3 3 0 0 1 3 3v.5a2.2 2.2 0 0 1-3.9 1.4L8 15H5l-1.1 1.4A2.2 2.2 0 0 1 0 15v-.5"/><path d="M11 6.5h7a3 3 0 0 1 3 3v.5a2.2 2.2 0 0 1-3.9 1.4L16 10h-3"/>',
-  mode_turnos: '<path d="M5 9a7 7 0 0 1 12.5-2.5M19 15a7 7 0 0 1-12.5 2.5"/><path d="M17.8 3.5v3.3h-3.3M6.2 20.5v-3.3h3.3"/>',
   mode_p2: '<circle cx="12" cy="12" r="8.5"/><path d="M9.3 9.6a2.7 2.7 0 0 1 5.3.6c0 1.6-1.6 2.5-3 3.6L9.4 15.5h5.3"/>',
   mode_p34: '<circle cx="12" cy="12" r="8.5"/><path d="M13.6 15.6V8.4L8.7 13.6h6.6"/>',
   genre: '<path d="M3.5 12.6V4.5a1 1 0 0 1 1-1h8.1l8 8a1.4 1.4 0 0 1 0 2l-7.1 7.1a1.4 1.4 0 0 1-2 0z"/><circle cx="8" cy="8" r="1.6"/>',
@@ -1808,6 +1809,7 @@ const Menu = {
         act('exitCombo', lbMode ? 'Atajo para cerrar un juego' : 'Combinación para cerrar un juego',
           lbMode ? 'Es el atajo de LaunchBox. Para usar uno propio, desactiva la opción de arriba.' : 'A para grabar una nueva: sostén los botones hasta que se llene la barra.', { show: () => comboText(exitCombo().list) }),
         ...(lbMode ? [] : [opt('exitHold', 'Sostenerla durante', { 0: 'Al instante', 0.5: '0,5 s', 1: '1 s', 1.5: '1,5 s', 2: '2 s', 3: '3 s' }, 'Cuánto tiempo hay que sostener la combinación para cerrar.')]),
+        yes('logDetail', 'Registro detallado del control', 'Anota en datos\\registro.txt los botones que llegan durante el juego. Solo para revisar un atajo que no responde.'),
       ] },
       { name: 'Biblioteca', rows: [
         act('lbPath', 'Carpeta de LaunchBox', 'De aquí lee Pandora tus juegos. Nunca modifica nada de LaunchBox.', { show: () => library.path || 'Sin elegir' }),

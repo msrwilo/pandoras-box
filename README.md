@@ -17,12 +17,13 @@
 - **Cada tema trae su propia lista de juegos y su propia ficha** («Del tema»): en MS-DOS la lista es un panel de archivos y la ficha un `TYPE JUEGO.TXT`; en Windows XP, una ventana del Explorador y sus Propiedades; en Game Boy, un menú con cursor ▶ y una ficha de enciclopedia…
 - **Vistas que sirven en cualquier tema**: Repisa, Carrusel, Rejilla, Lista, Rueda y Biblioteca para la lista; Clásica, Cine, Póster, Galería y Héroe para la ficha.
 - **Tema aleatorio** al abrir la app, eligiendo con interruptores qué temas pueden salir.
-- **Pensada para control**: todo se maneja con un control de Xbox (XInput), con ayudas en pantalla en el estilo de botones que elijas (Xbox, PlayStation, Nintendo, Sega…). También funciona con teclado y ratón.
+- **Pensada para control**: todo se maneja con un control de Xbox (XInput) o de Switch (opción «Como en Switch»), con ayudas en pantalla en el estilo de botones que elijas (Xbox, PlayStation, Nintendo, Sega…). También funciona con teclado y ratón.
 - **Abre los juegos como LaunchBox**: usa el emulador y la línea de comandos de cada plataforma (incluido el núcleo de RetroArch marcado como predeterminado), aplicaciones adicionales y accesos directos.
 - **Cierra los juegos con tu mismo atajo de LaunchBox** (por ejemplo, mantener RS y presionar B), o con una combinación propia.
 - Videos, música de cada juego, sonido de ambiente, **modo cine** y **modo espectador**.
 - Búsqueda con teclado en pantalla, barra de letras, favoritos, partidas y tiempo jugado.
-- Secciones por consolas, portátiles, arcade, computadoras, modo de juego, géneros y **desarrolladoras con su logo** (se buscan una sola vez en Wikidata/Wikipedia).
+- Secciones por consolas, portátiles, arcade, computadoras, modo de juego, géneros y **todas las desarrolladoras con su logo** (se buscan una sola vez en Wikidata/Wikipedia; los equivocados se quitan con X).
+- **Manuales en PDF** con zoom, salto de páginas y memoria de la última página, todo con el control.
 - Si no encuentra LaunchBox, una **bienvenida** te ayuda a elegir la carpeta, así que la puedes compartir con otra persona.
 
 ## Más capturas
@@ -40,6 +41,12 @@
 - Windows 10 u 11.
 - [LaunchBox](https://www.launchbox-app.com/) con tu biblioteca ya armada (Pandora's Box solo la lee).
 - Un control compatible con XInput (Xbox o similar). Opcional: teclado y ratón.
+
+## Pruebas
+
+```
+npm test
+```
 
 ## Instalar y ejecutar
 
