@@ -27,6 +27,7 @@
 .tv-list { position: absolute; left: 0; right: 0; top: 26.4rem; will-change: transform; }
 .tv-row { position: relative; height: 16.6rem; opacity: .55; transition: opacity .3s; }
 .tv-row.on { opacity: 1; }
+.tv-row.past { opacity: 0; visibility: hidden; transition: opacity .18s, visibility 0s .18s; } /* las filas que ya pasaste no se enciman con el título */
 .tv-rlabel { position: absolute; left: 6rem; top: 0; font-size: 1.05rem; font-weight: 700; color: var(--muted); }
 .tv-icons { position: absolute; left: 6rem; right: 0; top: 2.2rem; height: 12rem; perspective: 60rem; }
 .tv-icon { position: absolute; left: 0; top: 0; width: 16rem; display: flex; flex-direction: column; align-items: center; gap: .9rem; transform-style: preserve-3d; will-change: transform; transition: filter .2s; }

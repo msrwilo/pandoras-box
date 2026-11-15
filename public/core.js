@@ -103,7 +103,14 @@ const DIRS = new Set(['up', 'down', 'left', 'right']);
 // Solo afecta a la navegación; al grabar una combinación se usan los botones físicos.
 const SWAP = { a: 'b', b: 'a', x: 'y', y: 'x' };
 let padLayout = 'xbox';
-export function setPadLayout(v) { padLayout = v === 'switch' ? 'switch' : 'xbox'; held.clear(); }
+// Solo se reinicia el estado del control si la distribución cambió de verdad. Antes se reiniciaba con cada
+// ajuste que se guardaba: el botón que seguía presionado contaba como pulsación nueva en cada cuadro y las
+// opciones corrían solas.
+export function setPadLayout(v) {
+  const n = v === 'switch' ? 'switch' : 'xbox';
+  if (n === padLayout) return;
+  padLayout = n; held.clear(); quiet = true;
+}
 const held = new Map(); // acción -> {since, next}
 export const sticks = { rx: 0, ry: 0 };
 function pollGamepads(now) {

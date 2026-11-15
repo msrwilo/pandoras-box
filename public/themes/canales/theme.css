@@ -103,3 +103,9 @@ body.theme-canales { font-weight: 600; }
 .theme-canales #detail.D-tema .act.focus { border-color: #34beed; box-shadow: 0 0 1.4rem rgba(52, 190, 237, .6); background: linear-gradient(180deg, #fff, #eef1f3); color: #1a9fd0; }
 .theme-canales #detail.D-tema .detail-art:has(img[hidden]) { visibility: hidden; }
 .theme-canales .chips span.star { color: #8a5a00; }
+/* Logos blancos: la casilla sin banner se oscurece y el logo deja el brillo blanco; en la vista previa el logo va en una placa. */
+.theme-canales .wii-ch.logo-claro { background: none !important; }
+.theme-canales .wii-ch.logo-claro .wii-art:not(:has(img.cover)) { background: linear-gradient(170deg, #2c2e38, #17181d); }
+.theme-canales .wii-ch.logo-claro .wii-logo { filter: drop-shadow(0 .1rem .3rem rgba(0,0,0,.7)); }
+.theme-canales .wii-pv-info.logo-claro { background: none !important; }
+.theme-canales .wii-pv-info.logo-claro img { background: linear-gradient(170deg, #2c2e38, #17181d); padding: .7rem 1.6rem; border-radius: 1rem; box-sizing: border-box; max-height: 6.4rem; }

@@ -38,14 +38,14 @@ Están en pestañas (LB / RB). Debajo de cada opción hay una explicación corta
 
 | Pestaña | Contenido |
 |---|---|
-| (orden fijo) | Las pestañas son siempre las mismas y se abre en Apariencia; desde una lista o una ficha el cursor cae en su acomodo. Izquierda/derecha cambia un valor por pulsación |
+| (orden fijo) | Las pestañas son siempre las mismas y se abre en Apariencia; desde una lista o una ficha el cursor cae en su acomodo. Izquierda/derecha cambia un valor por pulsación y se aplica solo al dejar de moverte (como el tema); A abre la lista completa |
 | Apariencia | Tema, estilo de botones, acomodo de lista y ficha |
 | Sonido | Volumen, audio de fondo, ambiente y efectos |
-| Videos | Reproducir videos, modo cine y modo espectador |
+| Videos | Reproducir videos, modo cine, modo espectador y filtro CRT (el `crt-lottes` de RetroArch: apagado, solo consolas 2D o en todos; se aplica al video de fondo y a «Ver video») |
 | Inicio | Qué secciones se muestran en el inicio |
 | Listas | Búsqueda, barra de letras y qué datos se muestran |
 | Control | Distribución de botones (Xbox o Switch), atajo para cerrar un juego y registro detallado del control |
-| Biblioteca | Carpeta de LaunchBox, logos, borrar datos y salir |
+| Biblioteca | Carpeta de LaunchBox, logos, modo depuración (en la ficha muestra qué datos o medios le faltan al juego), borrar datos y salir |
 
 ## Temas
 

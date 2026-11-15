@@ -44,6 +44,7 @@ export default function manzana(api, root) {
       const s = this.sec, it = s?.items[this.ii], p = it?.p;
       this.rows.forEach((r, ri) => {
         r.row.classList.toggle('on', ri === this.si);
+        r.row.classList.toggle('past', ri < this.si);
         r.icons.forEach((c, i) => c.classList.toggle('on', ri === this.si && i === this.ii));
         r.x.set(this.idxOf(ri));
       });

@@ -2,6 +2,7 @@
 import { Spring, onFrame, onAction, draggable, project, rubberband, rem, sticks, reducedMotion, $, h, setTextSink, setCapture, getInputMode, setPadLayout } from './core.js';
 import * as S from './sound.js';
 import { Manual, MODES as MANUAL_MODES } from './manual.js';
+import * as CRT from './crt.js';
 // Las peticiones que cambian algo (abrir juegos, guardar ajustes…) llevan esta marca: una página web
 // cualquiera no puede ponerla, así que no puede pedirle nada a Pandora aunque encuentre el puerto.
 { const f = window.fetch.bind(window); window.fetch = (u, o = {}) => (o.method || 'GET').toUpperCase() === 'POST' ? f(u, { ...o, headers: { ...(o.headers || {}), 'X-Pandora': '1' } }) : f(u, o); }
@@ -29,7 +30,7 @@ const DEFAULTS = {
   theme: 'cubo', soundTheme: 'auto', volume: 0.7, ambient: 0.6, favFirst: true,
   audioMode: 'video', autoVideo: true, imageType: 'box',
   shelfLayout: 'tema', detailLayout: 'tema', manualMode: 'doble',
-  cinemaDelay: 8, spectatorIdle: 5,
+  cinemaDelay: 8, spectatorIdle: 5, crtVideo: 'off', debugMissing: false,
   // Qué aparece en el inicio, búsqueda y combinación para cerrar un juego.
   logoSound: true, marcas: true, padLayout: 'xbox',
   sections: { all: true, Consoles: true, Handhelds: true, Arcade: true, Computers: true, modes: true, genres: true, developers: true },
@@ -214,6 +215,22 @@ const Back = {
   get playing() { return !!this.video && bgVideo.style.opacity === '1' && !bgVideo.paused; },
   refresh() { backdrop.classList.toggle('media', !!(this.img || this.video)); },
 };
+// Filtro CRT (crt-lottes) en los videos: apagado, solo en plataformas 2D o en todos.
+const PLAT_2D = new Set(['Nintendo Entertainment System', 'Sega Master System', 'NEC TurboGrafx-16', 'NEC TurboGrafx-CD', 'PC Engine SuperGrafx',
+  'Sega Genesis', 'Super Nintendo Entertainment System', 'Sega CD', 'Sega 32X', 'Nintendo Game Boy', 'Nintendo Game Boy Color', 'Nintendo Game Boy Advance',
+  'Sega Game Gear', 'Nintendo Virtual Boy', 'SNK Neo Geo Pocket Color', 'WonderSwan', 'WonderSwan Color', 'Atari 2600', "Arcade 80's", "Arcade 90's",
+  'Microsoft MSX', 'MS-DOS', 'Sharp X68000', 'Philips CD-i', 'ScummVM'].map(x => x.toLowerCase().replace(/[^a-z0-9]/g, '')));
+function crtFor(url) {
+  const m = settings.crtVideo;
+  if (!url || !m || m === 'off') return false;
+  if (m === 'all') return true;
+  let u = url; try { u = decodeURIComponent(url); } catch {}
+  const x = /\/Videos\/([^/]+)\/([^/?]+)/i.exec(u); if (!x) return false;
+  const name = /^Platform/i.test(x[1]) ? x[2].replace(/\.[a-z0-9]+$/i, '') : x[1];
+  return PLAT_2D.has(name.toLowerCase().replace(/[^a-z0-9]/g, ''));
+}
+CRT.attach(bgVideo, () => crtFor(Back.video));
+onFrame(() => CRT.frame());
 bgVideo.addEventListener('playing', () => {
   if (!Back.video) return;
   bgVideo.style.opacity = 1; backdrop.classList.add('vid'); Back.refresh(); updateAudio();
@@ -377,7 +394,26 @@ const HINTS = {
   manual: [['lr', 'Página'], ['lbrb', '10 páginas'], ['ltrt', 'Zoom'], ['rs', 'Mover'], ['a', 'Vista'], ['b', 'Cerrar']],
   menu: [['ud', 'Elegir'], ['lr', 'Cambiar'], ['b', 'Cerrar']],
 };
+// Modo depuración: en la ficha, una etiqueta fija con lo que le falta al juego en LaunchBox (datos y medios).
+function missingOf(g) {
+  const m = g.media || {}, n = v => Array.isArray(v) ? v.length : v ? 1 : 0;
+  return [
+    [!String(g.notes || '').trim(), 'Descripción'], [!g.developer, 'Desarrolladora'], [!g.publisher, 'Editora'], [!g.date && !g.year, 'Fecha'],
+    [!g.genres?.length, 'Género'], [!g.maxPlayers, 'Jugadores'],
+    [!n(m.box), 'Caja'], [!n(m.box3d), 'Caja 3D'], [!n(m.cart), 'Cartucho o disco'], [!n(m.logo), 'Logo'], [!n(m.shots), 'Capturas'],
+    [!n(m.fanart), 'Fondo'], [!m.video, 'Video'], [!m.manual, 'Manual'], [!m.music, 'Música'],
+  ].filter(x => x[0]).map(x => x[1]);
+}
+function renderDebug() {
+  const el = $('#dbgMissing'), g = screens.detail?.game;
+  const on = !!(settings.debugMissing && top() === 'detail' && g && !Viewer.open && !Playing.active);
+  el.hidden = !on; if (!on) return;
+  const miss = missingOf(g);
+  el.classList.toggle('ok', !miss.length);
+  el.replaceChildren(h('b', { text: miss.length ? `Faltan ${miss.length}` : 'Completo' }), ...miss.map(x => h('span', { text: x })));
+}
 function renderChrome() {
+  renderDebug();
   for (const c of [...document.body.classList]) if (c.startsWith('at-')) document.body.classList.remove(c);
   document.body.classList.add('at-' + (top() || 'boot'));
   document.body.classList.toggle('sheet-open', !!(Menu?.open || Picker?.open)); // las pistas se recorren para no quedar bajo el panel
@@ -1426,6 +1462,31 @@ screens.detail = {
     if (!reducedMotion.matches) $('#dArt').style.transform = `translateY(${(Math.sin(this.t * 2 * Math.PI / 8) * 0.5).toFixed(3)}rem) rotate(${(Math.sin(this.t * 2 * Math.PI / 11) * 0.6).toFixed(3)}deg)`;
   },
 };
+// Logos claros sobre temas claros: se mira cada logo al cargarse. Si es casi todo blanco o gris claro
+// (Nintendo DS, PSP, PS3, Windows…), su casilla recibe «logo-claro» y los temas blancos la pintan oscura.
+const logoTone = new Map();
+function toneOf(img) {
+  try {
+    const w = 96, hh = Math.max(1, Math.round(w * img.naturalHeight / img.naturalWidth));
+    const c = document.createElement('canvas'); c.width = w; c.height = hh;
+    const g = c.getContext('2d', { willReadFrequently: true }); g.drawImage(img, 0, 0, w, hh);
+    const d = g.getImageData(0, 0, w, hh).data; let n = 0, li = 0, da = 0;
+    for (let i = 0; i < d.length; i += 4) {
+      if (d[i + 3] < 128) continue; n++;
+      if (Math.min(d[i], d[i + 1], d[i + 2]) > 165) li++; else if (Math.max(d[i], d[i + 1], d[i + 2]) < 95) da++;
+    }
+    if (!n || n > w * hh * 0.97) return 'mid'; // sin transparencia no es un logo recortado
+    return li / n >= 0.3 && da / n < 0.06 ? 'light' : da / n >= 0.4 && li / n < 0.1 ? 'dark' : 'mid';
+  } catch { return 'mid'; }
+}
+document.addEventListener('load', e => {
+  const img = e.target;
+  if (img.tagName !== 'IMG' || !/Clear(%20| )Logo/i.test(img.src) || !img.naturalWidth) return;
+  let t = logoTone.get(img.src); if (!t) { t = toneOf(img); logoTone.set(img.src, t); }
+  img.dataset.tone = t;
+  img.parentElement?.classList.toggle('logo-claro', t === 'light');
+  img.parentElement?.classList.toggle('logo-oscuro', t === 'dark');
+}, true);
 addEventListener('resize', () => { if (top() === 'detail') screens.detail.paintActions(); });
 document.fonts?.ready.then(() => { if (top() === 'detail') screens.detail.paintActions(); });
 function setAudio(mode) {
@@ -1516,6 +1577,7 @@ const Viewer = {
       const v = h('video', { src: o.url, autoplay: '', controls: '', playsinline: '' });
       v.volume = Math.min(1, settings.volume);
       stage.replaceChildren(v); this.video = v;
+      CRT.attach(v, () => crtFor(o.url));
       $('#viewerCaption').textContent = '';
     } else if (o.kind === 'manual') {
       if (/\.pdf($|\?)/i.test(o.url)) {
@@ -1755,7 +1817,7 @@ const Capture = {
     const list = BTN_ORDER.filter(b => set.has(b));
     if (!this.armed) { if (!list.length) this.armed = true; else return; } // primero hay que soltar el botón con el que entraste
     if (list.length) this.idle = now;
-    if (now - this.idle > 12000) return this.done(null);
+    if (now - this.idle > 5000) return this.done(null);
     if (list.length >= 2 && list.length <= 4) {
       const k = list.join('+');
       if (k !== this.key) { this.key = k; this.since = now; S.play('move', list.length); }
@@ -1769,7 +1831,7 @@ const Capture = {
     $('#capBar').style.width = (p * 100).toFixed(1) + '%';
     const risky = list.length >= 2 && !list.some(b => ['ls', 'rs', 'view', 'menu'].includes(b));
     $('#capNote').textContent = list.length === 1 ? 'Agrega al menos otro botón' : list.length > 4 ? 'Máximo 4 botones' :
-      risky ? 'Ojo: esos botones se usan mucho dentro de los juegos' : list.length ? 'Sigue sosteniendo…' : 'Se cancela solo si no presionas nada en 12 s';
+      risky ? 'Ojo: esos botones se usan mucho dentro de los juegos' : list.length ? 'Sigue sosteniendo…' : 'Se cancela solo si no presionas nada en 5 s';
   },
   done(list) {
     setCapture(null);
@@ -1806,8 +1868,8 @@ const Menu = {
     const detailRows = [opt('detailLayout', 'Acomodo de la ficha', DETAIL_LAYOUTS, '«Del tema» usa la ficha propia del tema. Las demás opciones sirven en cualquier tema.')];
     this.tabs = [
       { name: 'Apariencia', rows: [
-        opt('theme', 'Tema', { aleatorio: 'Aleatorio', ...themes }, 'Cambia todo el aspecto de Pandora. A abre la lista completa. «Aleatorio» cambia de tema cada vez que abres Pandora.'),
-        opt('buttonStyle', 'Botones en pantalla', { auto: 'Según el tema', ...Object.fromEntries(Object.entries(BUTTON_STYLES).map(([k, x]) => [k, x.label])) }, 'Cómo se dibujan los botones en las ayudas de abajo.'),
+        opt('theme', 'Tema', { aleatorio: 'Aleatorio', ...themes }, 'Cambia todo el aspecto de Pandora. «Aleatorio» cambia de tema cada vez que abres Pandora.'),
+        opt('buttonStyle', 'Botones en pantalla', { auto: 'Del tema', ...Object.fromEntries(Object.entries(BUTTON_STYLES).map(([k, x]) => [k, x.label])) }, 'Cómo se dibujan los botones en las ayudas de abajo.'),
         ...shelfRows.slice(0, 2),
         ...detailRows,
         ...(settings.themeRandom ? [
@@ -1822,11 +1884,12 @@ const Menu = {
         rng('ambient', 'Volumen del ambiente', 'Solo se oye si el audio de fondo es «Ambiente».'),
         yes('logoSound', 'Sonido del logo al abrir', 'Suena cuando se abre la caja del logo al arrancar Pandora’s Box.'),
         ...(Object.keys(Marcas.temas).length ? [yes('marcas', 'Logos y sonidos originales', 'Usa los logos y sonidos de consola que pusiste en datos\\marcas. Lo que falte se queda sintetizado.')] : []),
-        opt('soundTheme', 'Efectos de sonido', { auto: 'Según el tema', ...Object.fromEntries(Object.entries(themes).map(([k, l]) => [THEME_SOUND[k], l]).filter(([k]) => k)), ...S.extras() }, 'Los sonidos al moverte y elegir. Cambian solos con el tema.'),
+        opt('soundTheme', 'Efectos de sonido', { auto: 'Del tema', ...Object.fromEntries(Object.entries(themes).map(([k, l]) => [THEME_SOUND[k], l]).filter(([k]) => k)), ...S.extras() }, 'Los sonidos al moverte y elegir. Cambian solos con el tema.'),
       ] },
       { name: 'Videos', rows: [
         yes('autoVideo', 'Reproducir videos', 'Muestra el video del juego o consola cuando te detienes en él.'),
         opt('cinemaDelay', 'Modo cine', { 0: 'Nunca', 2: 'A los 2 s', 3: 'A los 3 s', 5: 'A los 5 s', 8: 'A los 8 s', 15: 'A los 15 s', 30: 'A los 30 s' }, 'Si no tocas nada, oculta los textos y deja el video a pantalla completa.'),
+        opt('crtVideo', 'Filtro CRT en los videos', { off: 'No', '2d': 'Solo consolas 2D', all: 'En todos' }, 'Pasa el video por el filtro crt-lottes de RetroArch (líneas, máscara y curvatura) para que no se vea pixelado. Se aplica al video de fondo y a «Ver video».'),
         opt('spectatorIdle', 'Modo espectador', { 0: 'Nunca', 3: 'A los 3 min', 5: 'A los 5 min', 10: 'A los 10 min' }, 'En el inicio, si no tocas nada, pasa videos de tu colección uno tras otro.'),
       ] },
       { name: 'Inicio', rows: [
@@ -1854,6 +1917,7 @@ const Menu = {
         act('lbPath', 'Carpeta de LaunchBox', 'De aquí lee Pandora tus juegos. Nunca modifica nada de LaunchBox.', { show: () => library.path || 'Sin elegir' }),
         act('reload', 'Volver a leer LaunchBox', 'Úsalo si agregaste juegos o imágenes en LaunchBox con Pandora abierta.'),
         yes('devLogos', 'Logos de desarrolladores', 'Los busca en internet (Wikidata y Wikipedia) y los guarda en datos\\logos.'),
+        yes('debugMissing', 'Modo depuración', 'En la ficha de cada juego muestra qué le falta en LaunchBox: descripción, datos, imágenes, video, manual o música. Sirve para completar la biblioteca.'),
         act('retryLogos', 'Buscar logos de desarrolladores', 'Busca en internet los logos de desarrolladores que aún no tiene, incluidos los que no se encontraron antes.'),
         { sec: 'Borrar datos de Pandora' },
         act('reset:favoritos', 'Borrar favoritos', 'Pide confirmar. LaunchBox no se toca.', { danger: true }),
@@ -1889,7 +1953,7 @@ const Menu = {
   value(r) {
     if (r.show) return r.show();
     if (r.id === 'theme' && !this.pendingTheme && settings.themeRandom) return 'Aleatorio · hoy ' + THEMES[settings.theme].label;
-    const v = r.id === 'theme' && this.pendingTheme ? this.pendingTheme : this.get(r.id);
+    const v = r.id === 'theme' && this.pendingTheme ? this.pendingTheme : this.pend?.r === r ? this.pend.v : this.get(r.id);
     if (r.options) return r.options[v] ?? v;
     if (r.range) return Math.round(v * 100) + '%';
     if (r.bool) return v ? 'Sí' : 'No';
@@ -1924,7 +1988,7 @@ const Menu = {
     $('#menuHelp').textContent = this.confirm === this.rows[this.i]?.id ? 'Presiona A otra vez para confirmar.' : this.rows[this.i]?.help || '';
   },
   show() { this.list = null; this.build(); this.open = true; this.el.hidden = false; this.x.set(0); this.paint(); S.play('open'); renderChrome(); },
-  close() { this.open = false; this.x.set(1); S.play('back'); renderChrome(); },
+  close() { this.commit(); this.open = false; this.x.set(1); S.play('back'); renderChrome(); },
   change(d, viaA) {
     const r = this.rows[this.i];
     if (r.act) { if (viaA) this.runAct(r); return; }
@@ -1933,14 +1997,28 @@ const Menu = {
     if (r.id === 'theme') return this.pickTheme(this.nextKey(r, this.curTheme(), d));
     if (r.bool) this.setv(r.id, !this.get(r.id));
     else if (r.range) this.setv(r.id, Math.round(clamp(this.get(r.id) + d * 0.1, 0, 1) * 10) / 10);
-    else if (r.options) this.setv(r.id, this.nextKey(r, this.get(r.id), d));
+    else if (r.options) {
+      // Igual que el tema: izquierda/derecha pasa de una en una y se aplica al dejar de moverte.
+      const from = this.pend?.r === r ? this.pend.v : this.get(r.id);
+      if (this.pend && this.pend.r !== r) this.commit();
+      this.pend = { r, v: this.nextKey(r, from, d) };
+      S.play('toggle'); this.paint();
+      clearTimeout(this.pendTimer); this.pendTimer = setTimeout(() => this.commit(), 450);
+      return;
+    }
     this.afterChange(r);
   },
-  afterChange(r) {
+  commit() {
+    clearTimeout(this.pendTimer);
+    const p = this.pend; this.pend = null;
+    if (!p || String(this.get(p.r.id)) === String(p.v)) { if (p && this.open) this.paint(); return; }
+    this.setv(p.r.id, p.v); this.afterChange(p.r, true);
+  },
+  afterChange(r, quiet) {
     saveSettings(); applySound(); this.paint(); renderChrome(); updateAudio();
     if (r.id === 'marcas') Marcas.apply();
     const t = top();
-    if (r.id === 'soundTheme') setTimeout(() => S.preview(), 120); else S.play('toggle');
+    if (r.id === 'soundTheme') setTimeout(() => S.preview(), 120); else if (!quiet) S.play('toggle');
     if (r.id === 'favFirst' && t === 'shelf') screens.shelf.resort();
     if (r.id === 'exitFromLaunchBox') { const ti = this.ti, i = this.i; this.build(); this.setTab(ti); this.i = i; this.paint(); }
     if ((r.id === 'buttonStyle' || r.id === 'padLayout') && t === 'detail') screens.detail.buildActions?.();
@@ -2002,6 +2080,7 @@ const Menu = {
     if (now) apply(); else this.themeTimer = setTimeout(apply, 1100);
   },
   openList() {
+    this.commit();
     const r = this.rows[this.i];
     const keys = Object.keys(r.options), cur = String(r.id === 'theme' ? this.curTheme() : this.get(r.id));
     this.list = { row: r, keys, i: Math.max(0, keys.indexOf(cur)) };
@@ -2032,6 +2111,7 @@ const Menu = {
     if (a === 'b' || a === 'menu') return this.close();
     // Los valores cambian de uno en uno: mantener izquierda o derecha no los recorre (solo el volumen sigue).
     if (rep && (a === 'left' || a === 'right' || a === 'lb' || a === 'rb') && !(this.rows[this.i]?.range && a.length > 2)) return;
+    if (a !== 'left' && a !== 'right') this.commit();
     if (a === 'lb' || a === 'rb') {
       const n = clamp(this.ti + (a === 'lb' ? -1 : 1), 0, this.tabs.length - 1);
       if (n === this.ti) return S.play('error');
