@@ -643,3 +643,10 @@ img[src^="/dl/"] { background: rgba(255, 255, 255, .94); border-radius: .5em; pa
 /* Tanda 2 (14 nov 2026): barra de ayudas más grande para la tele de 720p. */
 #hints { font-size: 1rem; gap: 2rem; }
 #hints .gl { font-size: .85em; }
+
+/* Versión privada: logo de la consola al arrancar (datos/marcas/<tema>/logo). */
+#marcaSplash { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; background: #000; opacity: 0; pointer-events: none; transition: opacity .5s ease; }
+#marcaSplash img { max-width: 46vw; max-height: 34vh; object-fit: contain; transform: scale(.94); transition: transform 2.4s cubic-bezier(.2,.7,.2,1); }
+#marcaSplash.in { opacity: 1; }
+#marcaSplash.in img { transform: scale(1); }
+#marcaSplash.out { opacity: 0; transition-duration: .6s; }

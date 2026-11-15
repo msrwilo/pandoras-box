@@ -39,6 +39,27 @@ function writeData(file, obj) {
 }
 // Registro de lo que pasa al abrir juegos (para diagnosticar emuladores rebeldes): datos/registro.txt
 const LOG_FILE = path.join(DATA_DIR, 'registro.txt');
+// Versión privada: logos y sonidos originales de las consolas, uno por tema, en datos/marcas/<tema>/.
+// Esta carpeta nunca se sube a GitHub ni entra al zip; si no existe, cada tema usa lo suyo (dibujado y sintetizado).
+const MARCAS_DIR = path.join(DATA_DIR, 'marcas');
+const MARCA_SONIDOS = ['startup', 'move', 'select', 'back', 'open', 'error', 'launch'];
+function marcas() {
+  const out = {};
+  let temas = [];
+  try { temas = fs.readdirSync(MARCAS_DIR, { withFileTypes: true }).filter(d => d.isDirectory()).map(d => d.name); } catch { return out; }
+  for (const id of temas) {
+    let files = [];
+    try { files = fs.readdirSync(path.join(MARCAS_DIR, id)); } catch { continue; }
+    const t = { sounds: {} };
+    for (const f of files) {
+      const stem = f.replace(/\.[^.]+$/, '').toLowerCase(), url = '/mk/' + encodeURIComponent(id) + '/' + encodeURIComponent(f);
+      if (stem === 'logo' && /\.(png|svg|webp|jpe?g)$/i.test(f)) t.logo = url;
+      else if (MARCA_SONIDOS.includes(stem) && /\.(ogg|mp3|wav)$/i.test(f)) t.sounds[stem] = url;
+    }
+    if (t.logo || Object.keys(t.sounds).length) out[id] = t;
+  }
+  return out;
+}
 function log(msg) {
   const line = `${new Date().toLocaleString('es-MX', { hour12: false })}  ${msg}\n`;
   try {
@@ -427,6 +448,7 @@ function api(pathname, q) {
     }
     return { packs: out };
   }
+  if (pathname === '/api/marcas') return { temas: marcas() };
   if (pathname === '/api/reload') { loadLibrary(); return { ok: true, total: lib.games.size }; }
   if (pathname === '/api/devlogos') {
     if (q.get('retry')) { devLogos.retry(); fetchDevLogos(true); }
@@ -558,6 +580,11 @@ const server = http.createServer(async (req, res) => {
     if (p.startsWith('/dl/')) {
       const file = path.join(devLogos.dir, p.slice(4));
       if (!inside(devLogos.dir, file)) { res.writeHead(403); return res.end(); }
+      return sendFile(req, res, file, true);
+    }
+    if (p.startsWith('/mk/')) {
+      const file = path.join(MARCAS_DIR, p.slice(4));
+      if (!inside(MARCAS_DIR, file)) { res.writeHead(403); return res.end(); }
       return sendFile(req, res, file, true);
     }
     if (p.startsWith('/m/')) {

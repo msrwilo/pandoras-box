@@ -28,7 +28,7 @@ const DEFAULTS = {
   shelfLayout: 'tema', detailLayout: 'tema', manualMode: 'doble',
   cinemaDelay: 8, spectatorIdle: 5,
   // Qué aparece en el inicio, búsqueda y combinación para cerrar un juego.
-  logoSound: true, padLayout: 'xbox',
+  logoSound: true, marcas: true, padLayout: 'xbox',
   sections: { all: true, Consoles: true, Handhelds: true, Arcade: true, Computers: true, modes: true, genres: true, developers: true },
   search: true, letterBar: true,
   exitCombo: ['ls', 'rs', 'b'], exitHold: 0, exitFromLaunchBox: true, buttonStyle: 'auto',
@@ -1758,6 +1758,7 @@ const Menu = {
         opt('audioMode', 'Audio de fondo', AUDIO_MODES, 'Qué suena mientras navegas: el audio del video del juego, su música o un ambiente tranquilo.'),
         rng('ambient', 'Volumen del ambiente', 'Solo se oye si el audio de fondo es «Ambiente».'),
         yes('logoSound', 'Sonido del logo al abrir', 'Suena cuando se abre la caja del logo al arrancar Pandora’s Box.'),
+        ...(Object.keys(Marcas.temas).length ? [yes('marcas', 'Logos y sonidos originales', 'Usa los logos y sonidos de consola que pusiste en datos\\marcas. Lo que falte se queda sintetizado.')] : []),
         opt('soundTheme', 'Efectos de sonido', { auto: 'Según el tema', ...Object.fromEntries(Object.entries(themes).map(([k, l]) => [THEME_SOUND[k], l]).filter(([k]) => k)), ...S.extras() }, 'Los sonidos al moverte y elegir. Cambian solos con el tema.'),
       ] },
       { name: 'Videos', rows: [
@@ -1870,6 +1871,7 @@ const Menu = {
   },
   afterChange(r) {
     saveSettings(); applySound(); this.paint(); renderChrome(); updateAudio();
+    if (r.id === 'marcas') Marcas.apply();
     const t = top();
     if (r.id === 'soundTheme') setTimeout(() => S.preview(), 120); else S.play('toggle');
     if (r.id === 'favFirst' && t === 'shelf') screens.shelf.resort();
@@ -2082,12 +2084,39 @@ async function start() {
   S.unlock(); applySound();
   $('#boot').classList.add('out');
   setTimeout(() => $('#boot').remove(), 1000);
-  if (!logoPlayed) S.play('startup');
+  if (!Marcas.boot() && !logoPlayed) S.play('startup');
   try { await restore(); } catch (e) { console.error(e); try { go('home', null, true); } catch {} }
   fetch('/api/log', { method: 'POST', body: JSON.stringify({ msg: `lista en ${Math.round(performance.now())} ms (tema ${settings.theme})` }) }).catch(() => {});
   lastInput = performance.now();
 }
 let bootLast = null;
+// Versión privada: logos y sonidos originales de cada consola (datos/marcas/<tema>). En la versión pública
+// la carpeta no existe y todo queda como siempre. Al arrancar (y al cambiar de tema, que recarga) se muestra
+// el logo de la consola con su sonido de arranque, como al encender el aparato.
+const Marcas = {
+  temas: {},
+  get on() { return settings.marcas !== false && Object.keys(this.temas).length > 0; },
+  apply() {
+    const map = {};
+    if (this.on) for (const [id, t] of Object.entries(this.temas)) if (THEME_SOUND[id]) map[THEME_SOUND[id]] = t.sounds || {};
+    S.registerMarcas(map);
+  },
+  boot() {
+    const t = this.on && this.temas[settings.theme];
+    if (!t || (!t.logo && !t.sounds?.startup)) return false;
+    // El sonido solo si el tema de sonido es el de la consola (Ajustes › Sonido › «Según el tema»).
+    const sound = settings.soundTheme === 'auto' && t.sounds?.startup;
+    if (sound) S.marcaStartup();
+    if (t.logo) {
+      const el = h('div', { id: 'marcaSplash' }, h('img', { src: t.logo, alt: '' }));
+      document.body.append(el);
+      requestAnimationFrame(() => el.classList.add('in'));
+      const out = () => { el.classList.remove('in'); el.classList.add('out'); setTimeout(() => el.remove(), 700); removeEventListener('keydown', out); };
+      setTimeout(out, 2000); addEventListener('keydown', out, { once: true });
+    }
+    return !!sound;
+  },
+};
 async function restore() {
   const L = bootLast || settings.last || {};
   const direct = !!THEMES[settings.theme]?.direct;
@@ -2149,10 +2178,12 @@ for (const id in screens) { vis[id] = new Spring(0, { response: 0.45, damping: 1
 
 (async function init() {
   try {
-    const [s, lib] = await Promise.all([
+    const [s, lib, mk] = await Promise.all([
       fetch('/api/settings').then(r => r.json()).catch(() => ({})),
       fetch('/api/library').then(r => r.json()),
+      fetch('/api/marcas').then(r => r.json()).catch(() => ({})),
     ]);
+    Marcas.temas = mk.temas || {};
     settings = { ...DEFAULTS, ...s, fields: { ...DEFAULTS.fields, ...(s.fields || {}) } };
     // Sonido del logo: suena junto con la tapa que se abre (la animación empieza al cargar la página).
     if (settings.logoSound !== false && $('#boot')) { applySound(); logoPlayed = S.logo(Math.max(0, 0.3 - performance.now() / 1000)); }
@@ -2160,6 +2191,7 @@ for (const id in screens) { vis[id] = new Spring(0, { response: 0.45, damping: 1
     // Las vistas «Del tema» llegan como predeterminadas una sola vez; después se respeta lo que elijas.
     if (!s.viewsTema) { settings.shelfLayout = 'tema'; settings.detailLayout = 'tema'; settings.viewsTema = 1; saveSettings(); }
     if (s.soundTheme === 'cubo' && !s.soundAuto) { settings.soundTheme = 'auto'; settings.soundAuto = true; }
+    Marcas.apply();
     fetch('/api/soundpacks').then(r => r.json()).then(d => { S.registerPacks(d.packs || []); applySound(); }).catch(() => {});
     library = lib;
     // Sin LaunchBox (primera vez o app compartida): se muestra la bienvenida para elegir la carpeta.

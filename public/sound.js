@@ -11,6 +11,34 @@ export const SYNTH = {
   cristal: 'Cristal', retro: 'Retro 8 bits', madera: 'Madera', espacial: 'Espacial', silencio: 'Silencio',
 };
 const packs = {}; // id -> { name, files, buffers }
+// Versión privada: sonidos originales de consola por tema (datos/marcas). Lo que falte se sintetiza.
+const marcas = {}; // id del tema de sonido -> { files: { move: url, … }, buffers }
+export function registerMarcas(map) {
+  for (const k of Object.keys(marcas)) delete marcas[k];
+  for (const [id, files] of Object.entries(map || {})) if (Object.keys(files).length) marcas[id] = { files, buffers: null };
+  if (ctx && marcas[theme]) loadMarca(theme);
+}
+async function loadMarca(id) {
+  const m = marcas[id];
+  if (!m || m.buffers || !ctx) return;
+  m.buffers = {};
+  await Promise.all(Object.entries(m.files).map(async ([k, u]) => {
+    try { m.buffers[k] = await ctx.decodeAudioData(await (await fetch(u)).arrayBuffer()); } catch {}
+  }));
+}
+// Sonido de arranque de la consola del tema; devuelve false si no hay.
+export async function marcaStartup() {
+  if (!unlock() || !marcas[theme]?.files.startup) return false;
+  await loadMarca(theme);
+  return playBuffer(marcas[theme].buffers?.startup, 0.9);
+}
+function playBuffer(buf, gain = 0.8) {
+  if (!buf) return false;
+  const s = ctx.createBufferSource(); s.buffer = buf;
+  const g = ctx.createGain(); g.gain.value = gain; s.connect(g); g.connect(sfxBus); s.start();
+  return true;
+}
+const MARCA_MAP = { move: ['move'], rotate: ['move'], toggle: ['move'], select: ['select'], open: ['open', 'select'], launch: ['launch', 'select'], back: ['back'], error: ['error', 'back'], startup: ['startup'] };
 export function registerPacks(list) { for (const p of list) packs[p.id] = { name: p.name, files: p.files, buffers: null }; }
 // Sonidos que no pertenecen a ningún tema, más los paquetes de LaunchBox.
 export function extras() {
@@ -32,6 +60,7 @@ export function unlock() {
     const wet = ctx.createGain(); wet.gain.value = 0.5;
     echo.connect(fb); fb.connect(echo); echo.connect(wet); wet.connect(master);
     if (packs[theme]) loadPack(theme);
+    if (marcas[theme]) loadMarca(theme);
   }
   if (ctx.state === 'suspended') ctx.resume();
   return ctx.state === 'running';
@@ -71,6 +100,7 @@ export function configure(opts) {
     const amb = AMB[theme] ? theme : 'cubo';
     if (amb !== ambTheme) { ambTheme = amb; if (ctx) { rebuildAmbient(); if (ambOn) setAmbient(true); } }
     if (packs[theme]) loadPack(theme);
+    if (marcas[theme]) loadMarca(theme);
   }
   if (opts.volume !== undefined) { volume = opts.volume; if (master) master.gain.setTargetAtTime(volume, ctx.currentTime, 0.05); }
   if (opts.ambientLevel !== undefined) { ambientLevel = opts.ambientLevel; if (ambOn) setAmbient(true); }
@@ -633,6 +663,11 @@ const PACK_MAP = { move: 'move', rotate: 'move', toggle: 'move', select: 'select
 
 export function play(name, arg) {
   if (!running() || theme === 'silencio') return;
+  const mk = marcas[theme];
+  if (mk) {
+    const k = MARCA_MAP[name]?.find(k => mk.files[k]);
+    if (k && mk.buffers?.[k]) { playBuffer(mk.buffers[k]); return; }
+  }
   const p = packs[theme];
   if (p) {
     const list = p.buffers?.[PACK_MAP[name]];
