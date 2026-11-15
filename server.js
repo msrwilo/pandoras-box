@@ -671,7 +671,7 @@ function start(port = cfg.port) {
     });
   });
 }
-module.exports = { start, events, get LB() { return LB; } };
+module.exports = { start, events, log, get LB() { return LB; } };
 if (require.main === module) start().catch(e => { console.error(e.message); process.exit(1); });
 
 // Busca en segundo plano los logos de las desarrolladoras que aún no tiene (se puede apagar en Ajustes).

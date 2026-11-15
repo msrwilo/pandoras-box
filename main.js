@@ -41,6 +41,12 @@ app.whenReady().then(async () => {
   });
   win.setMenuBarVisibility(false);
   win.once('ready-to-show', () => win.show());
+  // Errores de la interfaz al registro (datos/registro.txt): si la pantalla se queda en el logo, ahí se ve por qué.
+  const wlog = m => { try { srv.log(m); } catch {} };
+  win.webContents.on('console-message', (e, level, message, line, source) => { if (level >= 2) wlog(`Pantalla (error): ${String(message).slice(0, 300)} — ${String(source || '').split('/').pop()}:${line}`); });
+  win.webContents.on('did-fail-load', (e, code, desc, url) => wlog(`Pantalla: no cargó ${url} (${code} ${desc})`));
+  win.webContents.on('render-process-gone', (e, d) => wlog(`Pantalla: el proceso se cerró (${d.reason})`));
+  win.webContents.on('unresponsive', () => wlog('Pantalla: dejó de responder'));
   win.loadURL(`http://127.0.0.1:${port}/`);
 
   // Al abrir un juego, Pandora espera a que el juego esté al frente y entonces se hace a un lado;

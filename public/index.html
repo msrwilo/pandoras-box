@@ -161,6 +161,19 @@
 </div>
 
 <audio id="music" loop preload="none"></audio>
+<script>
+  // Si algo falla al arrancar, queda escrito en datos/registro.txt.
+  (function () {
+    var n = 0, send = function (m) { if (n++ < 20) fetch('/api/log', { method: 'POST', body: JSON.stringify({ msg: String(m).slice(0, 190) }) }).catch(function () {}); };
+    addEventListener('error', function (e) {
+      var t = e.target;
+      if (t && (t.tagName === 'SCRIPT' || t.tagName === 'LINK')) send('no cargó ' + (t.src || t.href));
+      else if (e.message) send('error: ' + e.message + ' (' + String(e.filename || '').split('/').pop() + ':' + e.lineno + ')');
+    }, true);
+    addEventListener('unhandledrejection', function (e) { var r = e.reason; send('error: ' + (r && (r.message || r)) + (r && r.stack ? ' ' + String(r.stack).split('\n')[1] : '')); });
+    setTimeout(function () { if (document.getElementById('boot')) send('a los 20 s sigue en el logo'); }, 20000);
+  })();
+</script>
 <script type="module" src="/app.js"></script>
 </body>
 </html>
