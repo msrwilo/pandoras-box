@@ -80,6 +80,21 @@ LaunchBox no los trae, así que la app los busca una sola vez en Wikidata y Wiki
 
 En el inicio salen las desarrolladoras con 10 juegos o más, y al final «Todas las desarrolladoras», de la A a la Z (LT / RT saltan de letra).
 
+## Actualización automática
+
+Pandora se actualiza sola desde GitHub (`msrwilo/pandoras-box`, rama `main`): lo que subes a GitHub llega a la app sin descargar zips.
+
+- Al minuto de abrir y luego cada 30 minutos pregunta a GitHub si hay un commit nuevo. Si lo hay, descarga **solo los archivos que cambiaron**, comprueba que llegaron completos y que el código del programa no tenga errores de escritura.
+- Cuando ya está descargada, espera a que Pandora esté al frente y nadie toque el control **3 minutos**; avisa y se reinicia. Nunca se reinicia mientras juegas. Si cierras Pandora antes, se instala al abrirla.
+- Lo que se reemplaza queda en `datos/actualizacion/respaldo`; lo que se quita va a `datos/actualizacion/papelera` (no se borra).
+- Si después de actualizarse no arranca, regresa sola a la versión anterior y no vuelve a intentar ese commit hasta que subas uno nuevo.
+- Nunca toca `datos/` (favoritos, ajustes, estadísticas, logos, marcas) ni `node_modules`.
+- Si el cambio necesita otras dependencias o otra versión de Electron, no se instala sola: avisa que hay que descargar el zip de la versión nueva.
+- Ajustes › Biblioteca › Pandora’s Box: **Actualizarse sola** (se puede apagar) y **Buscar actualización ahora**, que muestra la versión y el commit instalados.
+- Todo queda anotado en `datos/registro.txt` con la palabra «Actualización».
+
+Funciona porque Pandora se distribuye con el código suelto en `resources/app` (sin `app.asar`); si algún día se empaqueta en `.asar`, este método deja de servir.
+
 ## Compartir la app
 
 Copia la carpeta **sin** `datos/`. En la otra PC, la bienvenida pedirá la carpeta de LaunchBox.

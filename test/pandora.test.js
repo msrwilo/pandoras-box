@@ -63,5 +63,11 @@ test('servidor: biblioteca, marcas y peticiones protegidas', async () => {
   assert.strictEqual((await fetch(base + '/%E0%A4%A')).status, 400);
 });
 
+test('actualización: solo se instala el programa, nunca datos ni documentos', () => {
+  const { incluido } = require('../lib/actualizar.js')._test;
+  for (const p of ['main.js', 'server.js', 'preload.js', 'package.json', 'lib/launch.js', 'public/app.js', 'public/themes/cubo/theme.css', 'docs/GUIA.md']) assert.ok(incluido(p), p);
+  for (const p of ['datos/ajustes.json', 'node_modules/koffi/index.js', 'docs/capturas/a.png', 'test/pandora.test.js', 'README.md', 'LICENSE', 'config.json']) assert.ok(!incluido(p), p);
+});
+
 // El servidor y sus búsquedas en segundo plano siguen vivos: se cierra el proceso al terminar.
 test.after(() => setTimeout(() => process.exit(process.exitCode || 0), 300).unref());

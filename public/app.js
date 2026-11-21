@@ -31,7 +31,7 @@ const DEFAULTS = {
   shelfLayout: 'tema', detailLayout: 'tema', manualMode: 'doble',
   cinemaDelay: 8, spectatorIdle: 5, debugMissing: false,
   // Qué aparece en el inicio, búsqueda y combinación para cerrar un juego.
-  logoSound: true, marcas: true, padLayout: 'xbox',
+  logoSound: true, marcas: true, padLayout: 'xbox', autoUpdate: true,
   sections: { all: true, Consoles: true, Handhelds: true, Arcade: true, Computers: true, modes: true, genres: true, developers: true, series: true },
   search: true, letterBar: true,
   exitCombo: ['ls', 'rs', 'b'], exitHold: 0, exitFromLaunchBox: true, buttonStyle: 'auto',
@@ -1942,7 +1942,10 @@ const Menu = {
         act('reset:logos', 'Borrar logos descargados', 'Pide confirmar. Se pueden volver a descargar.', { danger: true }),
         act('reset:ajustes', 'Restablecer ajustes', 'Pide confirmar. Vuelve todo esto a como venía.', { danger: true }),
         act('reset:todo', 'Dejar Pandora como nueva', 'Pide confirmar. Borra favoritos, estadísticas, logos, ajustes y la carpeta elegida.', { danger: true }),
-        ...(window.pandora?.app ? [{ sec: 'Pandora’s Box' }, act('quit', 'Salir de Pandora’s Box', 'Cierra la aplicación.')] : []),
+        ...(window.pandora?.app ? [{ sec: 'Pandora’s Box' },
+          yes('autoUpdate', 'Actualizarse sola', 'Revisa GitHub cada 30 minutos. Si hay cambios los descarga y se reinicia cuando nadie la está usando (nunca durante un juego). Tus datos no se tocan.'),
+          act('checkUpdate', 'Buscar actualización ahora', 'Revisa GitHub en este momento.', { show: () => Actualizacion.texto() }),
+          act('quit', 'Salir de Pandora’s Box', 'Cierra la aplicación.')] : []),
       ] },
     ];
     // Las pestañas son siempre las mismas y en el mismo orden; se abre en Apariencia.
@@ -2053,6 +2056,7 @@ const Menu = {
     if (r.id === 'exitCombo') return Capture.show();
     if (r.id === 'reload') return reloadLibrary();
     if (r.id === 'lbPath') { this.close(); return Setup.show(false); }
+    if (r.id === 'checkUpdate') { toast('Buscando actualización…'); return Actualizacion.buscar(); }
     if (r.id === 'retryLogos') { await fetch('/api/devlogos?retry=1'); toast('Buscando logos de desarrolladores…'); DevLogos.watch(); return; }
     if (r.danger) {
       if (this.confirm !== r.id) { this.confirm = r.id; S.play('error'); toast('¿Seguro? Presiona A otra vez para borrar'); this.paint(); clearTimeout(this.ct); this.ct = setTimeout(() => { this.confirm = null; if (this.open) this.paint(); }, 4000); return; }
@@ -2402,6 +2406,51 @@ document.addEventListener('visibilitychange', () => Away.set(document.hidden));
 // Si algo intenta reproducir mientras Pandora está en segundo plano (un video que esperaba su turno), se detiene.
 document.addEventListener('play', e => { if (Away.on) { e.target.pause(); if (!Away.paused.includes(e.target)) Away.paused.push(e.target); } }, true);
 window.pandora?.onFront?.(on => Away.set(!on));
+
+// Actualización automática desde GitHub (la descarga e instalación las hace la app; ver lib/actualizar.js).
+// Cuando hay una versión lista, espera a que nadie toque el control 3 minutos y Pandora esté al frente,
+// avisa y se reinicia. Si estás jugando, la app no se reinicia.
+const Actualizacion = {
+  ver: null, lista: false, timer: null,
+  async init() {
+    if (!window.pandora?.onActualizacion) return;
+    try { this.ver = await window.pandora.version(); } catch {}
+    window.pandora.onActualizacion(r => this.recibir(r));
+  },
+  texto() {
+    const v = this.ver; if (!v) return '';
+    return `${v.app}${v.sha ? ' · ' + v.sha.slice(0, 7) : ''}`;
+  },
+  async buscar() {
+    try { this.recibir(await window.pandora.buscarActualizacion(), true); } catch { toast('No pude revisar GitHub'); }
+  },
+  recibir(r, manual) {
+    if (!r) return;
+    if (r.estado === 'instalada') { toast(`Pandora se actualizó (${r.cambios} archivo${r.cambios === 1 ? '' : 's'})`, 4000); window.pandora.version().then(v => { this.ver = v; }).catch(() => {}); return; }
+    if (r.estado === 'requiere-zip') { toast(`Hay una versión nueva en GitHub, pero ${r.motivo}: descarga el zip`, 7000); return; }
+    if (r.estado === 'lista') {
+      if (r.manual || manual) toast('Actualización descargada. Pandora se reinicia en unos segundos…', 4000);
+      this.lista = true; this.esperar(!!(r.manual || manual)); return;
+    }
+    if (!(r.manual || manual)) return;
+    if (r.estado === 'al-dia') toast('Pandora está al día');
+    else if (r.estado === 'apagada') toast('La actualización automática está apagada');
+    else if (r.estado === 'ocupado') toast('Ya estoy revisando…');
+    else toast('No pude revisar GitHub: ' + (r.error || 'sin conexión'), 5000);
+  },
+  // Manual: reinicia en 4 s. Automática: cuando lleve 3 min sin que toques nada y Pandora esté al frente.
+  esperar(ya) {
+    clearInterval(this.timer);
+    if (ya) { setTimeout(() => window.pandora.reiniciarParaActualizar(), 4000); return; }
+    this.timer = setInterval(() => {
+      if (!Away.on && performance.now() - lastInput > 3 * 60000) {
+        clearInterval(this.timer); toast('Actualizando Pandora…', 3000);
+        setTimeout(() => window.pandora.reiniciarParaActualizar(), 2500);
+      }
+    }, 15000);
+  },
+};
+Actualizacion.init();
 
 // Videos propios de los temas (la tele, el canal, la demo…): siguen la opción «Audio de fondo».
 // Con «Sonido del video» se oyen y callan la música y el ambiente; con otra opción van en silencio.
