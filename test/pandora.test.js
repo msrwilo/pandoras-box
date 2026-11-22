@@ -43,7 +43,24 @@ test('servidor: biblioteca, marcas y peticiones protegidas', async () => {
   fs.writeFileSync(path.join(lb, 'Data', 'Platforms.xml'), '<?xml version="1.0"?>\n<LaunchBox><Platform><Name>Sega Genesis</Name><Category>Consoles</Category></Platform></LaunchBox>');
   fs.writeFileSync(path.join(lb, 'Data', 'Platforms', 'Sega Genesis.xml'), '<?xml version="1.0"?>\n<LaunchBox>' +
     '<Game><ID>a</ID><Title>Uno</Title><Platform>Sega Genesis</Platform><Developer>Sega</Developer><PlayMode>Un Jugador</PlayMode><MaxPlayers>1</MaxPlayers><Genre>Platform</Genre></Game>' +
-    '<Game><ID>b</ID><Title>Dos</Title><Platform>Sega Genesis</Platform><Developer>Capcom</Developer><PlayMode>Un Jugador; Multijugador</PlayMode><MaxPlayers>2</MaxPlayers><Genre>Fighting</Genre></Game></LaunchBox>');
+    '<Game><ID>b</ID><Title>Dos</Title><Platform>Sega Genesis</Platform><Developer>Capcom</Developer><PlayMode>Un Jugador; Multijugador</PlayMode><MaxPlayers>2</MaxPlayers><Genre>Fighting</Genre></Game>' +
+    // 24 juegos más (g01 a g24) para probar Recientes y su límite de 20.
+    Array.from({ length: 24 }, (_, i) => { const n = String(i + 1).padStart(2, '0'); return `<Game><ID>g${n}</ID><Title>Juego ${n}</Title><Platform>Sega Genesis</Platform><Developer>Sega</Developer><PlayMode>Un Jugador</PlayMode><MaxPlayers>1</MaxPlayers><Genre>Platform</Genre></Game>`; }).join('') +
+    '</LaunchBox>');
+  // Estadísticas para Recientes: 22 juegos con partidas, uno que ya no está en la biblioteca y uno sin fecha.
+  // g01 a g20: un día distinto cada uno (g20 es el más nuevo). a y b: el mismo día que g20 pero con hora (más nuevos).
+  // g21 y g22: mismo día (el más viejo), solo fecha, sin hora: se ordenan por el orden del archivo.
+  const stats = {};
+  stats.g21 = { plays: 1, seconds: 60, last: '2026-01-01' };
+  stats.g22 = { plays: 1, seconds: 60, last: '2026-01-01' };
+  stats.fantasma = { plays: 1, seconds: 60, last: '2026-11-30' };
+  stats.g23 = { plays: 0, seconds: 0, last: '' };
+  for (let i = 1; i <= 20; i++) stats['g' + String(i).padStart(2, '0')] = { plays: 1, seconds: 60, last: `2026-02-${String(i).padStart(2, '0')}` };
+  stats.g01.last = '2026-02-05'; // empata con g05 (solo fecha): g05 se registró después en el archivo, va primero
+  stats.a = { plays: 2, seconds: 100, last: '2026-02-20', lastAt: '2026-02-20T10:00:00.000Z' };
+  stats.b = { plays: 1, seconds: 100, last: '2026-02-20', lastAt: '2026-02-20T18:30:00.000Z' };
+  fs.mkdirSync(datos, { recursive: true });
+  fs.writeFileSync(path.join(datos, 'estadisticas.json'), JSON.stringify(stats));
   fs.mkdirSync(path.join(datos, 'marcas', 'anillo'), { recursive: true });
   fs.writeFileSync(path.join(datos, 'marcas', 'anillo', 'logo.png'), 'x');
   fs.writeFileSync(path.join(datos, 'marcas', 'anillo', 'move.wav'), 'x');
@@ -53,8 +70,17 @@ test('servidor: biblioteca, marcas y peticiones protegidas', async () => {
   const port = await server.start(0);
   const base = 'http://127.0.0.1:' + port;
   const lib = await (await fetch(base + '/api/library')).json();
-  assert.strictEqual(lib.total, 2);
+  assert.strictEqual(lib.total, 26);
   assert.deepStrictEqual(lib.developersAll.map(d => d.label), ['Capcom', 'Sega']);
+  // Recientes: máximo 20, del más nuevo al más viejo; sin juegos fuera de la biblioteca ni partidas sin fecha.
+  assert.deepStrictEqual(lib.recent, { count: 20 });
+  assert.deepStrictEqual(await (await fetch(base + '/api/recent')).json(), { count: 20 });
+  const rec = await (await fetch(base + '/api/games?mode=recent')).json();
+  assert.strictEqual(rec.games.length, 20);
+  assert.deepStrictEqual(rec.games.slice(0, 4).map(g => g.id), ['b', 'a', 'g20', 'g19']);
+  assert.deepStrictEqual(rec.games.slice(17).map(g => g.id), ['g05', 'g01', 'g04']); // empate de día: gana el registrado después
+  assert.ok(!rec.games.some(g => g.id === 'g02' || g.id === 'g03')); // quedan fuera por el límite de 20
+  assert.ok(!rec.games.some(g => ['fantasma', 'g21', 'g22', 'g23'].includes(g.id)));
   const mk = await (await fetch(base + '/api/marcas')).json();
   assert.ok(mk.temas.anillo.logo && mk.temas.anillo.sounds.move);
   assert.strictEqual((await fetch(base + '/api/settings', { method: 'POST', body: '{}' })).status, 403);

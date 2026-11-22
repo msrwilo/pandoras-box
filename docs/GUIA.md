@@ -47,6 +47,16 @@ Están en pestañas (LB / RB). Debajo de cada opción hay una explicación corta
 | Control | Distribución de botones (Xbox o Switch), atajo para cerrar un juego y registro detallado del control |
 | Biblioteca | Carpeta de LaunchBox, logos, modo depuración (en la ficha muestra qué datos o medios le faltan al juego), borrar datos y salir |
 
+## Recientes
+
+La sección **Recientes** del inicio muestra los últimos juegos que jugaste, del más reciente al más viejo (máximo 20). Sale solo de tus estadísticas de Pandora (`datos/estadisticas.json`), así que abre al instante.
+
+- Aparece en el inicio de todos los temas, justo después de «Todo». Si todavía no has jugado nada desde Pandora, no aparece.
+- Se oculta o se muestra desde Ajustes › Inicio › Recientes.
+- Cuenta lo que juegas desde Pandora (no lo que juegas desde LaunchBox). Al cerrar un juego sube al primer lugar.
+- Las partidas anteriores a la 1.4.0 solo guardan el día; entre dos del mismo día se ordenan por el orden en que se registraron. Desde la 1.4.0 se guarda también la hora.
+- La lista conserva el orden por recencia: no se reordena de la A a la Z ni pone los favoritos primero.
+
 ## Series
 
 La sección **Series** del inicio junta los juegos de una misma saga sin importar la consola (Zelda, Metal Slug, Mario…). Sale del campo «Series» de LaunchBox; si un juego tiene varias separadas por punto y coma (`Mario Kart; Mario`), aparece en todas.

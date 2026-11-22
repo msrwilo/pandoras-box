@@ -32,7 +32,7 @@ const DEFAULTS = {
   cinemaDelay: 8, spectatorIdle: 5, debugMissing: false,
   // Qué aparece en el inicio, búsqueda y combinación para cerrar un juego.
   logoSound: true, marcas: true, padLayout: 'xbox', autoUpdate: true,
-  sections: { all: true, Consoles: true, Handhelds: true, Arcade: true, Computers: true, modes: true, genres: true, developers: true, series: true },
+  sections: { all: true, recent: true, Consoles: true, Handhelds: true, Arcade: true, Computers: true, modes: true, genres: true, developers: true, series: true },
   search: true, letterBar: true,
   exitCombo: ['ls', 'rs', 'b'], exitHold: 0, exitFromLaunchBox: true, buttonStyle: 'auto',
   fields: Object.fromEntries(Object.keys(FIELDS).map(k => [k, true])),
@@ -457,6 +457,7 @@ const gamesCache = new Map();
 function loadGames(p) {
   const key = p.mode ? 'mode:' + p.mode : p.name;
   const q = p.mode ? 'mode=' + encodeURIComponent(p.mode) : 'platform=' + encodeURIComponent(p.name);
+  if (p.mode === 'recent') return fetch('/api/games?' + q).then(r => r.json()).then(d => d.games);
   if (!gamesCache.has(key)) gamesCache.set(key, fetch('/api/games?' + q).then(r => r.json()).then(d => d.games));
   return gamesCache.get(key);
 }
@@ -491,13 +492,24 @@ const allEntry = A => ({ name: A.label, goAll: A.key, countLabel: `${fmtN((libra
 // «Todo»: la lista completa de juegos, de todas las plataformas.
 const secOn = k => settings.sections?.[k] !== false;
 const allShelf = () => ({ name: 'Todo', label: 'Todo', mode: 'all', count: library.total, notes: 'Todos tus juegos, de todas las plataformas', manufacturer: '', year: null, generation: null, media: {}, icon: 'all' });
+// «Recientes»: los últimos juegos jugados (máximo 20), del más nuevo al más viejo. Si no hay partidas, no aparece.
+const recentCount = () => secOn('recent') ? (library?.recent?.count || 0) : 0;
+const recentShelf = () => ({ name: 'Recientes', label: 'Recientes', mode: 'recent', count: library?.recent?.count || 0, notes: 'Los últimos juegos que jugaste, del más reciente al más viejo.', manufacturer: '', year: null, generation: null, media: {}, icon: 'recent' });
+async function refreshRecent() {
+  try {
+    const r = await (await fetch('/api/recent')).json();
+    const antes = recentCount();
+    library.recent = r;
+    if (recentCount() !== antes) rebuildHome();
+  } catch {}
+}
 // Lo que el inicio muestra según tus ajustes (Ajustes › Inicio).
 let viewLib = null, viewKey = '';
 function visibleLibrary() {
-  const k = JSON.stringify(settings.sections) + library.loadedAt + library.total;
+  const k = JSON.stringify(settings.sections) + library.loadedAt + library.total + ':' + recentCount();
   if (viewLib && viewKey === k && viewLib.src === library) return viewLib;
   viewKey = k;
-  viewLib = { ...library, src: library, categories: library.categories.filter(c => secOn(c.name)) };
+  viewLib = { ...library, src: library, recent: recentCount() ? { count: recentCount() } : null, categories: library.categories.filter(c => secOn(c.name)) };
   for (const kind of Object.keys(COLLECTIONS)) if (!secOn(kind)) viewLib[kind] = [];
   return viewLib;
 }
@@ -526,6 +538,7 @@ const ICONS = {
   series: '<rect x="3.5" y="8" width="11" height="12.5" rx="1.6"/><path d="M7 5.5h10.5a1.6 1.6 0 0 1 1.6 1.6V17M10 3h10a1.6 1.6 0 0 1 1.6 1.6V14"/>',
   mode_p5: '<circle cx="12" cy="12" r="8.5"/><path d="M14.6 8.4H10l-.6 3.6a3 3 0 1 1-.4 3.2"/>',
   _other: '<rect x="4" y="4" width="7" height="7" rx="1.2"/><rect x="13" y="4" width="7" height="7" rx="1.2"/><rect x="4" y="13" width="7" height="7" rx="1.2"/><rect x="13" y="13" width="7" height="7" rx="1.2"/>',
+  recent: '<path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1"/><path d="M3.5 4.5v4h4"/><path d="M12 7.5V12l3 1.8"/>',
   all: '<rect x="3.5" y="9" width="17" height="11.5" rx="1.6"/><path d="M5.5 6h13M7.5 3h9"/><path d="M9.5 13h5"/>',
   spectator: '<path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><path d="M10.4 9.3v5.4l4.4-2.7z"/>',
   settings: '<circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v2.8M12 18.4v2.8M2.8 12h2.8M18.4 12h2.8M5.5 5.5l2 2M16.5 16.5l2 2M5.5 18.5l2-2M16.5 7.5l2-2"/>',
@@ -567,14 +580,14 @@ const icon = k => { const s = h('div', { class: 'ico' }); s.innerHTML = `<svg vi
 
 const cubeHome = {
   el: $('#home'), sel: 0, tilt: 0, t: 0, items: [], center: null,
-  musicKey() { const c = this.items[this.idx]; return this.tilt === 0 && c && !c.modes && !c.all ? 'c:' + c.name : null; },
+  musicKey() { const c = this.items[this.idx]; return this.tilt === 0 && c && !c.modes && !c.all && !c.recent ? 'c:' + c.name : null; },
   ring: new Spring(0, { response: 0.55, damping: 0.8 }),
   tiltS: new Spring(-16, { response: 0.5, damping: 0.82 }),
   // El cubo siempre tiene 4 caras alrededor; lo que muestra cada cara se asigna al girar,
   // así caben todas las opciones que haga falta sin deformarlo.
   build() {
     const L = visibleLibrary();
-    this.items = [...(secOn('all') ? [{ name: '_all', label: 'Todo', all: true, platforms: [] }] : []), ...L.categories, ...Object.keys(COLLECTIONS).filter(k => (L[k] || []).length).map(collectionCategory)];
+    this.items = [...(secOn('all') ? [{ name: '_all', label: 'Todo', all: true, platforms: [] }] : []), ...(L.recent ? [{ name: '_recent', label: 'Recientes', recent: true, platforms: [] }] : []), ...L.categories, ...Object.keys(COLLECTIONS).filter(k => (L[k] || []).length).map(collectionCategory)];
     this.faces = [0, 1, 2, 3].map(i => h('div', { class: 'shell', style: `transform: rotateY(${i * 90}deg) translateZ(9.5rem)` }));
     this.topFace = h('div', { class: 'shell', style: 'transform: rotateX(90deg) translateZ(9.5rem)' }, icon('spectator'));
     this.botFace = h('div', { class: 'shell', style: 'transform: rotateX(-90deg) translateZ(9.5rem)' }, icon('settings'));
@@ -595,7 +608,7 @@ const cubeHome = {
     for (const d of [-1, 0, 1, 2]) {
       const it = this.items[mod(c + d, this.N)];
       const f = this.faces[mod(c + d, 4)];
-      if (it && f.dataset.k !== it.name) { f.dataset.k = it.name; f.replaceChildren(icon(it.all ? 'all' : it.kind === 'genres' ? 'genre' : it.kind === 'developers' ? 'dev' : it.kind === 'series' ? 'series' : it.modes ? 'modes' : it.name)); }
+      if (it && f.dataset.k !== it.name) { f.dataset.k = it.name; f.replaceChildren(icon(it.all ? 'all' : it.recent ? 'recent' : it.kind === 'genres' ? 'genre' : it.kind === 'developers' ? 'dev' : it.kind === 'series' ? 'series' : it.modes ? 'modes' : it.name)); }
     }
     this.paintOn();
   },
@@ -630,6 +643,9 @@ const cubeHome = {
       if (c.all) {
         $('#catMeta').textContent = `${fmtN(library.total)} juegos · la biblioteca completa`;
         $('#catList').textContent = 'Todas tus plataformas en una sola lista, de la A a la Z';
+      } else if (c.recent) {
+        $('#catMeta').textContent = `${fmtN(recentCount())} ${recentCount() === 1 ? 'juego' : 'juegos'} · lo último que jugaste`;
+        $('#catList').textContent = 'Del más reciente al más viejo';
       } else if (c.modes) {
         $('#catMeta').textContent = `${fmtN(c.platforms.length)} ${c.unit} · juegos de todas tus consolas`;
         $('#catList').textContent = c.platforms.slice(0, 12).map(p => `${p.name} (${fmtN(p.count)})`).join(' · ') + (c.platforms.length > 12 ? ' …' : '');
@@ -657,6 +673,7 @@ const cubeHome = {
     if (this.tilt > 0) { Menu.show(); return; }
     const c = this.items[this.idx]; if (!c) return;
     if (c.all) { S.play('select'); go('shelf', allShelf()); return; }
+    if (c.recent) { S.play('select'); go('shelf', recentShelf()); return; }
     S.play('open'); go('platforms', c.modes ? collectionCategory(c.kind) : c);
   },
   enter() { Back.setImage(null); Back.setLook('ghost'); currentGame = null; this.background(); },
@@ -726,6 +743,9 @@ const themeAPI = {
   get library() { return visibleLibrary(); }, get settings() { return settings; },
   get all() { return secOn('all'); }, get total() { return library.total; },
   openAll: () => { S.play('select'); go('shelf', allShelf()); },
+  // «Recientes»: null si no hay partidas o está oculto en Ajustes › Inicio; si no, { count }.
+  get recent() { return visibleLibrary().recent; },
+  openRecent: () => { S.play('select'); go('shelf', recentShelf()); },
   go, back, top, Back, S, toast, h, $, Spring, rem, clamp, short, fmtN, ord, glyph, reducedMotion, draggable, project, rubberband,
   updateAudio: () => updateAudio(), saveLast: () => saveLast(), renderChrome: () => renderChrome(),
   icon: k => icon(k), ICONS, genreIcon: m => genreIcon(m),
@@ -752,6 +772,7 @@ const themeAPI = {
     const coll = (m, ic) => ({ coll: m, ic, label: m.label, sub: `${fmtN(m.count)} juegos`, desc: m.desc, run: () => themeAPI.openCollection(m),
       ...(m.logo ? { p: { name: m.label, count: m.count, media: { logo: m.logo } } } : {}) }); // las desarrolladoras muestran su logo
     if (secOn('all')) out.push({ key: '_all', label: 'Todo', icon: 'all', items: [{ all: true, ic: 'all', label: 'Todos los juegos', sub: `${fmtN(library.total)} juegos`, desc: 'Tu biblioteca completa en una sola lista, de la A a la Z.', run: () => themeAPI.openAll() }] });
+    if (L.recent) out.push({ key: '_recent', label: 'Recientes', icon: 'recent', items: [{ recent: true, ic: 'recent', coll: { id: 'recent', label: 'Recientes', count: L.recent.count }, label: 'Jugados hace poco', sub: `${fmtN(L.recent.count)} ${L.recent.count === 1 ? 'juego' : 'juegos'}`, desc: 'Lo último que jugaste, del más reciente al más viejo.', run: () => themeAPI.openRecent() }] });
     for (const c of L.categories) out.push({ key: c.name, label: c.label, icon: c.name, video: c.video, items: c.platforms.map(p => ({ p, label: p.name, sub: [p.year, ord(p.generation), `${fmtN(p.count)} juegos`].filter(Boolean).join(' · '), desc: p.notes, run: () => themeAPI.openPlatform(p) })) });
     if ((L.modes || []).length) out.push({ key: '_modes', label: 'Modo de juego', icon: 'modes', items: L.modes.map(m => coll(m, 'mode_' + m.id)) });
     if ((L.genres || []).length) out.push({ key: '_genres', label: 'Géneros', icon: 'genre', items: L.genres.map(m => coll(m, genreIcon(m))) });
@@ -973,7 +994,7 @@ screens.shelf = {
     this.ready = loadGames(platform);
     const games = await this.ready;
     if (this.platform !== platform) return;
-    this.all = sortGames(games); this.games = this.all;
+    this.all = sortGames(games, platform); this.games = this.all;
     const want = this.memo[platform.name];
     const i = want ? this.games.findIndex(g => g.id === want) : -1;
     this.idx = clamp(i >= 0 ? i : 0, 0, Math.max(0, games.length - 1));
@@ -1164,7 +1185,7 @@ screens.shelf = {
     this.resort(g);
   },
   resort(keep = this.games[this.idx]) {
-    this.all = sortGames(this.all);
+    this.all = sortGames(this.all, this.platform);
     if (this.query) this.setQuery(this.query); else this.games = this.all;
     this.idx = Math.max(0, this.games.indexOf(keep));
     this.refreshLayout(); this.buildLetters();
@@ -1286,7 +1307,8 @@ screens.shelf = {
 };
 
 const norm = t => (t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-function sortGames(list) {
+function sortGames(list, shelf) {
+  if (shelf?.mode === 'recent') return [...list]; // Recientes conserva el orden del servidor: del más nuevo al más viejo
   if (!settings.favFirst) return [...list].sort((a, b) => a.sortTitle.localeCompare(b.sortTitle, 'es'));
   return [...list].sort((a, b) => (b.favorite - a.favorite) || a.sortTitle.localeCompare(b.sortTitle, 'es'));
 }
@@ -1701,6 +1723,7 @@ const Playing = {
     }
     if (Back.video) bgVideo.play().catch(() => {});
     lastInput = performance.now();
+    refreshRecent();
     updateAudio(); renderChrome();
   },
   close() { fetch('/api/close', { method: 'POST', body: '{}' }).then(() => this.poll()).catch(() => {}); },
@@ -1912,6 +1935,7 @@ const Menu = {
       { name: 'Inicio', rows: [
         { sec: 'Secciones visibles' },
         yes('sections.all', 'Todo (lista completa)', 'Una sección con todos tus juegos juntos.'),
+        yes('sections.recent', 'Recientes', 'Los últimos 20 juegos que jugaste, del más reciente al más viejo. No aparece mientras no hayas jugado ninguno.'),
         ...library.categories.map(c => yes('sections.' + c.name, c.label, 'Muestra u oculta esta sección en el inicio.')),
         ...Object.entries(COLLECTIONS).filter(([k]) => (library[k] || []).length).map(([k, c]) => yes('sections.' + k, c.label, 'Muestra u oculta esta sección en el inicio.')),
       ] },
@@ -2067,6 +2091,7 @@ const Menu = {
       if (what === 'ajustes' || what === 'todo') { toast('Listo. Reiniciando…'); clearTimeout(saveTimer); setTimeout(() => location.reload(), 700); return; }
       toast('Listo: ' + r.label.toLowerCase().replace(/^borrar /, '') + ' borrado');
       if (what === 'favoritos' || what === 'estadisticas') { gamesCache.clear(); }
+      if (what === 'estadisticas') refreshRecent();
     }
   },
   hints() {
@@ -2297,6 +2322,14 @@ async function restore() {
     if (!secOn('all')) return;
     if (L.game) screens.shelf.memo['Todo'] = L.game;
     go('shelf', allShelf(), true);
+    await screens.shelf.ready;
+    if (L.screen === 'detail') { const sh = screens.shelf, g = sh.games[sh.idx]; if (g && g.id === L.game) go('detail', { game: g, platform: { name: g.platform } }, true); }
+    return;
+  }
+  if (L.mode === 'recent') {
+    if (!recentCount()) return;
+    if (L.game) screens.shelf.memo['Recientes'] = L.game;
+    go('shelf', recentShelf(), true);
     await screens.shelf.ready;
     if (L.screen === 'detail') { const sh = screens.shelf, g = sh.games[sh.idx]; if (g && g.id === L.game) go('detail', { game: g, platform: { name: g.platform } }, true); }
     return;

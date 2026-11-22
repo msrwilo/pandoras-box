@@ -25,10 +25,10 @@ No se instala en la app (el actualizador ignora `docs/` salvo `GUIA.md`).
 
 ## Etapas
 
-### Etapa 0 (5 min, dentro del primer chat): confirmar que el actualizador funciona
+### Etapa 0 (5 min, dentro del primer chat): confirmar que el actualizador funciona — HECHA (parcial: ver «Estado»)
 La 1.3.0 se probó con un GitHub simulado, nunca contra el real. Revisar en `E:\Pandora\datos\registro.txt` las líneas «Actualización» o pedirle a Wilo que pulse «Buscar actualización ahora». Si falla, arreglar eso primero: todo lo demás depende de ello.
 
-### Etapa 1: Recientes (versión 1.4.0) — modelo: Sonnet
+### Etapa 1: Recientes (versión 1.4.0) — modelo: Sonnet — HECHA, ver «Estado»
 - Sección nueva «Recientes» en el inicio y su lista: los juegos jugados, del más reciente al más viejo, máximo 20. Sale de `estadisticas.json` (`last`), sin leer nada más, para que sea instantánea.
 - Se puede mostrar u ocultar en Ajustes › Inicio, como las demás secciones. Si no hay partidas, la sección no aparece.
 - Debe verse en los 30 temas (revisar cómo cada `home.js` pinta las secciones; lo ideal es que salga del mecanismo común, no tema por tema).
@@ -62,5 +62,15 @@ Zip de la versión final para Releases (partiendo del zip anterior, cambiando so
 
 ## Estado
 
-- 21 nov 2026: 1.3.0 en `main` (actualización automática). Plan escrito. Falta todo lo demás; empieza la etapa 0 y 1.
+- 21 nov 2026: **etapa 0 y etapa 1 hechas; la 1.4.0 (Recientes) está en `main`.** Falta empezar la etapa 2 (táctil) y la 3 (recomendados).
+- **Etapa 0.** `datos/actualizacion/estado.json` de `E:\Pandora` tenía el commit de `main` (c7be841) como instalado, con revisión de ese mismo día. Eso confirma que el actualizador sí habló con el GitHub real y no tenía nada pendiente. El registro no muestra líneas «Actualización:» porque solo escribe cuando descarga, instala o falla; «al día» no deja línea. **Lo que aún no se ha visto con GitHub real es la descarga y la instalación**: se prueba con la 1.4.0 (ver «Pendiente de Wilo»).
+- **Etapa 1 (1.4.0), qué se hizo:**
+  - `server.js`: `recentIds()` toma de `estadisticas.json` los juegos con `last`, que existan en la biblioteca, del más nuevo al más viejo, máximo 20. `/api/library` trae `recent: { count }`, `/api/recent` da solo el conteo y `/api/games?mode=recent` da la lista. Al cerrar un juego se guarda también `lastAt` (fecha y hora) para ordenar bien dos partidas del mismo día; las partidas viejas solo tienen `last` y, si empatan el día, gana la que se registró después en el archivo.
+  - `public/app.js`: sección «Recientes» después de «Todo» en el cubo y en `api.sections()` (de ahí la toman 25 temas). `api.recent` y `api.openRecent()` para los temas que arman su inicio a mano: se agregó a mano en `barra`, `canales`, `mosaicos` y `paneles`. La lista de Recientes conserva el orden por recencia (no la ordena de la A a la Z ni pone favoritos primero) y no se guarda en caché. Se refresca al cerrar un juego y al borrar estadísticas. Interruptor en Ajustes › Inicio › Recientes. Se restaura como última vista. Ícono nuevo `recent`.
+  - `docs/GUIA.md` tiene la sección «Recientes». `package.json` en 1.4.0.
+  - `test/pandora.test.js`: la biblioteca de prueba ahora tiene 26 juegos; se prueba orden, límite de 20, empate de día, juegos fuera de la biblioteca y partidas sin fecha.
+- **Qué se probó y cómo:** `npm test` pasa (5 de 5). Con un navegador sin pantalla (Chrome) contra el servidor real y una biblioteca de LaunchBox de 30 juegos de mentira (25 con partidas), en los **30 temas**: aparece «Recientes» en el inicio, se abre, y el primer juego es el más reciente. En relieve, simbolo y torres hubo que abrirlo a mano porque mi script no sabía navegar sus secciones; abrió bien. También: no aparece si no hay partidas, no aparece si se oculta en Ajustes, y el interruptor sale en Ajustes › Inicio. Sin errores de JavaScript en ninguna prueba.
+- **Qué NO se probó:** (1) jugar un juego de verdad desde Pandora y ver que sube al primer lugar (necesita Electron, emuladores y LaunchBox reales). (2) La descarga e instalación de la actualización contra el GitHub real. (3) Táctil, que es de la etapa 2. (4) Con tu biblioteca real, que es más grande.
+- **Pendiente de Wilo:** en Ajustes › Biblioteca › «Buscar actualización ahora», esperar el reinicio, abrir Recientes, jugar algo unos segundos, volver y ver que subió al primer lugar. Si la actualización falla, el registro dirá por qué («Actualización: …») y eso se arregla antes que la etapa 2.
+- Una sola cosa rara y esperada: como se agrega una sección al inicio, la primera vez puede quedar enfocada otra sección distinta de la que dejaste.
 - Pendiente aparte: anotar Pandora en la bóveda de Obsidian (Wilo debe decir en qué carpeta van sus notas de Pandora).

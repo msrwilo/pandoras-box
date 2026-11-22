@@ -13,6 +13,7 @@ export default function paneles(api, root) {
         { key: '_spectator', label: 'Espectador', items: [{ label: 'Toda la biblioteca', sub: 'Videos al azar', run: () => api.openSpectator(null) },
           ...lib.categories.map(c => ({ label: c.label, sub: 'Videos de ' + c.label.toLowerCase(), run: () => api.openSpectator(c.name) }))] },
         ...(api.all ? [{ key: '_all', label: 'Todo', items: [{ ic: 'all', label: 'Todos los juegos', sub: `${fmtN(api.total)} juegos`, all: true, run: () => api.openAll() }] }] : []),
+        ...(api.recent ? [{ key: '_recent', label: 'Recientes', items: [{ ic: 'recent', label: 'Jugados hace poco', sub: `${fmtN(api.recent.count)} ${api.recent.count === 1 ? 'juego' : 'juegos'}`, recent: true, run: () => api.openRecent() }] }] : []),
         ...lib.categories.map(c => ({ key: c.name, label: c.label, items: c.platforms.map(p => ({ p, label: p.name, sub: [p.year, ord(p.generation)].filter(Boolean).join(' · '), run: () => api.openPlatform(p) })) })),
         ...(api.modes.length ? [{ key: '_modes', label: 'Modo de juego', items: api.modes.map(m => ({ mode: m, label: m.label, sub: `${fmtN(m.count)} juegos`, run: () => api.openCollection(m) })) }] : []),
         ...(api.genres.length ? [{ key: '_genres', label: 'Géneros', items: api.genres.map(m => ({ coll: m, ic: api.genreIcon(m), label: m.label, sub: `${fmtN(m.count)} juegos`, run: () => api.openCollection(m) })) }] : []),

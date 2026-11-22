@@ -73,7 +73,9 @@ const launcher = createLauncher({
   getLB: () => LB, appDir: APP_DIR, events, log, getSettings: () => readJSON(SETTINGS_FILE, {}),
   onEnd(id, seconds) {
     const s = stats[id] || (stats[id] = { plays: 0, seconds: 0, last: '' });
-    s.plays++; s.seconds += seconds; s.last = new Date().toISOString().slice(0, 10);
+    s.plays++; s.seconds += seconds;
+    const ahora = new Date().toISOString();
+    s.last = ahora.slice(0, 10); s.lastAt = ahora; // lastAt ordena bien las partidas de un mismo día (Recientes)
     writeData(STATS_FILE, stats);
   },
 });
@@ -389,6 +391,20 @@ function seriesLists() {
   return { all: [...all].sort((a, b) => (b.favorite - a.favorite) || 0), home };
 }
 
+// ---------- Recientes ----------
+// Los últimos juegos jugados, del más nuevo al más viejo. Sale solo de estadisticas.json (sin leer nada más).
+// Las partidas viejas solo traen la fecha (`last`); entre dos del mismo día se usa el orden en que se
+// registraron en el archivo (el último registrado, primero).
+const RECENT_MAX = 20;
+function recentIds() {
+  if (!lib || !lib.games) return [];
+  return Object.entries(stats)
+    .map(([id, s], i) => ({ id, i, t: (s && (s.lastAt || s.last)) || '' }))
+    .filter(r => r.t && lib.games.has(r.id))
+    .sort((a, b) => (a.t < b.t ? 1 : a.t > b.t ? -1 : b.i - a.i))
+    .slice(0, RECENT_MAX).map(r => r.id);
+}
+
 // ---------- API ----------
 function publicGame(g, withMedia = true) {
   const o = { ...g };
@@ -423,7 +439,11 @@ function api(pathname, q) {
     const devs = pub(lib.developers).map(d => ({ ...d, logo: devLogos.url(d.label) }));
     const devsAll = pub(lib.developersAll || []).map(d => ({ ...d, logo: devLogos.url(d.label) }));
     const ser = seriesLists();
-    return { categories, total: lib.games.size, modes: pub(lib.modes), genres: pub(lib.genres), developers: devs, developersAll: devsAll, series: ser.home, seriesAll: ser.all, empty: !!lib.empty, path: LB };
+    return { categories, total: lib.games.size, modes: pub(lib.modes), genres: pub(lib.genres), developers: devs, developersAll: devsAll, series: ser.home, seriesAll: ser.all, recent: { count: recentIds().length }, empty: !!lib.empty, path: LB };
+  }
+  if (pathname === '/api/recent') return { count: recentIds().length };
+  if (pathname === '/api/games' && q.get('mode') === 'recent') {
+    return { mode: 'recent', games: recentIds().map(id => publicGame(lib.games.get(id))) };
   }
   if (pathname === '/api/games' && q.get('mode') === 'all') {
     return { mode: 'all', games: [...lib.games.values()].map(g => publicGame(g)) };
