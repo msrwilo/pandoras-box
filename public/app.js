@@ -1,5 +1,5 @@
 // Pandora — pantallas y lógica de la interfaz.
-import { Spring, onFrame, onAction, draggable, project, rubberband, rem, sticks, reducedMotion, $, h, setTextSink, setCapture, getInputMode, setPadLayout } from './core.js';
+import { Spring, onFrame, onAction, draggable, swipeActions, longPress, project, rubberband, rem, sticks, reducedMotion, $, h, setTextSink, setCapture, getInputMode, setPadLayout } from './core.js';
 import * as S from './sound.js';
 import { Manual, MODES as MANUAL_MODES } from './manual.js';
 // Las peticiones que cambian algo (abrir juegos, guardar ajustes…) llevan esta marca: una página web
@@ -738,6 +738,13 @@ screens.home = {
   state() { return homeImpl.state?.(); }, restore(f) { homeImpl.restore?.(f); }, musicKey() { return homeImpl.musicKey?.() || null; },
 };
 
+// Con el dedo, en los temas que arman su inicio solo con acciones: deslizar = moverse (ver swipeActions).
+// El cubo tiene su propio arrastre 1:1; un tema que haga el suyo declara `ownTouch: true`.
+swipeActions($('#homeTheme'), {
+  active: () => top() === 'home' && homeImpl !== cubeHome && !homeImpl.ownTouch,
+  step: axis => (axis === 'x' ? 7 : 4.5) * rem(),
+});
+
 // Lo que un tema puede usar para construir su inicio.
 const themeAPI = {
   get library() { return visibleLibrary(); }, get settings() { return settings; },
@@ -1113,6 +1120,8 @@ screens.shelf = {
     if (g.favorite) el.append(h('span', { class: 'fav-badge', text: '★' }));
     if (L.content !== 'text') { el.style.width = L.iw + 'px'; el.style.height = L.ih + 'px'; }
     el.addEventListener('click', () => { if (this.dragged) return; if (i === this.idx) this.open(); else this.focus(i); });
+    // Con el dedo: dejarlo quieto sobre un juego lo marca o desmarca como favorito.
+    longPress(el, () => { if (this.dragged) return; if (i !== this.idx) this.focus(i, false); this.toggleFav(); });
     el.classList.toggle('focus', i === this.idx);
     $('#shelfTrack').append(el);
     return { el, i };

@@ -432,6 +432,13 @@ body.touch #playClose, #playClose { display: inline-flex; }
 #hints > span.tap:hover { background: var(--row-focus); }
 body.touch #hints { display: flex; }
 body.touch #hints > span:not(.tap) { display: none; }
+/* Con el dedo, áreas de toque de al menos 2.75rem (44 pt) y sin el resaltado que se queda pegado tras tocar. */
+body.touch #hints > span.tap { min-height: 2.75rem; padding: .5rem 1rem; margin: -.5rem -1rem; }
+body.touch #hints > span.tap:hover { background: none; }
+body.touch #hints > span.tap:active { background: var(--row-focus); }
+#homeTheme { touch-action: none; }
+body.touch .back { min-width: 2.75rem; min-height: 2.75rem; }
+body.touch .back:active { transform: scale(.92); }
 body.typing #hints { z-index: 15; }
 
 /* ---------- Búsqueda en la lista ---------- */

@@ -153,32 +153,132 @@ function pollGamepads(now) {
 
 // ---------- Arrastre 1:1 con velocidad ----------
 // onStart() -> estado inicial; onMove(dx, dy); onEnd(vx, vy, moved)
+// Tres detalles para que el dedo se sienta pegado al contenido:
+// - Al pasar el umbral (10 px) el contenido arranca desde 0, no da un salto de 10 px.
+// - La velocidad sale solo de los últimos 100 ms: si el dedo se detiene antes de soltar, no hay lanzamiento.
+// - Se leen los puntos intermedios del movimiento (getCoalescedEvents), así la velocidad es más fiel.
+const SLOP = 10, VEL_WINDOW = 100;
+// Tras un deslizamiento o un toque largo, el «clic» que el navegador manda al soltar no cuenta. Se ataja en
+// la ventana porque lo que estaba bajo el dedo puede haberse redibujado (p. ej. al reordenar favoritos).
+let swallowUntil = 0;
+addEventListener('click', e => { if (performance.now() < swallowUntil) { e.stopPropagation(); e.preventDefault(); } }, true);
+const swallowClick = (ms = 350) => { swallowUntil = performance.now() + ms; };
+export function velocityOf(hist, tEnd) {
+  const pts = hist.filter(p => tEnd - p.t <= VEL_WINDOW);
+  if (pts.length < 2) return { vx: 0, vy: 0 };
+  const a = pts[0], b = pts[pts.length - 1];
+  // Un dedo quieto al final cuenta: la ventana llega hasta el momento de soltar.
+  const dt = Math.max(16, tEnd - a.t) / 1000;
+  return { vx: (b.x - a.x) / dt, vy: (b.y - a.y) / dt };
+}
 export function draggable(el, { onStart, onMove, onEnd, axis = 'x' }) {
   let id = null, x0 = 0, y0 = 0, hist = [], moved = false;
   el.addEventListener('pointerdown', e => {
-    if (e.button !== 0) return;
+    if (e.button !== 0 || id !== null) return;
     id = e.pointerId; x0 = e.clientX; y0 = e.clientY; hist = [{ x: x0, y: y0, t: e.timeStamp }]; moved = false;
     onStart && onStart(e);
   });
   el.addEventListener('pointermove', e => {
     if (e.pointerId !== id) return;
-    const dx = e.clientX - x0, dy = e.clientY - y0;
-    if (!moved && Math.hypot(dx, dy) > 10) { moved = true; el.setPointerCapture(id); }
-    if (!moved) return;
-    hist.push({ x: e.clientX, y: e.clientY, t: e.timeStamp });
-    if (hist.length > 6) hist.shift();
+    let dx = e.clientX - x0, dy = e.clientY - y0;
+    if (!moved) {
+      const d = Math.hypot(dx, dy);
+      if (d <= SLOP) return;
+      moved = true;
+      try { el.setPointerCapture(id); } catch {}
+      // Se corre el origen para que el movimiento empiece en 0 justo al pasar el umbral.
+      x0 += dx * SLOP / d; y0 += dy * SLOP / d;
+      dx = e.clientX - x0; dy = e.clientY - y0;
+    }
+    const pts = e.getCoalescedEvents?.() || [];
+    for (const p of (pts.length ? pts : [e])) hist.push({ x: p.clientX, y: p.clientY, t: p.timeStamp });
+    if (hist.length > 40) hist.splice(0, hist.length - 40);
     onMove && onMove(axis === 'x' ? dx : dy, dy);
   });
   const end = e => {
     if (e.pointerId !== id) return;
     id = null;
-    const a = hist[0], b = hist[hist.length - 1];
-    const dt = Math.max(1, b.t - a.t) / 1000;
-    const vx = moved ? (b.x - a.x) / dt : 0, vy = moved ? (b.y - a.y) / dt : 0;
+    const { vx, vy } = moved && e.type === 'pointerup' ? velocityOf(hist, e.timeStamp) : { vx: 0, vy: 0 };
     onEnd && onEnd(axis === 'x' ? vx : vy, vy, moved, e);
   };
   el.addEventListener('pointerup', end);
   el.addEventListener('pointercancel', end);
+}
+
+// ---------- Gestos para los temas que solo entienden acciones ----------
+// Un dedo que se desliza se traduce en acciones del control: una cada `step` px mientras se arrastra
+// (el contenido sigue al dedo paso a paso) y, al soltar con impulso, unas cuantas más espaciadas en el tiempo.
+// El dedo hacia la izquierda pide «right» (lo de la derecha viene hacia el centro), hacia arriba pide «down».
+// Solo responde al dedo (o lápiz); el ratón y el control siguen igual.
+export function press(action, rep = false) { emit(action, 'touch', rep); }
+export function swipeActions(el, { step = () => 80, active = () => true, maxFling = 6 } = {}) {
+  let id = null, x0 = 0, y0 = 0, axis = null, done = 0, hist = [], timers = [];
+  const cancelFling = () => { timers.forEach(clearTimeout); timers = []; };
+  el.addEventListener('pointerdown', e => {
+    if (e.pointerType === 'mouse' || id !== null || !active()) return;
+    cancelFling();
+    id = e.pointerId; x0 = e.clientX; y0 = e.clientY; axis = null; done = 0; hist = [{ x: x0, y: y0, t: e.timeStamp }];
+  }, true);
+  el.addEventListener('pointermove', e => {
+    if (e.pointerId !== id) return;
+    let dx = e.clientX - x0, dy = e.clientY - y0;
+    if (!axis) {
+      const d = Math.hypot(dx, dy);
+      if (d <= SLOP) return;
+      axis = Math.abs(dx) >= Math.abs(dy) ? 'x' : 'y';
+      try { el.setPointerCapture(id); } catch {}
+      x0 += dx * SLOP / d; y0 += dy * SLOP / d;
+      dx = e.clientX - x0; dy = e.clientY - y0;
+    }
+    hist.push({ x: e.clientX, y: e.clientY, t: e.timeStamp });
+    if (hist.length > 40) hist.splice(0, hist.length - 40);
+    const d = axis === 'x' ? dx : dy, s = step(axis);
+    // Un poco de histéresis: el primer paso sale a media distancia, para que responda pronto.
+    const want = Math.trunc((Math.abs(d) + s / 2) / s) * Math.sign(d);
+    // Si un paso abrió otra pantalla (p. ej. una lista), el resto del arrastre ya no cuenta.
+    while (done !== want && active()) {
+      const dir = want > done ? 1 : -1;
+      done += dir;
+      press(axis === 'x' ? (dir > 0 ? 'left' : 'right') : (dir > 0 ? 'up' : 'down'), Math.abs(done) > 1);
+    }
+  });
+  const end = e => {
+    if (e.pointerId !== id) return;
+    id = null;
+    if (!axis) return;
+    swallowClick();
+    if (e.type !== 'pointerup') return;
+    const { vx, vy } = velocityOf(hist, e.timeStamp);
+    const v = axis === 'x' ? vx : vy;
+    const extra = Math.min(maxFling, Math.trunc(Math.abs(project(v, 0.99)) / step(axis)));
+    // Solo se lanza en la misma dirección en que se venía arrastrando.
+    if (!extra || Math.sign(v) !== Math.sign(done || v)) return;
+    const a = axis === 'x' ? (v > 0 ? 'left' : 'right') : (v > 0 ? 'up' : 'down');
+    for (let i = 0; i < extra; i++) timers.push(setTimeout(() => { if (active()) press(a, true); else cancelFling(); }, 60 + i * (55 + i * 12)));
+  };
+  el.addEventListener('pointerup', end);
+  el.addEventListener('pointercancel', end);
+}
+
+// ---------- Toque largo ----------
+// fn() al dejar el dedo quieto `ms` milisegundos. Se anula si el dedo se mueve; el clic que sigue no cuenta.
+export function longPress(el, fn, ms = 480) {
+  let t = null, x0 = 0, y0 = 0, id = null, fired = false;
+  // Se escucha en la ventana: si al cumplirse el toque largo el elemento se redibuja, el dedo se suelta en otro.
+  const move = e => { if (e.pointerId === id && t && Math.hypot(e.clientX - x0, e.clientY - y0) > SLOP) { clearTimeout(t); t = null; } };
+  const up = e => {
+    if (e.pointerId !== id) return;
+    clearTimeout(t); if (fired) swallowClick(); // ya se cumplió: el clic de soltar no cuenta
+    t = null; id = null; fired = false;
+    removeEventListener('pointermove', move); removeEventListener('pointerup', up); removeEventListener('pointercancel', up);
+  };
+  el.addEventListener('pointerdown', e => {
+    if (e.pointerType === 'mouse' || id !== null) return;
+    id = e.pointerId; x0 = e.clientX; y0 = e.clientY;
+    t = setTimeout(() => { t = null; fired = true; swallowClick(5000); fn(); }, ms);
+    addEventListener('pointermove', move); addEventListener('pointerup', up); addEventListener('pointercancel', up);
+  });
+  el.addEventListener('contextmenu', e => e.preventDefault());
 }
 
 export const $ = (s, r = document) => r.querySelector(s);

@@ -32,6 +32,16 @@ En un manual: ← → cambian de página, LB / RB saltan 10 páginas, LT / RT ac
 
 Al abrir un juego, Pandora's Box espera a que aparezca su ventana, la pone al frente con prioridad alta y se minimiza. Al cerrarlo, vuelve sola. Mientras no está al frente, pausa videos, música y sonido. Si el emulador se cierra con error en los primeros segundos, Pandora's Box avisa que el juego no abrió bien.
 
+## Con el dedo (pantalla táctil o Moonlight)
+
+Lo táctil solo se activa cuando tocas la pantalla; el control y el teclado siguen igual.
+
+- **Tocar** algo lo elige; tocarlo otra vez lo abre.
+- **Deslizar** en el inicio mueve como las flechas del control, en todos los temas: hacia la izquierda pide lo de la derecha, hacia arriba baja en la lista. Cada tramo del arrastre es un paso, y si sueltas con impulso avanza unos pasos más. Si un paso abre otra pantalla, el resto del deslizamiento ya no cuenta.
+- En las listas y en el cubo, el contenido sigue al dedo. Arranca sin salto y, si detienes el dedo antes de soltar, se queda donde lo dejaste.
+- **Dejar el dedo quieto** sobre un juego de la lista lo marca o desmarca como favorito.
+- Abajo quedan visibles «Ajustes», «Audio» y, en las listas, «Buscar»; arriba a la izquierda, el botón para regresar. Todos tienen tamaño de dedo.
+
 ## Ajustes (botón Menú)
 
 Están en pestañas (LB / RB). Debajo de cada opción hay una explicación corta.

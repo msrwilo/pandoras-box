@@ -34,7 +34,7 @@ La 1.3.0 se probó con un GitHub simulado, nunca contra el real. Revisar en `E:\
 - Debe verse en los 30 temas (revisar cómo cada `home.js` pinta las secciones; lo ideal es que salga del mecanismo común, no tema por tema).
 - Prueba en `test/pandora.test.js`: orden y límite de 20.
 
-### Etapa 2: Táctil (versión 1.5.0) — modelo: Opus
+### Etapa 2: Táctil (versión 1.5.0) — modelo: Opus — EN CURSO (2a y 2b hechas en la 1.4.1)
 Wilo usa una laptop 2K táctil y también toca la pantalla a través de Moonlight.
 - 2a. Auditoría: lista escrita aquí de qué no responde al tacto, por pantalla (inicio de cada tema, listas, ficha, ajustes, teclado de búsqueda, visor de manuales, modo espectador, menús) y por tema. Preguntarle a Wilo qué funciones notó rotas y en qué temas.
 - 2b. Lo común primero: tocar = elegir, deslizar = moverse, un «volver» y un acceso a Ajustes y Buscar visibles solo en modo táctil, favorito con toque largo, áreas de toque de buen tamaño.
@@ -60,17 +60,36 @@ Solo recomienda juegos **instalados** que Wilo no ha jugado (o casi no).
 ### Cierre
 Zip de la versión final para Releases (partiendo del zip anterior, cambiando solo lo modificado) y notas del release.
 
+## Auditoría táctil (2a), 21 nov 2026
+
+Lo que dijo Wilo: nada está roto; el toque por Moonlight cae directo donde pone el dedo (la app recibe un dedo, no un ratón); lo siente poco fluido **en el inicio** y en general.
+
+Lo que encontré en el código (antes de la 1.4.1):
+- **Inicio, 29 de 30 temas:** no se podía deslizar. Solo había clics: tocar elige y tocar otra vez abre. Cambiar de sección o recorrer una lista larga pedía muchos toques. Solo el cubo tenía arrastre.
+- **Arrastre común** (`core.js › draggable`, lo usan el cubo, la fila de plataformas y la lista de juegos): (1) al pasar el umbral de 10 px el contenido daba un salto de 10 px; (2) la velocidad salía de los últimos 6 eventos sin importar su edad, así que si el dedo se detenía antes de soltar, igual lanzaba; (3) no leía los puntos intermedios del movimiento.
+- **Favorito:** solo con el botón LS; no había gesto.
+- **Botón volver** de 34 px y pistas tocables de 28 px: chicos para el dedo. El resaltado `:hover` se quedaba pegado tras tocar.
+- **Ajustes:** la lista ya se desplaza con el desplazamiento nativo del navegador (tiene inercia propia). No se tocó.
+- **No auditado con el dedo todavía:** ficha, visor de manuales, teclado de búsqueda, modo espectador, selector (picker). Quedan para la 2c o para un repaso.
+
 ## Estado
 
-- 21 nov 2026: **etapa 0 y etapa 1 hechas; la 1.4.0 (Recientes) está en `main`.** Falta empezar la etapa 2 (táctil) y la 3 (recomendados).
-- **Etapa 0.** `datos/actualizacion/estado.json` de `E:\Pandora` tenía el commit de `main` (c7be841) como instalado, con revisión de ese mismo día. Eso confirma que el actualizador sí habló con el GitHub real y no tenía nada pendiente. El registro no muestra líneas «Actualización:» porque solo escribe cuando descarga, instala o falla; «al día» no deja línea. **Lo que aún no se ha visto con GitHub real es la descarga y la instalación**: se prueba con la 1.4.0 (ver «Pendiente de Wilo»).
-- **Etapa 1 (1.4.0), qué se hizo:**
-  - `server.js`: `recentIds()` toma de `estadisticas.json` los juegos con `last`, que existan en la biblioteca, del más nuevo al más viejo, máximo 20. `/api/library` trae `recent: { count }`, `/api/recent` da solo el conteo y `/api/games?mode=recent` da la lista. Al cerrar un juego se guarda también `lastAt` (fecha y hora) para ordenar bien dos partidas del mismo día; las partidas viejas solo tienen `last` y, si empatan el día, gana la que se registró después en el archivo.
-  - `public/app.js`: sección «Recientes» después de «Todo» en el cubo y en `api.sections()` (de ahí la toman 25 temas). `api.recent` y `api.openRecent()` para los temas que arman su inicio a mano: se agregó a mano en `barra`, `canales`, `mosaicos` y `paneles`. La lista de Recientes conserva el orden por recencia (no la ordena de la A a la Z ni pone favoritos primero) y no se guarda en caché. Se refresca al cerrar un juego y al borrar estadísticas. Interruptor en Ajustes › Inicio › Recientes. Se restaura como última vista. Ícono nuevo `recent`.
-  - `docs/GUIA.md` tiene la sección «Recientes». `package.json` en 1.4.0.
-  - `test/pandora.test.js`: la biblioteca de prueba ahora tiene 26 juegos; se prueba orden, límite de 20, empate de día, juegos fuera de la biblioteca y partidas sin fecha.
-- **Qué se probó y cómo:** `npm test` pasa (5 de 5). Con un navegador sin pantalla (Chrome) contra el servidor real y una biblioteca de LaunchBox de 30 juegos de mentira (25 con partidas), en los **30 temas**: aparece «Recientes» en el inicio, se abre, y el primer juego es el más reciente. En relieve, simbolo y torres hubo que abrirlo a mano porque mi script no sabía navegar sus secciones; abrió bien. También: no aparece si no hay partidas, no aparece si se oculta en Ajustes, y el interruptor sale en Ajustes › Inicio. Sin errores de JavaScript en ninguna prueba.
-- **Qué NO se probó:** (1) jugar un juego de verdad desde Pandora y ver que sube al primer lugar (necesita Electron, emuladores y LaunchBox reales). (2) La descarga e instalación de la actualización contra el GitHub real. (3) Táctil, que es de la etapa 2. (4) Con tu biblioteca real, que es más grande.
-- **Pendiente de Wilo:** en Ajustes › Biblioteca › «Buscar actualización ahora», esperar el reinicio, abrir Recientes, jugar algo unos segundos, volver y ver que subió al primer lugar. Si la actualización falla, el registro dirá por qué («Actualización: …») y eso se arregla antes que la etapa 2.
-- Una sola cosa rara y esperada: como se agrega una sección al inicio, la primera vez puede quedar enfocada otra sección distinta de la que dejaste.
+- 21 nov 2026 (segundo chat): **etapa 2 en curso. 2a y 2b hechas y en `main` como 1.4.1.** Falta la 2c (temas en tandas) y cerrar la etapa como 1.5.0.
+  - Se subió a `main` antes de cerrar la etapa porque el actualizador solo baja `main` y el plan pide que Wilo pruebe con el dedo antes de seguir. La 1.5.0 se pone al terminar la 2c.
+  - Wilo confirmó que la actualización real a la 1.4.0 funcionó: **etapa 0 probada completa.** Recientes funciona y no reportó fallas.
+- **2b, qué se hizo (1.4.1):**
+  - `core.js › draggable`: el contenido arranca en 0 al pasar el umbral (sin salto); la velocidad sale solo de los últimos 100 ms (si el dedo se detiene, no lanza); usa `getCoalescedEvents`; ignora un segundo dedo.
+  - `core.js › swipeActions` (nuevo): en el inicio de los temas que solo entienden acciones, deslizar emite izquierda/derecha/arriba/abajo, un paso cada 7 rem en horizontal y 4,5 rem en vertical (el primero a media distancia), y al soltar con impulso hasta 6 pasos más, espaciados. Se corta si un paso abre otra pantalla. Solo dedo o lápiz; el ratón no. Un tema que haga su propio arrastre 1:1 debe declarar `ownTouch: true` y se apaga este.
+  - `core.js › longPress` (nuevo) y un atajo global del clic: tras un deslizamiento o un toque largo, el clic de soltar no cuenta, aunque lo que estaba bajo el dedo se haya redibujado.
+  - `app.js`: `swipeActions` en `#homeTheme` (todos menos el cubo); toque largo = favorito en la lista de juegos.
+  - `cubo/theme.css` (es la hoja base de todos): `#homeTheme` con `touch-action: none`; en modo táctil las pistas tocables y el botón volver miden al menos 2,75 rem y el `:hover` no se queda pegado.
+  - `docs/GUIA.md`: sección «Con el dedo». `package.json` en 1.4.1.
+- **Qué se probó y cómo:** `npm test` pasa (5 de 5). Chrome sin pantalla, con toques simulados de dedo (DevTools, `Input.dispatchTouchEvent`) contra el servidor real y una biblioteca falsa de 30 juegos:
+  - En los 30 temas: deslizar hace lo mismo que la flecha del teclado en cada eje (si la flecha mueve, el dedo mueve; si no, tampoco). Sin errores de JavaScript.
+  - Arrastre medido: el primer movimiento tras el umbral es de 2 px, no de 12. Soltar tras 250 ms quieto da velocidad 0; soltar en movimiento sí lanza.
+  - Toque largo marca y desmarca favorito sin abrir la ficha. Botones de 39 px de alto.
+  - En disco, esfera, luna y naranja, «derecha» entra a la sección (así lo hace también la flecha) y, si la sección tiene un solo elemento, abre su lista. Con el dedo pasa igual: un deslizamiento largo hacia la izquierda puede terminar abriendo una lista. Revisar en la 2c si conviene que en esos temas el dedo no entre solo.
+- **Qué NO se probó:** con la pantalla táctil real de la laptop ni por Moonlight; la sensación (si los pasos de 7 y 4,5 rem se sienten bien) solo la puede juzgar Wilo; ficha, manuales, teclado de búsqueda y espectador con el dedo.
+- **Pendiente de Wilo:** actualizar («Buscar actualización ahora»), y con el dedo en el inicio de su tema: deslizar a los lados y arriba/abajo, soltar con impulso, dejar el dedo quieto en un juego de una lista. Decir qué tema usa y si los pasos se sienten muy cortos, muy largos o bien.
+- **2c, cómo seguir:** en los temas cuyo inicio es una fila o rueda (donde el contenido debería ir pegado al dedo, no a pasos), cambiar a arrastre 1:1 con `draggable` + `Spring` + `project`, como el cubo, y declarar `ownTouch: true`. Tandas de unos 10 temas por chat, empezando por el que Wilo usa.
 - Pendiente aparte: anotar Pandora en la bóveda de Obsidian (Wilo debe decir en qué carpeta van sus notas de Pandora).
