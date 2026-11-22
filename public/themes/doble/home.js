@@ -24,6 +24,12 @@ export default function doble(api, root) {
       this.si = clamp(this.si, 0, this.secs.length - 1);
       this.calendar(); clearInterval(this.ct); this.ct = setInterval(() => this.calendar(), 60000);
       this.fill(); this.row.jump(this.ii); this.paint(false);
+      // Con el dedo, los botones de abajo van pegados al dedo y siguen con inercia; arriba/abajo cambia de pestaña.
+      api.dragRow(this.strip, {
+        pos: () => this.row, pitch: () => 15.4 * rem(), count: () => this.sec?.items.length || 0,
+        index: () => this.ii, select: (i, snd) => { this.idx[this.sec.key] = i; this.paint(snd); },
+        pass: i => S.play('move', i),
+      });
     },
     // Calendario del mes con el día de hoy marcado.
     calendar() {

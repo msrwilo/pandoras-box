@@ -25,6 +25,25 @@ export default function torres(api, root) {
       root.append(this.list, this.head, this.grid, this.info);
       this.si = clamp(this.si, 0, this.secs.length - 1);
       this.fill(true);
+      // Con el dedo, la lista de secciones va pegada al dedo (arriba/abajo); para entrar se toca.
+      api.dragRow(this.list, {
+        axis: 'y', pos: () => this.listS, pitch: () => 4.2 * rem(), count: () => this.secs.length,
+        index: () => this.si, select: (i, snd) => { this.si = i; this.zone = 'list'; this.touchRow = null; if (snd) S.play('rotate'); this.fill(false); },
+        pass: i => S.play('move', i),
+      });
+      // Los cubos se desplazan por filas pegados al dedo sin cambiar lo elegido; se toca uno para elegirlo.
+      api.dragRow(this.grid, {
+        axis: 'y', free: true, pos: () => this.rowS, pitch: () => 16.2 * rem(),
+        count: () => Math.max(1, Math.ceil((this.sec?.items.length || 0) / COLS) - 1),
+        settle: f => { this.touchRow = f; }, pass: i => S.play('move', 2000 + i),
+      });
+    },
+    // Primera fila visible: la de lo elegido menos una; si el dedo dejó la cuadrícula en otro lugar y lo elegido
+    // sigue a la vista, se queda ahí.
+    rowLead() {
+      const row = Math.floor(this.ii / COLS), t = this.touchRow, vis = Math.max(1, Math.floor(innerHeight * 0.58 / (16.2 * rem())) + 1);
+      if (t != null && row >= t && row <= t + vis - 1) return t;
+      this.touchRow = null; return Math.max(0, row - 1);
     },
     get sec() { return this.secs[this.si]; },
     get ii() { return clamp(this.idx[this.sec?.key] || 0, 0, (this.sec?.items.length || 1) - 1); },
@@ -38,8 +57,8 @@ export default function torres(api, root) {
         return el;
       });
       this.grid.replaceChildren(...this.tiles);
-      const row = Math.floor(this.ii / COLS);
-      if (jump) this.rowS.jump(row); else this.rowS.set(row);
+      this.touchRow = null;
+      if (jump) this.rowS.jump(this.rowLead()); else this.rowS.set(this.rowLead());
       this.paint(false);
     },
     enterItems() { if (!this.sec.items.length) return S.play('error'); this.zone = 'items'; S.play('open'); this.paint(false); },
@@ -48,7 +67,7 @@ export default function torres(api, root) {
       root.classList.toggle('in-items', this.zone === 'items');
       this.tiles.forEach((e, i) => e.classList.toggle('on', this.zone === 'items' && i === this.ii));
       this.listS.set(this.si);
-      this.rowS.set(Math.max(0, Math.floor(this.ii / COLS) - 1));
+      this.rowS.set(this.rowLead());
       const it = this.sec.items[this.zone === 'items' ? this.ii : 0];
       const showIt = this.zone === 'items' || this.sec.items.length === 1;
       this.info.replaceChildren(

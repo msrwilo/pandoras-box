@@ -24,6 +24,7 @@ body.theme-canales { font-weight: 600; }
 .theme-canales #boot { background: #f3f5f6; }
 
 .wii-pages, .wii-chvideo { position: absolute; left: 0; top: 0; }
+.wii-pages { width: 100%; height: 100%; } /* recibe el dedo también entre canales (arrastre de página) */
 .wii-ch { position: absolute; left: 0; top: 0; border-radius: 1.6rem; background: #fff; border: .32rem solid #cfd5d9; overflow: hidden;
   box-shadow: 0 .3rem .8rem rgba(0,0,0,.08); will-change: transform; transition: border-color .2s, box-shadow .2s; }
 .wii-ch.on { border-color: var(--focus); box-shadow: 0 0 0 .3rem rgba(52, 190, 237, .35), 0 .6rem 1.4rem rgba(0,0,0,.12); }

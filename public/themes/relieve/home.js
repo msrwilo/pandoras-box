@@ -22,7 +22,47 @@ export default function relieve(api, root) {
       this.bottom = h('div', { class: 'td-bottom' }, this.bar, this.grid);
       root.append(this.stage, this.bottom);
       this.si = clamp(this.si, 0, this.secs.length - 1);
-      this.fill(); this.col.jump(Math.floor(this.ii / ROWS)); this.paint(false);
+      this.fill(); this.col.jump(this.lead()); this.paint(false);
+      // Con el dedo, la cuadrícula se desplaza por columnas pegada al dedo sin cambiar lo elegido; se toca un ícono.
+      api.dragRow(this.grid, {
+        free: true, pos: () => this.col, pitch: () => 9.6 * rem(),
+        count: () => Math.max(1, Math.ceil((this.sec?.items.length || 0) / ROWS) - 3),
+        settle: f => { this.touchLead = f; }, pass: i => S.play('move', 2000 + i),
+      });
+      this.sliderTouch();
+    },
+    // Primera columna visible: la de lo elegido menos tres; si el dedo dejó la cuadrícula en otro lugar y lo
+    // elegido sigue a la vista, se queda ahí.
+    lead() {
+      const c = Math.floor(this.ii / ROWS), t = this.touchLead, vis = Math.max(1, Math.floor((innerWidth - 8 * rem()) / (9.6 * rem())));
+      if (t != null && c >= t && c <= t + vis - 1) return t;
+      this.touchLead = null; return Math.max(0, c - 3);
+    },
+    // El deslizador «3D» se arrastra con el dedo, como el de la consola: arriba = más relieve. Al soltar queda en
+    // el cuarto más cercano (los mismos pasos que LT/RT) y suena cada cuarto que pasa.
+    sliderTouch() {
+      const el = this.slider, rail = el.querySelector('.td-rail');
+      el.dataset.ownTouch = 'y';
+      let id = null;
+      const at = e => { const b = rail.getBoundingClientRect(), k = b.height - 2.4 * rem(); return clamp(1 - (e.clientY - b.top - 1.2 * rem()) / k, 0, 1); };
+      const q = v => Math.round(v * 4) / 4;
+      const move = e => {
+        if (e.pointerId !== id) return;
+        const d = at(e);
+        if (q(d) !== q(this.depth.x)) S.play('toggle');
+        this.depth.jump(d);
+      };
+      const up = e => {
+        if (e.pointerId !== id) return;
+        id = null; this.d3 = q(this.depth.x); this.depth.set(this.d3); api.saveLast();
+      };
+      el.addEventListener('pointerdown', e => {
+        if (e.pointerType === 'mouse' || id !== null) return;
+        id = e.pointerId; try { el.setPointerCapture(id); } catch {}
+        move(e);
+      });
+      el.addEventListener('pointermove', move);
+      el.addEventListener('pointerup', up); el.addEventListener('pointercancel', up);
     },
     get sec() { return this.secs[this.si]; },
     get ii() { return clamp(this.idx[this.sec?.key] || 0, 0, Math.max(0, (this.sec?.items.length || 1) - 1)); },
@@ -41,7 +81,7 @@ export default function relieve(api, root) {
     paint(sound) {
       const s = this.sec, it = s?.items[this.ii], p = it?.p;
       this.icons?.forEach((e, i) => e.classList.toggle('on', i === this.ii));
-      this.col.set(Math.floor(this.ii / ROWS));
+      this.col.set(this.lead());
       this.mid.replaceChildren(p?.media.device ? h('img', { src: p.media.device, alt: '' }) : p?.media.logo ? h('img', { src: p.media.logo, alt: '' }) : api.icon(it?.ic || s?.icon));
       this.near.replaceChildren(h('b', { text: it?.label || '' }), h('span', { text: it?.sub || '' }));
       clearTimeout(this.vt); this.vid.pause(); this.vid.classList.remove('on');
@@ -56,7 +96,7 @@ export default function relieve(api, root) {
     },
     setSec(n) {
       if (n === this.si) return S.play('error');
-      this.si = n; this.fill(); this.col.jump(Math.floor(this.ii / ROWS)); S.play('rotate'); this.paint(false);
+      this.si = n; this.touchLead = null; this.fill(); this.col.jump(this.lead()); S.play('rotate'); this.paint(false);
     },
     enter() { Back.setImage(null); Back.setVideo(null); Back.setLook(''); this.paint(false); },
     resume() { this.enter(); },
@@ -67,7 +107,7 @@ export default function relieve(api, root) {
       this.idx = f.idx || {}; if (f.d3 != null) { this.d3 = f.d3; this.depth.jump(f.d3); }
       const i = this.secs.findIndex(s => s.key === f.key);
       if (i >= 0) this.si = i;
-      if (this.secs.length) { this.fill(); this.col.jump(Math.floor(this.ii / ROWS)); this.paint(false); }
+      if (this.secs.length) { this.fill(); this.col.jump(this.lead()); this.paint(false); }
     },
     musicKey() { const it = this.sec?.items[this.ii]; return it?.p ? 'p:' + it.p.name : null; },
     action(a) {
@@ -92,7 +132,7 @@ export default function relieve(api, root) {
       this.mid.parentElement.style.filter = `drop-shadow(${(1.2 * d).toFixed(2)}rem ${(1.4 * d).toFixed(2)}rem ${(1.2 * d).toFixed(2)}rem rgba(0,0,0,${(0.15 + 0.3 * d).toFixed(2)}))`;
       this.near.style.transform = `translate3d(${(sx * 1.2).toFixed(1)}px, ${(sy * 1.2).toFixed(1)}px, 0)`;
       this.slider.querySelector('i').style.transform = `translateY(${((1 - d) * 7.6 * r).toFixed(1)}px)`;
-      const cw = 9.6 * r, x0 = 4 * r, lead = Math.max(0, this.col.x - 3); // la cuadrícula empieza a la izquierda y avanza cuando hace falta
+      const cw = 9.6 * r, x0 = 4 * r, lead = this.col.x; // primera columna visible (ver lead()); bajo cero, el dedo estira
       this.icons?.forEach((el, i) => {
         const c = Math.floor(i / ROWS), rr = i % ROWS, off = c - lead;
         el.style.transform = `translate3d(${(x0 + off * cw).toFixed(1)}px, ${(rr * 7.2 * r).toFixed(1)}px, 0)`;

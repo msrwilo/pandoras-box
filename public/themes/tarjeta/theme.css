@@ -23,7 +23,7 @@
 .tg-head small { position: absolute; right: 4rem; font-size: .9rem; font-weight: 700; letter-spacing: .2em; color: var(--faint); }
 .tg-slot { position: absolute; left: 50%; margin-left: -11rem; top: 11.6rem; width: 22rem; height: 2.4rem; border-radius: .4rem; background: #000; box-shadow: inset 0 .3rem .5rem rgba(0,0,0,.9), 0 0 0 .2rem #2a2420, 0 0 0 .35rem #ff6a00; display: grid; place-items: center; }
 .tg-slot i { width: 18rem; height: .4rem; background: #1c1814; border-radius: .2rem; }
-.tg-deck { position: absolute; inset: 0; pointer-events: none; }
+.tg-deck { position: absolute; inset: 0; } /* recibe el dedo en toda la pantalla (arrastre del abanico) */
 .tg-card { position: absolute; left: 0; top: 0; width: 16rem; height: 22rem; border-radius: .9rem; pointer-events: auto; transform-origin: 50% 160%; will-change: transform;
   background: linear-gradient(150deg, #f4f4f6 0%, #c9cbd2 40%, #eceef2 55%, #a9abb4 100%); box-shadow: 0 1rem 2rem rgba(0,0,0,.6), inset 0 0 0 .12rem rgba(255,255,255,.6);
   display: flex; flex-direction: column; align-items: center; padding: 1rem; gap: .8rem; }

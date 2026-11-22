@@ -30,6 +30,22 @@ export default function lavanda(api, root) {
       this.si = clamp(this.si, 0, this.secs.length - 1); this.knob.jump(this.si);
       this.fill(); this.row.jump(this.ii);
       this.paint(false);
+      // Con el dedo, los cartuchos van pegados al dedo y siguen con inercia.
+      api.dragRow(this.shelf, {
+        pos: () => this.row, pitch: () => 11.6 * rem(), count: () => this.sec?.items.length || 0,
+        index: () => this.ii, select: (i, snd) => { this.idx[this.sec.key] = i; this.paint(snd); },
+        pass: i => S.play('move', i),
+      });
+      // El interruptor se desliza con el dedo: la perilla va con el dedo (no lo contrario) y se queda donde se suelta.
+      api.dragRow(this.slider, {
+        axis: 'y', invert: true, maxFling: 0, pos: () => this.knob, pitch: () => 2.6 * rem(), count: () => this.secs.length,
+        index: () => this.si, select: (i, snd) => this.pickSec(i, snd),
+      });
+    },
+    // Cambiar de sección desde el interruptor: sin el sonido de error y sin mover la perilla que lleva el dedo.
+    pickSec(i, snd) {
+      if (i === this.si) return;
+      this.si = i; this.fill(); this.row.jump(this.ii); if (snd) S.play('rotate'); this.paint(false);
     },
     get sec() { return this.secs[this.si]; },
     get ii() { return clamp(this.idx[this.sec?.key] || 0, 0, Math.max(0, (this.sec?.items.length || 1) - 1)); },

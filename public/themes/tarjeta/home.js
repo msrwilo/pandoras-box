@@ -20,6 +20,13 @@ export default function tarjeta(api, root) {
       this.si = clamp(this.si, 0, this.secs.length - 1);
       this.fill(); this.fan.jump(this.ii);
       this.paint(false);
+      // Con el dedo, el abanico va pegado al dedo y sigue con inercia; arriba/abajo cambia de pestaña.
+      // La mesa (tg-deck) cubre la pantalla, así que se puede arrastrar desde cualquier parte.
+      api.dragRow(this.deck, {
+        pos: () => this.fan, pitch: () => 7.2 * rem(), count: () => this.sec?.items.length || 0,
+        index: () => this.ii, select: (i, snd) => { this.idx[this.sec.key] = i; this.paint(snd); },
+        pass: i => S.play('move', i),
+      });
     },
     get sec() { return this.secs[this.si]; },
     get ii() { return clamp(this.idx[this.sec?.key] || 0, 0, Math.max(0, (this.sec?.items.length || 1) - 1)); },

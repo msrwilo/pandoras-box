@@ -19,9 +19,29 @@ export default function plaza(api, root) {
       this.tabs = h('div', { class: 'wu-tabs' });
       this.grid = h('div', { class: 'wu-grid' });
       this.pad = h('div', { class: 'wu-pad' }, this.tabs, this.grid);
-      root.append(h('div', { class: 'wu-plaza' }, this.crowd, this.floats, this.screen, this.bubble), this.pad);
+      this.plazaEl = h('div', { class: 'wu-plaza' }, this.crowd, this.floats, this.screen, this.bubble);
+      root.append(this.plazaEl, this.pad);
       this.si = clamp(this.si, 0, this.secs.length - 1);
-      this.fill(); this.arc.jump(this.ii); this.strip.jump(this.ii); this.paint(false);
+      this.fill(); this.arc.jump(this.ii); this.strip.jump(this.lead()); this.paint(false);
+      // Con el dedo, arriba el semicírculo gira pegado al dedo (lo elegido cambia en vivo) y sigue con inercia.
+      api.dragRow(this.plazaEl, {
+        pos: () => this.arc, pitch: () => 12.9 * rem(), count: () => this.sec?.items.length || 0,
+        index: () => this.ii, select: (i, snd) => { this.idx[this.sec.key] = i; this.paint(snd); },
+        pass: i => S.play('move', i),
+      });
+      // Abajo, la tira de íconos se desliza sin cambiar lo elegido: se toca un ícono para elegirlo.
+      api.dragRow(this.grid, {
+        free: true, pos: () => this.strip, pitch: () => 9.2 * rem(),
+        count: () => Math.max(1, (this.sec?.items.length || 0) - 4),
+        settle: f => { this.touchLead = f; }, pass: i => S.play('move', 2000 + i),
+      });
+    },
+    // Primer ícono visible de la tira: empieza a la izquierda y avanza cuando lo elegido pasa del quinto.
+    // Si el dedo dejó la tira en otro lugar, se queda ahí mientras lo elegido siga a la vista.
+    lead() {
+      const t = this.touchLead, vis = Math.max(1, Math.floor((innerWidth - 10 * rem()) / (9.2 * rem())));
+      if (t != null && this.ii >= t && this.ii <= t + vis - 1) return t;
+      this.touchLead = null; return Math.max(0, this.ii - 4);
     },
     get sec() { return this.secs[this.si]; },
     get ii() { return clamp(this.idx[this.sec?.key] || 0, 0, Math.max(0, (this.sec?.items.length || 1) - 1)); },
@@ -43,7 +63,7 @@ export default function plaza(api, root) {
       const s = this.sec, it = s?.items[this.ii];
       this.icons?.forEach((e, i) => e.classList.toggle('on', i === this.ii));
       this.fl?.forEach((e, i) => e.classList.toggle('on', i === this.ii));
-      this.arc.set(this.ii); this.strip.set(this.ii);
+      this.arc.set(this.ii); this.strip.set(this.lead());
       this.bubble.replaceChildren(h('b', { text: it?.label || '' }), h('span', { text: it?.sub || '' }));
       clearTimeout(this.vt); this.vid.pause(); this.screen.classList.remove('on');
       const vurl = api.videoFor(s, it);
@@ -57,7 +77,7 @@ export default function plaza(api, root) {
     },
     setSec(n) {
       if (n === this.si) return S.play('error');
-      this.si = n; this.fill(); this.arc.jump(this.ii); this.strip.jump(this.ii); S.play('rotate'); this.paint(false);
+      this.si = n; this.touchLead = null; this.fill(); this.arc.jump(this.ii); this.strip.jump(this.lead()); S.play('rotate'); this.paint(false);
     },
     enter() { Back.setImage(null); Back.setVideo(null); Back.setLook(''); this.paint(false); },
     resume() { this.enter(); },
@@ -68,7 +88,7 @@ export default function plaza(api, root) {
       this.idx = f.idx || {};
       const i = this.secs.findIndex(s => s.key === f.key);
       if (i >= 0) this.si = i;
-      if (this.secs.length) { this.fill(); this.arc.jump(this.ii); this.strip.jump(this.ii); this.paint(false); }
+      if (this.secs.length) { this.fill(); this.arc.jump(this.ii); this.strip.jump(this.lead()); this.paint(false); }
     },
     musicKey() { const it = this.sec?.items[this.ii]; return it?.p ? 'p:' + it.p.name : null; },
     action(a) {
@@ -100,7 +120,7 @@ export default function plaza(api, root) {
         p.el.style.transform = `translate3d(${x.toFixed(1)}px, ${(y - step).toFixed(1)}px, 0) scale(${(0.7 + (Math.sin(p.a) + 1) * 0.2).toFixed(3)})`;
         p.el.style.zIndex = String(50 + Math.round(Math.sin(p.a) * 40));
       });
-      const w = 9.2 * r, x0 = 2 * r, lead = Math.max(0, this.strip.x - 4); // empieza a la izquierda y avanza cuando hace falta
+      const w = 9.2 * r, x0 = 2 * r, lead = this.strip.x; // primer ícono visible (ver lead()); bajo cero, el dedo estira
       this.icons?.forEach((el, i) => {
         const off = i - lead;
         el.style.transform = `translate3d(${(x0 + off * w).toFixed(1)}px, 0, 0)`;

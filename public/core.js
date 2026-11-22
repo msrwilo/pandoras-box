@@ -216,10 +216,15 @@ export function draggable(el, { onStart, onMove, onEnd, axis = 'x' }) {
 // - pass(i): al pasar por un elemento durante el lanzamiento (para el sonido de cada paso).
 // - free: true si la fila se desplaza sin cambiar lo elegido (como el inicio de Switch); entonces al soltar
 //   se llama settle(destino) en vez de select.
+// - invert: true si lo que se mueve es una perilla que va con el dedo (dedo abajo = más), no contenido que se
+//   arrastra (dedo abajo = menos). Para una perilla conviene maxFling: 0 (se queda donde se suelta).
+// - paging: true para páginas completas (pitch = una página): un golpe corto pasa una página aunque el dedo
+//   haya recorrido poco, como en la pantalla de inicio de un teléfono.
 // El elemento queda marcado con data-own-touch: swipeActions deja ese eje a esta fila y sigue con el otro.
 // Solo dedo o lápiz: con ratón y control todo sigue igual.
-const FLING_RATE = 0.996;
-export function dragRow(el, { pos, pitch, axis = 'x', count, index, select, pass, settle, wrap = false, free = false, active = () => true, maxFling = 12 }) {
+const FLING_RATE = 0.996, PAGE_FLICK = 250; // px/s a partir de los cuales un golpe pasa de página
+export function dragRow(el, { pos, pitch, axis = 'x', count, index, select, pass, settle, wrap = false, free = false, active = () => true, maxFling = 12, invert = false, paging = false }) {
+  const sgn = invert ? 1 : -1;
   el.dataset.ownTouch = axis;
   let id = null, x0 = 0, y0 = 0, start = 0, raw = 0, hist = [], state = null, flinging = false, lastPass = 0, stopped = false;
   const lim = v => {
@@ -264,7 +269,7 @@ export function dragRow(el, { pos, pitch, axis = 'x', count, index, select, pass
     const pts = e.getCoalescedEvents?.() || [];
     for (const p of (pts.length ? pts : [e])) hist.push({ x: p.clientX, y: p.clientY, t: p.timeStamp });
     if (hist.length > 40) hist.splice(0, hist.length - 40);
-    raw = lim(start - (axis === 'x' ? dx : dy) / pitch());
+    raw = lim(start + sgn * (axis === 'x' ? dx : dy) / pitch());
     const s = pos();
     if (!free) {
       const i = near(raw);
@@ -283,10 +288,14 @@ export function dragRow(el, { pos, pitch, axis = 'x', count, index, select, pass
     state = null;
     swallowClick();
     const vel = e.type === 'pointerup' ? velocityOf(hist, e.timeStamp) : { vx: 0, vy: 0 };
-    const v = -(axis === 'x' ? vel.vx : vel.vy) / pitch(); // en elementos por segundo
-    let dist = project(v * pitch(), FLING_RATE) / pitch();
-    dist = Math.max(-maxFling, Math.min(maxFling, dist));
-    let target = Math.round(raw + dist);
+    const v = sgn * (axis === 'x' ? vel.vx : vel.vy) / pitch(); // en elementos por segundo
+    let target;
+    if (paging) target = Math.abs(v * pitch()) > PAGE_FLICK ? (v > 0 ? Math.floor(raw) + 1 : Math.ceil(raw) - 1) : Math.round(raw);
+    else {
+      let dist = project(v * pitch(), FLING_RATE) / pitch();
+      dist = Math.max(-maxFling, Math.min(maxFling, dist));
+      target = Math.round(raw + dist);
+    }
     if (!wrap) target = clamp(target, 0, Math.max(0, count() - 1));
     const s = pos();
     // Si se soltó fuera del extremo, regresa sin impulso hacia afuera.

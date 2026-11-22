@@ -47,6 +47,15 @@ export default function canales(api, root) {
       this.page.jump(Math.floor(this.ci / PER));
       this.tick(); clearInterval(this.ct); this.ct = setInterval(() => this.tick(), 10000);
       this.paint(false);
+      // Con el dedo, la página va pegada al dedo; un golpe corto pasa a la siguiente (como el menú de Wii).
+      // Se queda la misma casilla de la página nueva; arriba/abajo sigue recorriendo filas a pasos.
+      api.dragRow(this.pagesEl, {
+        paging: true, pos: () => this.page, pitch: () => innerWidth, count: () => this.pages,
+        active: () => !this.preview,
+        index: () => Math.floor(this.ci / PER),
+        select: (p, snd) => { this.zone = 'grid'; this.ci = clamp(p * PER + (this.ci % PER), 0, this.chans.length - 1); if (snd) S.play('rotate'); this.paint(false); },
+        pass: () => S.play('rotate'),
+      });
     },
     tick() {
       const d = new Date();
