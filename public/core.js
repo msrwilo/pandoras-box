@@ -329,7 +329,8 @@ const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 // Solo responde al dedo (o lápiz); el ratón y el control siguen igual.
 export function press(action, rep = false) { emit(action, 'touch', rep); }
 // allow(acción): si devuelve false, ese paso no se da con el dedo (p. ej. «derecha» que entraría a una sección).
-export function swipeActions(el, { step = () => 80, active = () => true, maxFling = 6, allow = () => true } = {}) {
+// once: true para un solo paso por deslizamiento, por largo que sea (pasar de video, de imagen o de página).
+export function swipeActions(el, { step = () => 80, active = () => true, maxFling = 6, allow = () => true, once = false } = {}) {
   let id = null, x0 = 0, y0 = 0, axis = null, done = 0, hist = [], timers = [];
   const cancelFling = () => { timers.forEach(clearTimeout); timers = []; };
   el.addEventListener('pointerdown', e => {
@@ -355,7 +356,8 @@ export function swipeActions(el, { step = () => 80, active = () => true, maxFlin
     if (hist.length > 40) hist.splice(0, hist.length - 40);
     const d = axis === 'x' ? dx : dy, s = step(axis);
     // Un poco de histéresis: el primer paso sale a media distancia, para que responda pronto.
-    const want = Math.trunc((Math.abs(d) + s / 2) / s) * Math.sign(d);
+    let want = Math.trunc((Math.abs(d) + s / 2) / s) * Math.sign(d);
+    if (once) { if (done) return; want = Math.max(-1, Math.min(1, want)); }
     // Si un paso abrió otra pantalla (p. ej. una lista), el resto del arrastre ya no cuenta.
     while (done !== want && active()) {
       const dir = want > done ? 1 : -1;

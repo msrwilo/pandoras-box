@@ -1646,6 +1646,16 @@ screens.spectator = {
   },
 };
 
+// Con el dedo: deslizar a los lados = siguiente o anterior video; arriba/abajo = cambiar el filtro; tocar = ficha.
+swipeActions($('#spectator'), {
+  active: () => top() === 'spectator' && !Viewer.open && !overlayOpen(), maxFling: 0, once: true,
+  step: axis => (axis === 'x' ? 14 : 10) * rem(),
+});
+$('#spectator').addEventListener('click', e => {
+  if (e.pointerType === 'mouse' || top() !== 'spectator' || Viewer.open || overlayOpen() || e.target.closest('button')) return;
+  screens.spectator.action('a');
+});
+
 // ======================================================================
 // Visor: imágenes, video y manual
 // ======================================================================
@@ -1712,6 +1722,15 @@ $('#viewer').addEventListener('click', e => {
   if (Viewer.kind === 'images' || Viewer.kind === 'manual') Viewer.action(d);
 });
 addEventListener('resize', () => { if (Viewer.manual) Viewer.manual.render(); });
+// Con el dedo, deslizar a los lados pasa de imagen o de página (un paso por deslizamiento). Arriba/abajo solo en el
+// manual por páginas; en el manual a lo ancho la lista se desplaza sola con el dedo, y el video usa sus controles.
+const overlayOpen = () => Keyboard.open || Picker.open || Menu.open || Playing.active || Setup.open || Capture.open;
+swipeActions($('#viewer'), {
+  active: () => Viewer.open && !overlayOpen(), maxFling: 0, once: true,
+  step: axis => (axis === 'x' ? 14 : 10) * rem(),
+  allow: a => Viewer.kind === 'images' ? a === 'left' || a === 'right'
+    : Viewer.kind === 'manual' && Viewer.manual ? (a === 'left' || a === 'right' || !Viewer.manual.scroller) : false,
+});
 
 // ======================================================================
 // Jugar: lanza con el emulador de LaunchBox y espera a que termines

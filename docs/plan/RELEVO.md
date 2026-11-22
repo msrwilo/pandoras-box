@@ -34,7 +34,7 @@ La 1.3.0 se probó con un GitHub simulado, nunca contra el real. Revisar en `E:\
 - Debe verse en los 30 temas (revisar cómo cada `home.js` pinta las secciones; lo ideal es que salga del mecanismo común, no tema por tema).
 - Prueba en `test/pandora.test.js`: orden y límite de 20.
 
-### Etapa 2: Táctil (versión 1.5.0) — modelo: Opus — EN CURSO (2a y 2b en la 1.4.1; 2c en la 1.4.2 y 1.4.3)
+### Etapa 2: Táctil (versión 1.5.0) — modelo: Opus — EN CURSO (2a y 2b en la 1.4.1; 2c en la 1.4.2 y 1.4.3; repaso de pantallas en la 1.4.4)
 Wilo usa una laptop 2K táctil y también toca la pantalla a través de Moonlight.
 - 2a. Auditoría: lista escrita aquí de qué no responde al tacto, por pantalla (inicio de cada tema, listas, ficha, ajustes, teclado de búsqueda, visor de manuales, modo espectador, menús) y por tema. Preguntarle a Wilo qué funciones notó rotas y en qué temas.
 - 2b. Lo común primero: tocar = elegir, deslizar = moverse, un «volver» y un acceso a Ajustes y Buscar visibles solo en modo táctil, favorito con toque largo, áreas de toque de buen tamaño.
@@ -70,7 +70,7 @@ Lo que encontré en el código (antes de la 1.4.1):
 - **Favorito:** solo con el botón LS; no había gesto.
 - **Botón volver** de 34 px y pistas tocables de 28 px: chicos para el dedo. El resaltado `:hover` se quedaba pegado tras tocar.
 - **Ajustes:** la lista ya se desplaza con el desplazamiento nativo del navegador (tiene inercia propia). No se tocó.
-- **No auditado con el dedo todavía:** ficha, visor de manuales, teclado de búsqueda, modo espectador, selector (picker). Quedan para la 2c o para un repaso.
+- **Ficha, visor, teclado de búsqueda, espectador y selector:** auditados en el cuarto chat (ver «Estado», 1.4.4).
 
 ## Estado
 
@@ -131,4 +131,21 @@ Lo que encontré en el código (antes de la 1.4.1):
   - Teclado: la misma secuencia de 15 teclas en los 8 temas de la tanda, contra `main` sin los cambios: mismo elemento elegido y misma posición (solo difieren 1 px de animaciones en curso, también en anillo, que no se tocó). «Derecha, abajo, izquierda, arriba» no regresa al punto de partida en disco, esfera, luna, manzana, mosaicos y naranja, **igual que en `main`**: no es de esta tanda.
 - **Qué NO se probó:** nada con la pantalla táctil real ni por Moonlight; la sensación solo la juzga Wilo. El gamepad (no hay uno aquí; su código no se tocó). No se revisaron con el dedo los temas de lista con cursor (basic, símbolo, gris, pantalla, ficha, rojo, índigo): siguen a pasos como en la 1.4.1.
 - **Pendiente de Wilo:** «Buscar actualización ahora» (1.4.3). Probar con el dedo al menos tarjeta, lavanda (fila y perilla), canales (pasar página con golpe corto) y relieve (cuadrícula y deslizador 3D). Decir si algo se siente raro.
+- 21 nov 2026 (cuarto chat, después de la 1.4.3): **repaso con el dedo de ficha, visor, teclado de búsqueda, espectador y selector, en `main` como 1.4.4.**
+  - **Auditoría** (biblioteca falsa con capturas, caja, manual PDF de 8 páginas y videos de 4 s en Sega Genesis):
+    - Ficha: los botones miden 88 px o más y se tocan; la descripción se desplaza nativa con el dedo (160 px en un arrastre de 175). Sin cambios.
+    - Selector («Más» → Manual, Serie, Favorito): filas de 60 px, tocar elige. Sin cambios.
+    - Teclado de búsqueda: la pista «Buscar» (55 px) lo abre; teclas de 102×72 px; tocar escribe, «Borrar» borra, «Listo» cierra. Sin cambios en el teclado.
+    - **Espectador: el dedo no hacía nada** (solo el botón volver). **Visor de imágenes y manual: deslizar no hacía nada** (tocar las mitades sí pasaba).
+    - **Deslizar a los lados sacaba al navegador de la página** (gesto de «atrás» de Chrome) en las pantallas sin `touch-action: none`: teclado, ficha y, en el arnés, también el cubo. En Pandora instalada probablemente no pasa (la ventana de Electron carga una sola dirección y no tiene página anterior), pero no se pudo comprobar aquí.
+  - **Arreglos:**
+    - `core.js › swipeActions`: opción `once` (un solo paso por deslizamiento).
+    - `app.js`: `swipeActions` en `#spectator` (a los lados = video siguiente/anterior; arriba/abajo = filtro; `once`, sin inercia) y en `#viewer` (a los lados = imagen o página; arriba/abajo solo en el manual por páginas; nada en video, que usa sus controles). Tocar el espectador (dedo, no ratón) abre la ficha. Ninguno responde si hay encima un menú, el teclado, el selector o el visor (`overlayOpen()`).
+    - `cubo/theme.css`: `html, body { overscroll-behavior: none; }` (sin gestos del navegador); `#spectator, #viewer { touch-action: none; }` y `#viewer .pdf-scroll { touch-action: pan-y; }` (el manual a lo ancho conserva su desplazamiento nativo).
+  - `docs/GUIA.md` («Con el dedo») actualizada. `package.json` en 1.4.4.
+- **Qué se probó (1.4.4):** `npm test` pasa (5 de 5). Con toques de DevTools: en el espectador, a los lados cambia de video en las dos direcciones, un golpe largo vertical cambia el filtro una sola vez, tocar abre la ficha. En el visor: a los lados pasa una imagen (un golpe largo también solo una), tocar la mitad derecha o izquierda sigue funcionando, el botón volver lo cierra. En el manual (doble página): a los lados y hacia arriba pasa de página. Deslizar sobre el teclado ya no sale de la app ni escribe. Los 30 temas, otra vez sin errores y sin salir del inicio.
+  - Nota del arnés: «derecha, abajo, izquierda, arriba» en monolito a veces regresa y a veces no, **también en `main`** (3 de 3 corridas en `main`, 1 de 3 en la 1.4.4): sale de la inercia medida en un Chrome sin tarjeta gráfica. Solo con teclado, monolito es igual a `main`.
+- **Qué NO se probó (1.4.4):** nada con pantalla táctil real ni Moonlight; el gamepad. Un toque justo después de deslizar (menos de ~0,4 s) se ignora a propósito (`swallowClick`), así que tocar muy rápido tras pasar una imagen puede no contar. Con el dedo no hay acercar ni mover el manual acercado (solo con LT/RT y la palanca): no se hizo.
+- **Pendiente de Wilo:** «Buscar actualización ahora» (1.4.4) y probar con el dedo la 1.4.3 (tarjeta, lavanda, canales, relieve…) y el espectador, el visor de imágenes y el de manuales. Si todo va bien, el siguiente chat cierra la etapa 2 como 1.5.0.
+- **Cómo sigue la etapa 2:** solo falta el visto bueno de Wilo. Con él: ajustar lo que reporte, poner `package.json` en 1.5.0, anotar el cierre aquí y en `GUIA.md`, subir a `main`, y pasar a la etapa 3 (motor de recomendados, Opus).
 - Pendiente aparte: anotar Pandora en la bóveda de Obsidian (Wilo debe decir en qué carpeta van sus notas de Pandora).

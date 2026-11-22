@@ -436,7 +436,12 @@ body.touch #hints > span:not(.tap) { display: none; }
 body.touch #hints > span.tap { min-height: 2.75rem; padding: .5rem 1rem; margin: -.5rem -1rem; }
 body.touch #hints > span.tap:hover { background: none; }
 body.touch #hints > span.tap:active { background: var(--row-focus); }
+/* Sin gestos del navegador (volver de página al deslizar a los lados, rebote): el dedo es solo de Pandora. */
+html, body { overscroll-behavior: none; }
 #homeTheme { touch-action: none; }
+/* Espectador y visor: deslizar es un gesto de la app (ver swipeActions); el manual a lo ancho se desplaza nativo. */
+#spectator, #viewer { touch-action: none; }
+#viewer .pdf-scroll { touch-action: pan-y; }
 body.touch .back { min-width: 2.75rem; min-height: 2.75rem; }
 body.touch .back:active { transform: scale(.92); }
 body.typing #hints { z-index: 15; }
