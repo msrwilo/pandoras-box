@@ -9,7 +9,7 @@
   "scripts": {
     "start": "electron .",
     "server": "node -e \"require('./server.js').start()\"",
-    "test": "node --test test/pandora.test.js"
+    "test": "node --test test/pandora.test.js test/recomendar.test.js"
   },
   "dependencies": {
     "koffi": "^2.9.0"
