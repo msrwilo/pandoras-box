@@ -103,6 +103,8 @@ export default function luna(api, root) {
       if (this.secs.length) { this.flyFor = null; this.paint(false); }
     },
     musicKey() { const it = this.zone === 'fly' ? this.sec?.items[this.ii] : null; return it?.p ? 'p:' + it.p.name : null; },
+    // Con el dedo, deslizar solo recorre: «derecha» abriría el submenú o lo elegido; para eso se toca.
+    noSwipe(a) { return a === 'right'; },
     action(a) {
       if (this.zone === 'menu') {
         if (a === 'up' || a === 'down') {

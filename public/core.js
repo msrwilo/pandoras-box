@@ -198,6 +198,7 @@ export function draggable(el, { onStart, onMove, onEnd, axis = 'x' }) {
   const end = e => {
     if (e.pointerId !== id) return;
     id = null;
+    if (moved) swallowClick(); // tras arrastrar, el clic de soltar no abre lo que quedó bajo el dedo
     const { vx, vy } = moved && e.type === 'pointerup' ? velocityOf(hist, e.timeStamp) : { vx: 0, vy: 0 };
     onEnd && onEnd(axis === 'x' ? vx : vy, vy, moved, e);
   };
@@ -205,13 +206,121 @@ export function draggable(el, { onStart, onMove, onEnd, axis = 'x' }) {
   el.addEventListener('pointercancel', end);
 }
 
+// ---------- Fila o rueda pegada al dedo (temas) ----------
+// El contenido sigue al dedo 1:1 en un eje; al soltar sigue con inercia y se detiene en un elemento.
+// Lo elegido cambia en vivo con lo que pasa por el centro, como con la flecha del control.
+// - pos(): el Spring del tema, en unidades de elemento (0 = el primero).
+// - pitch(): cuántos px mide un elemento en pantalla. axis: 'x' o 'y'.
+// - count(): cuántos elementos hay. wrap: true si es una rueda sin principio ni fin.
+// - index() / select(i, sonido): lo elegido según el tema; select debe apuntar pos a i (con set, no jump).
+// - pass(i): al pasar por un elemento durante el lanzamiento (para el sonido de cada paso).
+// - free: true si la fila se desplaza sin cambiar lo elegido (como el inicio de Switch); entonces al soltar
+//   se llama settle(destino) en vez de select.
+// El elemento queda marcado con data-own-touch: swipeActions deja ese eje a esta fila y sigue con el otro.
+// Solo dedo o lápiz: con ratón y control todo sigue igual.
+const FLING_RATE = 0.996;
+export function dragRow(el, { pos, pitch, axis = 'x', count, index, select, pass, settle, wrap = false, free = false, active = () => true, maxFling = 12 }) {
+  el.dataset.ownTouch = axis;
+  let id = null, x0 = 0, y0 = 0, start = 0, raw = 0, hist = [], state = null, flinging = false, lastPass = 0, stopped = false;
+  const lim = v => {
+    if (wrap) return v;
+    const hi = Math.max(0, count() - 1);
+    // Más allá de los extremos el contenido se resiste (banda elástica), como en iOS.
+    if (v < 0) return -rubberband(-v, 3, 0.55);
+    if (v > hi) return hi + rubberband(v - hi, 3, 0.55);
+    return v;
+  };
+  const near = v => { const n = count(); const i = Math.round(v); return wrap ? ((i % n) + n) % n : clamp(i, 0, n - 1); };
+  // Si se detuvo a medio camino, termina de llegar al elemento más cercano.
+  const snap = () => {
+    const s = pos(), t = near(s.x);
+    if (!free && t !== index()) select(t, false);
+    const r = wrap ? Math.round(s.x) : free ? clamp(Math.round(s.x), 0, Math.max(0, count() - 1)) : t;
+    s.set(r);
+    if (free) settle?.(r);
+  };
+  el.addEventListener('pointerdown', e => {
+    if (e.pointerType === 'mouse' || id !== null || !active() || !count()) return;
+    id = e.pointerId; x0 = e.clientX; y0 = e.clientY; state = 'wait'; hist = [{ x: x0, y: y0, t: e.timeStamp }];
+    flinging = false;
+    // Tocar mientras se mueve lo detiene donde va, como en iOS.
+    const s = pos(); stopped = !s.settled && Math.abs(s.v) > 0.5; start = raw = s.x; s.jump(s.x);
+  });
+  el.addEventListener('pointermove', e => {
+    if (e.pointerId !== id) return;
+    let dx = e.clientX - x0, dy = e.clientY - y0;
+    if (state === 'wait') {
+      const d = Math.hypot(dx, dy);
+      if (d <= SLOP) return;
+      // Mismo criterio que swipeActions: el eje dominante decide. Si es el otro eje, esta fila no hace nada.
+      const ax = Math.abs(dx) >= Math.abs(dy) ? 'x' : 'y';
+      if (ax !== axis) { state = 'off'; id = null; snap(); return; }
+      state = 'drag';
+      try { el.setPointerCapture(id); } catch {}
+      x0 += dx * SLOP / d; y0 += dy * SLOP / d;
+      dx = e.clientX - x0; dy = e.clientY - y0;
+    }
+    if (state !== 'drag') return;
+    const pts = e.getCoalescedEvents?.() || [];
+    for (const p of (pts.length ? pts : [e])) hist.push({ x: p.clientX, y: p.clientY, t: p.timeStamp });
+    if (hist.length > 40) hist.splice(0, hist.length - 40);
+    raw = lim(start - (axis === 'x' ? dx : dy) / pitch());
+    const s = pos();
+    if (!free) {
+      const i = near(raw);
+      if (i !== index()) select(i, true);
+    }
+    s.jump(raw); // después de select: lo que el tema haya apuntado se reemplaza por la posición del dedo
+  });
+  const end = e => {
+    if (e.pointerId !== id) return;
+    id = null;
+    if (state !== 'drag') {
+      // Un toque que detuvo la fila en movimiento solo la detiene: no abre ni elige lo que hay bajo el dedo.
+      if (state === 'wait') { if (stopped) swallowClick(); if (pos().x !== Math.round(pos().x) || stopped) snap(); }
+      state = null; return;
+    }
+    state = null;
+    swallowClick();
+    const vel = e.type === 'pointerup' ? velocityOf(hist, e.timeStamp) : { vx: 0, vy: 0 };
+    const v = -(axis === 'x' ? vel.vx : vel.vy) / pitch(); // en elementos por segundo
+    let dist = project(v * pitch(), FLING_RATE) / pitch();
+    dist = Math.max(-maxFling, Math.min(maxFling, dist));
+    let target = Math.round(raw + dist);
+    if (!wrap) target = clamp(target, 0, Math.max(0, count() - 1));
+    const s = pos();
+    // Si se soltó fuera del extremo, regresa sin impulso hacia afuera.
+    s.v = (!wrap && (raw < 0 || raw > count() - 1)) ? 0 : v;
+    lastPass = near(s.x); flinging = Math.round(s.x) !== target;
+    if (free) { s.set(target); settle?.(target); return; }
+    const t = wrap ? near(target) : target;
+    if (t !== index()) select(t, false);
+    // select apunta a i (0…n-1); en una rueda el destino puede estar a vueltas de distancia.
+    s.set(wrap ? target : t);
+  };
+  // En la ventana: si el elemento se rehízo a media gesto, el soltar igual se recibe y la fila no se queda trabada.
+  addEventListener('pointerup', end, true);
+  addEventListener('pointercancel', end, true);
+  // Durante el lanzamiento, cada elemento que pasa por el centro suena (se siente el peso).
+  // Si el tema rehízo su inicio, esta fila ya no está en la página: se deja de vigilar.
+  const off = onFrame(() => {
+    if (!el.isConnected) { off(); removeEventListener('pointerup', end, true); removeEventListener('pointercancel', end, true); return; }
+    if (!flinging) return;
+    const s = pos(), i = near(s.x);
+    if (i !== lastPass) { lastPass = i; pass?.(i); }
+    if (s.settled || Math.abs(s.x - s.target) < 0.02) flinging = false;
+  });
+}
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
 // ---------- Gestos para los temas que solo entienden acciones ----------
 // Un dedo que se desliza se traduce en acciones del control: una cada `step` px mientras se arrastra
 // (el contenido sigue al dedo paso a paso) y, al soltar con impulso, unas cuantas más espaciadas en el tiempo.
 // El dedo hacia la izquierda pide «right» (lo de la derecha viene hacia el centro), hacia arriba pide «down».
 // Solo responde al dedo (o lápiz); el ratón y el control siguen igual.
 export function press(action, rep = false) { emit(action, 'touch', rep); }
-export function swipeActions(el, { step = () => 80, active = () => true, maxFling = 6 } = {}) {
+// allow(acción): si devuelve false, ese paso no se da con el dedo (p. ej. «derecha» que entraría a una sección).
+export function swipeActions(el, { step = () => 80, active = () => true, maxFling = 6, allow = () => true } = {}) {
   let id = null, x0 = 0, y0 = 0, axis = null, done = 0, hist = [], timers = [];
   const cancelFling = () => { timers.forEach(clearTimeout); timers = []; };
   el.addEventListener('pointerdown', e => {
@@ -226,6 +335,9 @@ export function swipeActions(el, { step = () => 80, active = () => true, maxFlin
       const d = Math.hypot(dx, dy);
       if (d <= SLOP) return;
       axis = Math.abs(dx) >= Math.abs(dy) ? 'x' : 'y';
+      // Una fila con su propio arrastre (dragRow) se queda con su eje; aquí solo se atiende el otro.
+      // Se usa la ruta del evento: si la fila ya rehízo sus elementos, el que estaba bajo el dedo ya no está en la página.
+      if (e.composedPath().some(n => n.dataset?.ownTouch === axis)) { id = null; axis = null; return; }
       try { el.setPointerCapture(id); } catch {}
       x0 += dx * SLOP / d; y0 += dy * SLOP / d;
       dx = e.clientX - x0; dy = e.clientY - y0;
@@ -239,7 +351,8 @@ export function swipeActions(el, { step = () => 80, active = () => true, maxFlin
     while (done !== want && active()) {
       const dir = want > done ? 1 : -1;
       done += dir;
-      press(axis === 'x' ? (dir > 0 ? 'left' : 'right') : (dir > 0 ? 'up' : 'down'), Math.abs(done) > 1);
+      const a = axis === 'x' ? (dir > 0 ? 'left' : 'right') : (dir > 0 ? 'up' : 'down');
+      if (allow(a)) press(a, Math.abs(done) > 1);
     }
   });
   const end = e => {
@@ -254,7 +367,7 @@ export function swipeActions(el, { step = () => 80, active = () => true, maxFlin
     // Solo se lanza en la misma dirección en que se venía arrastrando.
     if (!extra || Math.sign(v) !== Math.sign(done || v)) return;
     const a = axis === 'x' ? (v > 0 ? 'left' : 'right') : (v > 0 ? 'up' : 'down');
-    for (let i = 0; i < extra; i++) timers.push(setTimeout(() => { if (active()) press(a, true); else cancelFling(); }, 60 + i * (55 + i * 12)));
+    for (let i = 0; i < extra; i++) timers.push(setTimeout(() => { if (active() && allow(a)) press(a, true); else cancelFling(); }, 60 + i * (55 + i * 12)));
   };
   el.addEventListener('pointerup', end);
   el.addEventListener('pointercancel', end);

@@ -35,6 +35,13 @@ export default function paneles(api, root) {
       this.bi = clamp(this.bi, 0, this.blades.length - 1); this.pos.jump(this.bi);
       this.blades.forEach((_, i) => this.fill(i));
       this.focus(false);
+      // Con el dedo, los paneles se deslizan pegados al dedo (un panel = el ancho que recorre) y siguen con inercia.
+      // Cada panel recibe el dedo; todos mueven la misma posición.
+      for (const b of this.blades) api.dragRow(b.el, {
+        pos: () => this.pos, pitch: () => Math.max(1, innerWidth - this.blades.length * 3.2 * rem()), count: () => this.blades.length,
+        index: () => this.bi, select: i => { this.bi = i; this.pos.set(i); S.play('rotate'); this.focus(false); },
+        pass: () => S.play('rotate'), maxFling: 3,
+      });
     },
     ri(i = this.bi) { return this.rows[i] || 0; },
     fill(i) {

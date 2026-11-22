@@ -34,6 +34,18 @@ export default function monolito(api, root) {
       this.rowsS.jump(this.si);
       this.rowEls.forEach(R => R.x.jump(this.idxOf(R.s)));
       this.paint(false);
+      // Con el dedo: cada fila va pegada al dedo a los lados; arriba/abajo, las filas. Los dos con inercia.
+      this.rowEls.forEach((R, ri) => api.dragRow(R.track, {
+        pos: () => R.x, pitch: () => ((ri === this.si ? 13 : 11) + 1) * rem(), count: () => R.s.items.length,
+        index: () => this.idxOf(R.s),
+        select: (i, snd) => { if (ri !== this.si) { this.si = ri; S.play('rotate'); } this.idx[R.s.key] = i; this.paint(snd); },
+        pass: i => S.play('move', i),
+      }));
+      api.dragRow(this.rowsBox, {
+        axis: 'y', pos: () => this.rowsS, pitch: () => 13.4 * rem(), count: () => this.secs.length,
+        index: () => this.si, select: i => { this.si = i; S.play('rotate'); this.paint(false); },
+        pass: () => S.play('rotate'),
+      });
     },
     idxOf(s) { return clamp(this.idx[s.key] || 0, 0, Math.max(0, s.items.length - 1)); },
     get sec() { return this.secs[this.si]; },
@@ -89,7 +101,7 @@ export default function monolito(api, root) {
         R.el.style.opacity = off < -0.6 ? '0' : (1 - Math.max(0, off) * 0.25).toFixed(3);
         const tw = (ri === this.si ? 13 : 11) * r + 1 * r;
         R.tiles.forEach((t, i) => {
-          const o = i - Math.max(0, R.x.x - 2);
+          const o = i - (R.x.x < 0 ? R.x.x : Math.max(0, R.x.x - 2)); // bajo cero: el dedo estira más allá del inicio
           t.style.transform = `translate3d(${(o * tw).toFixed(1)}px, 0, 0)`;
           t.style.visibility = o < -1 || o > 9 ? 'hidden' : '';
         });

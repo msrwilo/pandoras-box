@@ -24,6 +24,12 @@ export default function vapor(api, root) {
       root.append(this.bgA, this.bgB, this.vid, h('div', { class: 'sb-shade' }), this.tabs, this.rowTitle, this.track, this.info);
       this.si = clamp(this.si, 0, this.secs.length - 1);
       this.fill(); this.x.jump(this.ii); this.paint(false);
+      // Con el dedo, la fila de cápsulas va pegada al dedo y sigue con inercia; arriba/abajo cambia de pestaña.
+      api.dragRow(this.track, {
+        pos: () => this.x, pitch: () => 13.4 * rem(), count: () => this.sec?.items.length || 0,
+        index: () => this.ii, select: (i, snd) => { this.idx[this.sec.key] = i; this.paint(snd); },
+        pass: i => S.play('move', i),
+      });
     },
     get sec() { return this.secs[this.si]; },
     get ii() { const s = this.sec; return s ? clamp(this.idx[s.key] || 0, 0, Math.max(0, s.items.length - 1)) : 0; },
@@ -96,7 +102,7 @@ export default function vapor(api, root) {
     frame(dt) {
       this.x.step(dt);
       if (!this.cards) return;
-      const r = rem(), cw = 13.4 * r, first = Math.max(0, this.x.x - 0.4);
+      const r = rem(), cw = 13.4 * r, first = this.x.x < 0 ? this.x.x : Math.max(0, this.x.x - 0.4); // bajo cero: el dedo estira más allá del inicio
       this.cards.forEach((c, i) => {
         const o = i - first;
         c.style.transform = `translate3d(${(o * cw).toFixed(1)}px,0,0)`;

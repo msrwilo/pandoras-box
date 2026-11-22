@@ -1,5 +1,5 @@
 // Pandora — pantallas y lógica de la interfaz.
-import { Spring, onFrame, onAction, draggable, swipeActions, longPress, project, rubberband, rem, sticks, reducedMotion, $, h, setTextSink, setCapture, getInputMode, setPadLayout } from './core.js';
+import { Spring, onFrame, onAction, draggable, dragRow, swipeActions, longPress, project, rubberband, rem, sticks, reducedMotion, $, h, setTextSink, setCapture, getInputMode, setPadLayout } from './core.js';
 import * as S from './sound.js';
 import { Manual, MODES as MANUAL_MODES } from './manual.js';
 // Las peticiones que cambian algo (abrir juegos, guardar ajustes…) llevan esta marca: una página web
@@ -691,6 +691,11 @@ const cubeHome = {
     this.ring.step(dt); this.tiltS.step(dt);
     const rm = reducedMotion.matches;
     this.assign(Math.round(this.ring.x));
+    if (this.flingTo != null) {
+      const c = Math.round(this.ring.x);
+      if (c !== this.passed) { this.passed = c; S.play('rotate'); }
+      if (this.ring.settled || Math.abs(this.ring.x - this.flingTo) < 0.02) this.flingTo = null;
+    }
     const bob = rm ? 0 : Math.sin(this.t * 2 * Math.PI / 9) * 0.6;
     const ringDeg = -this.ring.x * 90;
     $('#cube').style.transform = `rotateX(${this.tiltS.x.toFixed(3)}deg) rotateY(${ringDeg.toFixed(3)}deg)`;
@@ -701,27 +706,53 @@ const cubeHome = {
     if (this.botFace) this.botFace.firstChild.style.transform = `rotate(${(ringDeg).toFixed(2)}deg)`;
   },
   initDrag() {
-    let sx = 0, st = 0;
+    // Arrastre 1:1. Las caras cambian en vivo bajo el dedo (título, sonido) y al soltar el cubo sigue girando
+    // con la inercia del dedo; cada cara que pasa suena, para que se sienta el peso.
+    let sx = 0, st = 0, live = 0, mode = null; // mode: 'x' gira, 'y' inclina; se fija al empezar a arrastrar
+    const face = () => 19 * rem();
     draggable(this.el.querySelector('.cube-stage').parentElement, {
       axis: 'x',
-      onStart: () => { sx = this.ring.x; st = this.tiltS.x; this.dragged = false; },
+      onStart: () => {
+        // Tocar mientras gira lo detiene ahí (y ese toque no abre nada).
+        this.stopTap = !this.ring.settled && Math.abs(this.ring.v) > 0.5;
+        sx = this.ring.x; st = this.tiltS.x; live = Math.round(sx); mode = null;
+        this.dragged = this.stopTap; this.flingTo = null; this.ring.jump(this.ring.x);
+      },
       onMove: (dx, dy) => {
         this.dragged = true;
-        const face = 19 * rem();
-        if (Math.abs(dy) > Math.abs(dx)) this.tiltS.jump(clamp(st + dy / face * 90, -85, 80));
-        else this.ring.jump(sx - dx / face);
-      },
-      onEnd: (vx, vy, moved, e) => {
-        if (!moved) return;
-        const face = 19 * rem();
-        if (Math.abs(this.tiltS.x - st) > 12) {
-          const t = this.tiltS.x < -45 ? -1 : this.tiltS.x > 35 ? 1 : 0;
-          this.tilt = t; this.tiltS.set(this.tiltAngle()); this.ring.set(this.sel);
+        mode ||= Math.abs(dy) > Math.abs(dx) ? 'y' : 'x';
+        if (mode === 'y') {
+          // Más allá de arriba y abajo se resiste en vez de detenerse de golpe.
+          const raw = st + dy / face() * 90, lo = -85, hi = 80;
+          this.tiltS.jump(raw < lo ? lo - rubberband(lo - raw, 40) : raw > hi ? hi + rubberband(raw - hi, 40) : raw);
         } else {
-          const target = Math.round(this.ring.x - project(vx, 0.99) / face);
-          this.sel = target; this.tilt = 0; this.ring.set(target, -vx / face); this.tiltS.set(this.tiltAngle());
+          const x = sx - dx / face(); this.ring.jump(x);
+          const c = Math.round(x);
+          if (c !== live) { live = c; this.sel = c; if (this.tilt !== 0) { this.tilt = 0; this.tiltS.set(this.tiltAngle()); } S.play('rotate'); this.caption(); }
         }
-        S.play('rotate'); this.caption();
+      },
+      onEnd: (vx, vy, moved) => {
+        if (!moved) {
+          // Siempre termina de llegar a una cara; si el toque detuvo un giro, además no abre nada.
+          const c = Math.round(this.ring.x); this.ring.set(c); if (c !== this.sel) { this.sel = c; this.caption(); }
+          if (this.stopTap) setTimeout(() => (this.dragged = false), 50);
+          return;
+        }
+        if (mode === 'y') {
+          // Respeta el impulso: un golpe corto basta para ir a Espectador (arriba) o Ajustes (abajo).
+          const a = this.tiltS.x + project(vy, 0.99) / face() * 90;
+          const t = a < -45 ? -1 : a > 35 ? 1 : 0;
+          if (t !== this.tilt) S.play('rotate');
+          this.tilt = t; this.tiltS.set(this.tiltAngle(), vy / face() * 90); this.caption();
+        } else {
+          const v = -vx / face();
+          const dist = Math.max(-8, Math.min(8, project(-vx, 0.996) / face()));
+          const target = Math.round(this.ring.x + dist);
+          if (this.tilt !== 0) { this.tilt = 0; this.tiltS.set(this.tiltAngle()); }
+          this.ring.set(target, v);
+          this.flingTo = target; this.passed = Math.round(this.ring.x);
+          this.sel = target; this.caption();
+        }
         setTimeout(() => (this.dragged = false), 50);
       },
     });
@@ -743,6 +774,8 @@ screens.home = {
 swipeActions($('#homeTheme'), {
   active: () => top() === 'home' && homeImpl !== cubeHome && !homeImpl.ownTouch,
   step: axis => (axis === 'x' ? 7 : 4.5) * rem(),
+  // Un tema puede impedir que el dedo dé ciertos pasos: `noSwipe(acción)` devuelve true para los que entran o abren.
+  allow: a => !homeImpl.noSwipe?.(a),
 });
 
 // Lo que un tema puede usar para construir su inicio.
@@ -753,7 +786,7 @@ const themeAPI = {
   // «Recientes»: null si no hay partidas o está oculto en Ajustes › Inicio; si no, { count }.
   get recent() { return visibleLibrary().recent; },
   openRecent: () => { S.play('select'); go('shelf', recentShelf()); },
-  go, back, top, Back, S, toast, h, $, Spring, rem, clamp, short, fmtN, ord, glyph, reducedMotion, draggable, project, rubberband,
+  go, back, top, Back, S, toast, h, $, Spring, rem, clamp, short, fmtN, ord, glyph, reducedMotion, draggable, dragRow, project, rubberband,
   updateAudio: () => updateAudio(), saveLast: () => saveLast(), renderChrome: () => renderChrome(),
   icon: k => icon(k), ICONS, genreIcon: m => genreIcon(m),
   // Video para lo enfocado: el de la plataforma; si no tiene (Todo, modos, géneros…), el de su sección

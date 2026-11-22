@@ -76,6 +76,8 @@ export default function naranja(api, root) {
       if (this.secs.length) this.paint(false);
     },
     musicKey() { const it = this.zone === 'files' ? this.sec?.items[this.ii] : null; return it?.p ? 'p:' + it.p.name : null; },
+    // Con el dedo, deslizar solo recorre: «abajo» arriba entraría a la sección y «derecha» abriría lo elegido; se toca.
+    noSwipe(a) { return this.zone === 'top' ? a === 'down' : a === 'right'; },
     action(a) {
       if (this.zone === 'top') {
         if (a === 'left' || a === 'right' || a === 'lb' || a === 'rb') {

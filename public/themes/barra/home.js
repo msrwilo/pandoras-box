@@ -44,9 +44,22 @@ export default function barra(api, root) {
       });
       this.items = h('div', { class: 'xmb-items' });
       this.info = h('div', { class: 'xmb-info' });
-      root.append(this.bar, this.items, this.info);
+      // Todo va en un escenario que llena la pantalla, para poder arrastrar las categorías desde cualquier parte.
+      this.stage = h('div', { class: 'xmb-stage' }, this.bar, this.items, this.info);
+      root.append(this.stage);
       this.ci = clamp(this.ci, 0, this.cols.length - 1); this.colS.jump(this.ci);
       this.list(true);
+      // Con el dedo: a los lados, las categorías van pegadas al dedo; arriba/abajo, sus elementos. Los dos con inercia.
+      api.dragRow(this.stage, {
+        pos: () => this.colS, pitch: () => 12 * rem(), count: () => this.cols.length,
+        index: () => this.ci, select: i => { this.ci = i; this.colS.set(i); S.play('rotate'); this.list(); },
+        pass: () => S.play('rotate'),
+      });
+      api.dragRow(this.items, {
+        axis: 'y', pos: () => this.rowS, pitch: () => 7.2 * rem(), count: () => this.col?.items.length || 0,
+        index: () => this.ri, select: (i, snd) => { this.rows[this.ci] = i; this.rowS.set(i); if (snd) S.play('move', i); this.focus(); },
+        pass: i => S.play('move', i),
+      });
     },
     get col() { return this.cols[this.ci]; },
     get ri() { return this.rows[this.ci] || 0; },

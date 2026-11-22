@@ -22,6 +22,12 @@ export default function volumen(api, root) {
       root.append(this.title, this.count, this.stage, this.info, this.nav);
       this.si = clamp(this.si, 0, this.secs.length - 1);
       this.fill(); this.ring.jump(this.ii);
+      // Con el dedo, el anillo gira pegado al dedo y sigue con inercia; arriba/abajo cambia de sección.
+      api.dragRow(this.stage, {
+        pos: () => this.ring, pitch: () => 34 * rem() * STEP * Math.PI / 180, count: () => this.sec?.items.length || 0,
+        index: () => this.ii, select: (i, snd) => { this.idx[this.sec.key] = i; this.paint(snd); },
+        pass: i => S.play('move', i),
+      });
       this.paint(false);
     },
     get sec() { return this.secs[this.si]; },

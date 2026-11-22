@@ -71,6 +71,8 @@ export default function esfera(api, root) {
       if (this.secs.length) this.fill(true);
     },
     musicKey() { const it = this.zone === 'sub' ? this.sec?.items[this.cur] : null; return it?.p ? 'p:' + it.p.name : null; },
+    // Con el dedo, deslizar solo recorre: «derecha» activaría el botón; para eso se toca.
+    noSwipe(a) { return a === 'right' && this.zone === 'main'; },
     action(a) {
       const n = this.btns.length;
       if (a === 'up' || a === 'down' || a === 'lb' || a === 'rb') {

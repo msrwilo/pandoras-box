@@ -39,7 +39,16 @@ export default function mosaicos(api, root) {
       this.ti = clamp(this.ti, 0, this.tiles.length - 1);
       this.scroll.jump(this.scrollTarget());
       this.paintFocus(false);
+      // Con el dedo, la fila se desplaza pegada al dedo y con inercia sin cambiar lo elegido (como en Switch):
+      // se toca un cuadro para elegirlo y otra vez para abrirlo.
+      api.dragRow(this.track, {
+        free: true, pos: () => this.scroll, pitch: () => 18.4 * rem(),
+        count: () => Math.max(1, this.tiles.length - this.visible() + 1),
+        settle: f => { this.first = f; },
+        pass: i => S.play('move', 2000 + i),
+      });
     },
+    visible() { const r = rem(); return Math.max(1, Math.floor((innerWidth - 12 * r) / (18.4 * r))); },
     first: 0,
     scrollTarget() {
       const r = rem(), slot = 18.4 * r, vis = Math.max(1, Math.floor((innerWidth - 12 * r) / slot));

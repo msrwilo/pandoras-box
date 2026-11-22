@@ -21,14 +21,31 @@ export default function manzana(api, root) {
           el.addEventListener('click', () => { if (si === this.si && i === this.ii) this.run(); else { this.si = si; this.idx[s.key] = i; this.paint(true); } });
           return el;
         });
-        const row = h('div', { class: 'tv-row' }, h('div', { class: 'tv-rlabel', text: s.label }), h('div', { class: 'tv-icons' }, ...icons));
-        return { row, icons, x: new Spring(0, { response: 0.32, damping: 1 }) };
+        const strip = h('div', { class: 'tv-icons' }, ...icons);
+        const row = h('div', { class: 'tv-row' }, h('div', { class: 'tv-rlabel', text: s.label }), strip);
+        return { row, strip, icons, x: new Spring(0, { response: 0.32, damping: 1 }) };
       });
       this.list = h('div', { class: 'tv-list' }, ...this.rows.map(r => r.row));
       root.append(this.shelfA, this.shelfB, this.vid, h('div', { class: 'tv-shade' }), this.shelfText, this.list);
       this.si = clamp(this.si, 0, this.secs.length - 1);
       this.y.jump(this.si); this.rows.forEach((r, i) => r.x.jump(this.idxOf(i)));
       this.paint(false);
+      // Con el dedo: cada fila de íconos va pegada al dedo a los lados; arriba/abajo, las filas. Con inercia.
+      this.rows.forEach((R, ri) => api.dragRow(R.strip, {
+        pos: () => R.x, pitch: () => 17.6 * rem(), count: () => this.secs[ri].items.length,
+        index: () => this.idxOf(ri),
+        select: (i, snd) => {
+          if (ri !== this.si) { this.si = ri; S.play('rotate'); }
+          this.tilt = i > this.idxOf(ri) ? 0.6 : -0.6; // el ícono se inclina hacia donde va, como con el control
+          this.idx[this.secs[ri].key] = i; this.paint(snd);
+        },
+        pass: i => S.play('move', i),
+      }));
+      api.dragRow(this.list, {
+        axis: 'y', pos: () => this.y, pitch: () => 16.6 * rem(), count: () => this.secs.length,
+        index: () => this.si, select: i => { this.si = i; S.play('rotate'); this.paint(false); },
+        pass: () => S.play('rotate'),
+      });
     },
     idxOf(si) { const s = this.secs[si]; return s ? clamp(this.idx[s.key] || 0, 0, Math.max(0, s.items.length - 1)) : 0; },
     get sec() { return this.secs[this.si]; },
@@ -94,7 +111,7 @@ export default function manzana(api, root) {
       this.list.style.transform = `translate3d(0,${(-this.y.x * rowH).toFixed(1)}px,0)`;
       this.rows.forEach((row, ri) => {
         row.x.step(dt);
-        const first = Math.max(0, row.x.x - 1.2);
+        const first = row.x.x < 0 ? row.x.x : Math.max(0, row.x.x - 1.2); // bajo cero: el dedo estira más allá del inicio
         row.icons.forEach((c, i) => {
           const o = i - first;
           const foc = ri === this.si && i === this.ii;

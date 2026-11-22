@@ -18,6 +18,12 @@ export default function alas(api, root) {
       root.append(this.tabs, this.row_, this.name, this.hero, this.cards);
       this.si = clamp(this.si, 0, this.secs.length - 1);
       this.fill(); this.row.jump(this.ii); this.paint(false);
+      // Con el dedo, la fila de cuadros va pegada al dedo y sigue con inercia; arriba/abajo cambia de pestaña.
+      api.dragRow(this.row_, {
+        pos: () => this.row, pitch: () => 8 * rem(), count: () => this.sec?.items.length || 0,
+        index: () => this.ii, select: (i, snd) => { this.idx[this.sec.key] = i; this.paint(snd); },
+        pass: i => S.play('move', i),
+      });
     },
     get sec() { return this.secs[this.si]; },
     get ii() { return clamp(this.idx[this.sec?.key] || 0, 0, Math.max(0, (this.sec?.items.length || 1) - 1)); },

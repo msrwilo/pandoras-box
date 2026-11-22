@@ -27,7 +27,7 @@
 .x-body { flex: 1; background: linear-gradient(180deg, #ffffff, #f2f6ef); padding: 6rem 6rem 6rem 4rem; display: flex; flex-direction: column; }
 .x-title { font-size: 3.6rem; font-weight: 300; letter-spacing: -.02em; color: var(--accent); margin-bottom: 2rem; }
 .x-content { flex: 1; display: grid; grid-template-columns: 38rem 1fr; gap: 3rem; min-height: 0; }
-.x-list { overflow-y: auto; scrollbar-width: none; display: flex; flex-direction: column; gap: .3rem; padding: .3rem; }
+.x-list { overflow-y: auto; scrollbar-width: none; display: flex; flex-direction: column; gap: .3rem; padding: .3rem; touch-action: pan-y; } /* el dedo en vertical desplaza la lista; a los lados, los paneles */
 .x-list::-webkit-scrollbar { display: none; }
 .x-row { display: grid; grid-template-columns: 6rem 1fr; grid-template-rows: auto auto; column-gap: 1.2rem; align-items: center; padding: .7rem 1rem; border-radius: .3rem; cursor: pointer; }
 .x-row i { grid-row: span 2; width: 6rem; height: 3rem; }

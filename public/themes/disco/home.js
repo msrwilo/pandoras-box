@@ -84,6 +84,8 @@ export default function disco(api, root) {
       if (this.secs.length) this.paint(false);
     },
     musicKey() { const it = this.zone === 'grid' ? this.sec?.items[this.ii] : null; return it?.p ? 'p:' + it.p.name : null; },
+    // Con el dedo, deslizar solo recorre: «derecha» en la lista de secciones entraría sola; para entrar se toca.
+    noSwipe(a) { return this.zone === 'list' && a === 'right'; },
     action(a) {
       if (this.zone === 'list') {
         if (a === 'up' || a === 'down') {

@@ -19,9 +19,15 @@ export default function orbita(api, root) {
       this.panel = h('div', { class: 'sa-panel' });
       this.vid = h('video', { muted: '', playsinline: '', loop: '' }); this.vid.muted = true;
       this.screen = h('div', { class: 'sa-screen' }, this.vid);
-      root.append(this.bar, this.moons, this.screen, this.panel);
+      root.append(this.moons, this.bar, this.screen, this.panel); // la órbita primero: recibe el dedo en el espacio libre
       this.si = clamp(this.si, 0, this.secs.length - 1);
       this.fill(); this.orb.jump(this.ii);
+      // Con el dedo, la órbita gira pegada al dedo y sigue con inercia; arriba/abajo cambia de pestaña.
+      api.dragRow(this.moons, {
+        pos: () => this.orb, pitch: () => 34 * rem() * 0.42, count: () => this.sec?.items.length || 0,
+        index: () => this.ii, select: (i, snd) => { this.idx[this.sec.key] = i; this.paint(snd); },
+        pass: i => S.play('move', i),
+      });
       this.paint(false);
     },
     get sec() { return this.secs[this.si]; },

@@ -38,7 +38,10 @@ Lo táctil solo se activa cuando tocas la pantalla; el control y el teclado sigu
 
 - **Tocar** algo lo elige; tocarlo otra vez lo abre.
 - **Deslizar** en el inicio mueve como las flechas del control, en todos los temas: hacia la izquierda pide lo de la derecha, hacia arriba baja en la lista. Cada tramo del arrastre es un paso, y si sueltas con impulso avanza unos pasos más. Si un paso abre otra pantalla, el resto del deslizamiento ya no cuenta.
-- En las listas y en el cubo, el contenido sigue al dedo. Arranca sin salto y, si detienes el dedo antes de soltar, se queda donde lo dejaste.
+- Deslizar solo recorre; para entrar a una sección o abrir algo se toca. En Disco, Esfera, Luna y Naranja el dedo ya no entra solo aunque el deslizamiento sea largo.
+- En las listas, en el cubo y en los temas con fila o rueda (Barra, Mosaicos, Alas, Vapor, Vitrina, Monolito, Manzana, Paneles, Órbita y Volumen), el contenido va **pegado al dedo**: lo que pasa por el centro queda elegido y suena. Al soltar con impulso sigue girando con inercia, sonando en cada elemento que pasa, y se detiene en uno. Si detienes el dedo antes de soltar, se queda donde lo dejaste. Más allá del primero o del último, la fila se estira y regresa.
+- **Tocar algo que va girando** lo detiene ahí, sin abrir nada.
+- En el cubo: a los lados gira las caras; arriba o abajo lo inclina hacia Espectador o Ajustes (un golpe corto basta). En Barra, a los lados cambian las categorías y arriba/abajo sus elementos. En Monolito y Manzana, a los lados la fila y arriba/abajo las filas. En Mosaicos la fila se desplaza sin cambiar el cuadro elegido, como en Switch. En Paneles, deslizar a los lados cambia de panel y arriba/abajo desplaza su lista.
 - **Dejar el dedo quieto** sobre un juego de la lista lo marca o desmarca como favorito.
 - Abajo quedan visibles «Ajustes», «Audio» y, en las listas, «Buscar»; arriba a la izquierda, el botón para regresar. Todos tienen tamaño de dedo.
 

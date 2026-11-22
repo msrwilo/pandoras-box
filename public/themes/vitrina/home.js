@@ -27,6 +27,12 @@ export default function vitrina(api, root) {
       root.append(this.bgA, this.bgB, this.vid, this.shade, this.nav, this.main);
       this.si = clamp(this.si, 0, this.secs.length - 1);
       this.fill(); this.x.jump(this.ii); this.paint(false);
+      // Con el dedo, la fila de tarjetas va pegada al dedo y sigue con inercia; arriba/abajo cambia de sección.
+      api.dragRow(this.track, {
+        pos: () => this.x, pitch: () => 15.4 * rem(), count: () => this.sec?.items.length || 0,
+        index: () => this.ii, select: (i, snd) => { this.idx[this.sec.key] = i; this.paint(snd); },
+        pass: i => S.play('move', i),
+      });
     },
     idxOf(s) { return clamp(this.idx[s.key] || 0, 0, Math.max(0, s.items.length - 1)); },
     get sec() { return this.secs[this.si]; },
@@ -105,7 +111,7 @@ export default function vitrina(api, root) {
       this.t += dt; this.x.step(dt); this.side.step(dt);
       if (!this.cards) return;
       const r = rem(), cw = 15.4 * r;
-      const first = Math.max(0, this.x.x - 1.2);
+      const first = this.x.x < 0 ? this.x.x : Math.max(0, this.x.x - 1.2); // bajo cero: el dedo estira más allá del inicio
       this.cards.forEach((c, i) => {
         const o = i - first;
         c.style.transform = `translate3d(${(o * cw).toFixed(1)}px,0,0)`;
