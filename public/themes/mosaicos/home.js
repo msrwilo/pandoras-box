@@ -27,6 +27,7 @@ export default function mosaicos(api, root) {
         ...(api.series.length ? [{ label: 'Series', icon: 'series', run: () => api.openKind('series') }] : []),
         { label: 'Volver a leer LaunchBox', icon: '_other', run: () => api.reload() },
         { label: 'Ajustes', icon: 'settings', run: () => api.openSettings() },
+        ...(api.quit ? [{ label: 'Salir de Pandora’s Box', icon: 'power', run: () => api.quit() }] : []),
       ];
       this.btnLabel = h('div', { class: 'sw-btn-label' });
       this.btnEls = this.buttons.map((b, i) => {

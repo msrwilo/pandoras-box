@@ -19,7 +19,8 @@ export default function paneles(api, root) {
         ...(api.genres.length ? [{ key: '_genres', label: 'Géneros', items: api.genres.map(m => ({ coll: m, ic: api.genreIcon(m), label: m.label, sub: `${fmtN(m.count)} juegos`, run: () => api.openCollection(m) })) }] : []),
         ...(api.developers.length ? [{ key: '_devs', label: 'Desarrolladoras', items: api.developers.map(m => ({ coll: m, ic: 'dev', label: m.label, sub: `${fmtN(m.count)} juegos`, ...(m.logo ? { p: { name: m.label, media: { logo: m.logo } } } : {}), run: () => api.openCollection(m) })) }] : []),
         ...(api.series.length ? [{ key: '_series', label: 'Series', items: [...api.series.map(m => ({ coll: m, ic: 'series', label: (m.favorite ? '★ ' : '') + m.label, sub: `${fmtN(m.count)} juegos`, ...(m.logo ? { p: { name: m.label, media: { logo: m.logo } } } : {}), run: () => api.openCollection(m) })), { ic: 'series', label: 'Todas las series', sub: 'De la A a la Z', run: () => api.openKind('serAll') }] }] : []),
-        { key: '_settings', label: 'Sistema', items: [{ label: 'Ajustes de Pandora', sub: 'Tema, sonido, vistas', run: () => api.openSettings() }, { label: 'Volver a leer LaunchBox', sub: 'Si agregaste juegos', run: () => api.reload() }] },
+        { key: '_settings', label: 'Sistema', items: [{ label: 'Ajustes de Pandora', sub: 'Tema, sonido, vistas', run: () => api.openSettings() }, { label: 'Volver a leer LaunchBox', sub: 'Si agregaste juegos', run: () => api.reload() },
+          ...(api.quit ? [{ label: 'Salir de Pandora’s Box', sub: 'Cierra la aplicación', run: () => api.quit() }] : [])] },
       ];
       root.replaceChildren();
       this.blades = this.data.map((d, i) => {

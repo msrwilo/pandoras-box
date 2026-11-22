@@ -606,6 +606,14 @@ img[src^="/dl/"] { background: rgba(255, 255, 255, .94); border-radius: .5em; pa
 /* ---------- Ajustes en pestañas ---------- */
 #menu { width: 40rem; display: flex; flex-direction: column; overflow: hidden; padding-bottom: 1.2rem; }
 #menu h2 { margin-bottom: .8rem; }
+/* Salir, a la vista en la cabecera del menú. Del tamaño de un dedo (2,75 rem). */
+.mquit { position: absolute; top: 1.7rem; right: 1.4rem; z-index: 2; display: flex; align-items: center; gap: .45rem; min-height: 2.75rem; padding: 0 1rem;
+  border-radius: 1.4rem; border: 1px solid var(--line); background: transparent; color: inherit; opacity: .85; font: inherit; font-size: .9rem; font-weight: 600; cursor: pointer;
+  transition: background .2s, color .2s, border-color .2s; }
+.mquit .ico { width: 1.15rem; height: 1.15rem; display: grid; }
+.mquit svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.mquit.arm { background: #c0392b; border-color: #c0392b; color: #fff; opacity: 1; }
+body:not(.touch) .mquit:hover { opacity: 1; border-color: currentColor; }
 .mtabs { display: flex; flex-wrap: nowrap; gap: .15rem; flex: none; overflow-x: auto; scrollbar-width: none; padding-bottom: .8rem; margin-bottom: .4rem; border-bottom: 1px solid var(--line); }
 .mtabs::-webkit-scrollbar { display: none; }
 .mtab { flex: none; padding: .4rem .5rem; border-radius: 99rem; font-size: .8rem; font-weight: 600; color: inherit; opacity: .62; white-space: nowrap; }

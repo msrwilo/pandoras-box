@@ -34,14 +34,14 @@ La 1.3.0 se probó con un GitHub simulado, nunca contra el real. Revisar en `E:\
 - Debe verse en los 30 temas (revisar cómo cada `home.js` pinta las secciones; lo ideal es que salga del mecanismo común, no tema por tema).
 - Prueba en `test/pandora.test.js`: orden y límite de 20.
 
-### Etapa 2: Táctil (versión 1.5.0) — modelo: Opus — EN CURSO (2a y 2b en la 1.4.1; 2c en la 1.4.2 y 1.4.3; repaso de pantallas en la 1.4.4)
+### Etapa 2: Táctil (versión 1.5.0) — modelo: Opus — HECHA (2a y 2b en la 1.4.1; 2c en la 1.4.2 y 1.4.3; repaso de pantallas en la 1.4.4; cierre en la 1.5.0)
 Wilo usa una laptop 2K táctil y también toca la pantalla a través de Moonlight.
 - 2a. Auditoría: lista escrita aquí de qué no responde al tacto, por pantalla (inicio de cada tema, listas, ficha, ajustes, teclado de búsqueda, visor de manuales, modo espectador, menús) y por tema. Preguntarle a Wilo qué funciones notó rotas y en qué temas.
 - 2b. Lo común primero: tocar = elegir, deslizar = moverse, un «volver» y un acceso a Ajustes y Buscar visibles solo en modo táctil, favorito con toque largo, áreas de toque de buen tamaño.
 - 2c. Temas, en tandas de unos 10 por chat. Cada tanda se sube y Wilo la prueba con el dedo antes de seguir.
 - No romper control ni teclado. Lo táctil solo aparece cuando se toca la pantalla.
 
-### Etapa 3: Recomendados (versión 1.6.0) — motor: Opus; pantalla: Sonnet
+### Etapa 3: Recomendados (versión 1.6.0) — motor: Opus; pantalla: Sonnet — EN CURSO (ver «Estado»)
 Solo recomienda juegos **instalados** que Wilo no ha jugado (o casi no).
 - Fuente de calificación: la de la comunidad de LaunchBox, que ya está en la biblioteca. Metacritic no ofrece API pública. Si se quiere una segunda fuente (IGDB o RAWG, gratis con registro), el chat debe verificar en internet su estado y condiciones actuales antes de proponerla; va como mejora opcional, no como requisito.
 - 3a. Motor en `lib/recomendar.js`, con pruebas. Puntaje = parecido (género, serie, desarrolladora, plataforma, época) × calificación ponderada por número de votos. Sin repetir sagas enteras: máximo 2 por serie en cada fila.
@@ -148,4 +148,13 @@ Lo que encontré en el código (antes de la 1.4.1):
 - **Qué NO se probó (1.4.4):** nada con pantalla táctil real ni Moonlight; el gamepad. Un toque justo después de deslizar (menos de ~0,4 s) se ignora a propósito (`swallowClick`), así que tocar muy rápido tras pasar una imagen puede no contar. Con el dedo no hay acercar ni mover el manual acercado (solo con LT/RT y la palanca): no se hizo.
 - **Pendiente de Wilo:** «Buscar actualización ahora» (1.4.4) y probar con el dedo la 1.4.3 (tarjeta, lavanda, canales, relieve…) y el espectador, el visor de imágenes y el de manuales. Si todo va bien, el siguiente chat cierra la etapa 2 como 1.5.0.
 - **Cómo sigue la etapa 2:** solo falta el visto bueno de Wilo. Con él: ajustar lo que reporte, poner `package.json` en 1.5.0, anotar el cierre aquí y en `GUIA.md`, subir a `main`, y pasar a la etapa 3 (motor de recomendados, Opus).
+- 22 nov 2026 (quinto chat): **etapa 2 cerrada como 1.5.0 y en `main`.**
+  - Lo que dijo Wilo de la 1.4.3 y la 1.4.4: el desplazamiento se siente bien y no hace falta cambiarlo; espectador, visor de imágenes y visor de manuales responden con el dedo como se describe. Pidió una sola cosa: poder salir de la aplicación desde Ajustes en la vista principal.
+  - **Salir** (antes solo existía al final de la pestaña Biblioteca del menú, difícil de encontrar con el dedo):
+    - `app.js › Menu.quitBtn`: botón «Salir» en la cabecera del menú de Ajustes (arriba a la derecha), en los 30 temas. Dos toques: el primero lo pone en rojo con «Toca otra vez para salir» y regresa solo a los 3 s. Solo en la app instalada (`window.pandora.app`).
+    - `themeAPI.quit` (null fuera de Electron). `sections()` agrega «Salir de Pandora's Box» a la sección Ajustes del inicio (27 temas); barra, mosaicos (botón de abajo) y paneles («Sistema») lo agregan a mano. Ícono nuevo `power`. En el cubo la cara de Ajustes abre directo el menú, donde está el botón. Canales: sus botones redondos abren el menú.
+    - `cubo/theme.css`: `.mquit` (2,75 rem de alto, toma el color del texto de cada tema). `luna/theme.css`: ajuste para su barra de título.
+  - `docs/GUIA.md` (sección Ajustes) y `package.json` en 1.5.0.
+- **Qué se probó (1.5.0):** `npm test` pasa (5 de 5). Chrome sin pantalla con toques de DevTools y `window.pandora` simulado: en los 30 temas el botón aparece, el primer toque no cierra, el segundo llama a salir, sin errores de JavaScript; en el cubo, tras 3 s sin segundo toque regresa a «Salir». Capturas de la cabecera en cubo, luna, mosaicos, basic, símbolo, gris, pantalla y rojo: no choca con el título. El elemento del inicio se encontró recorriendo con flechas en luna, barra, paneles, disco y tarjeta; en mosaicos se comprobó el botón con el ícono de encendido.
+- **Qué NO se probó (1.5.0):** que `app.quit()` cierre de verdad la ventana de Electron (aquí no hay Electron; el código de `main.js` que lo hace ya existía y no se tocó). Con pantalla táctil real.
 - Pendiente aparte: anotar Pandora en la bóveda de Obsidian (Wilo debe decir en qué carpeta van sus notas de Pandora).

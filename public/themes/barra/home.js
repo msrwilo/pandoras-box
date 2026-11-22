@@ -13,6 +13,7 @@ export default function barra(api, root) {
         { name: '_settings', label: 'Ajustes', icon: 'settings', items: [
           { label: 'Ajustes de Pandora', sub: 'Tema, sonido, vistas y datos', run: () => api.openSettings() },
           { label: 'Volver a leer LaunchBox', sub: 'Si agregaste juegos', run: () => api.reload() },
+          ...(api.quit ? [{ label: 'Salir de Pandora’s Box', sub: 'Cierra la aplicación', iconKey: 'power', run: () => api.quit() }] : []),
         ] },
         ...(api.all ? [{ name: '_all', label: 'Todo', icon: 'all', items: [
           { label: 'Todos los juegos', sub: `${fmtN(api.total)} juegos de todas tus plataformas`, iconKey: 'all', run: () => api.openAll() },

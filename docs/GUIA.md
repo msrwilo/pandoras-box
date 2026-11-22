@@ -52,6 +52,11 @@ Lo táctil solo se activa cuando tocas la pantalla; el control y el teclado sigu
 
 Están en pestañas (LB / RB). Debajo de cada opción hay una explicación corta.
 
+**Salir de Pandora's Box** (solo en la app instalada), en dos lugares:
+- Arriba a la derecha del menú de Ajustes, el botón «Salir», a la vista en todos los temas y del tamaño de un dedo. Pide dos toques: el primero lo pone en rojo («Toca otra vez para salir») y, si no lo vuelves a tocar en 3 segundos, regresa solo.
+- En el inicio, dentro de la sección «Ajustes» (o «Sistema» en Paneles), junto a «Ajustes de Pandora» y «Volver a leer LaunchBox». En Mosaicos es el último botón de abajo (el ícono de encendido). En el cubo, la cara de Ajustes abre directo el menú, donde está el botón.
+- Con el control sigue también al final de la pestaña Biblioteca.
+
 | Pestaña | Contenido |
 |---|---|
 | (orden fijo) | Las pestañas son siempre las mismas y se abre en Apariencia; desde una lista o una ficha el cursor cae en su acomodo. Izquierda/derecha cambia un valor por pulsación y se aplica solo al dejar de moverte (como el tema); A abre la lista completa |

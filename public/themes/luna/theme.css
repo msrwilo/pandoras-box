@@ -163,3 +163,5 @@
 .theme-luna #detail.D-tema .act.focus { box-shadow: inset 0 0 0 .14rem #7da2ce, inset 0 -.14rem 0 .1rem #f5c45a; transform: none; color: #000; background: linear-gradient(180deg, #ffffff, #ece9d8 85%, #d6d0c5); }
 .theme-luna #detail.D-tema .act .n { color: #555; }
 .theme-luna #detail.D-tema .detail-art:has(img[hidden]) { visibility: hidden; }
+
+.theme-luna .mquit { top: .25rem; right: .5rem; min-height: 2.2rem; color: #fff; border-color: rgba(255,255,255,.5); }

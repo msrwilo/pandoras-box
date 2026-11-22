@@ -541,6 +541,7 @@ const ICONS = {
   recent: '<path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1"/><path d="M3.5 4.5v4h4"/><path d="M12 7.5V12l3 1.8"/>',
   all: '<rect x="3.5" y="9" width="17" height="11.5" rx="1.6"/><path d="M5.5 6h13M7.5 3h9"/><path d="M9.5 13h5"/>',
   spectator: '<path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><path d="M10.4 9.3v5.4l4.4-2.7z"/>',
+  power: '<path d="M12 3v8.5"/><path d="M7.2 6.2a7.5 7.5 0 1 0 9.6 0"/>',
   settings: '<circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v2.8M12 18.4v2.8M2.8 12h2.8M18.4 12h2.8M5.5 5.5l2 2M16.5 16.5l2 2M5.5 18.5l2-2M16.5 7.5l2-2"/>',
 };
 // Un ícono propio para cada género (si alguno no está, se usa la etiqueta general).
@@ -798,6 +799,8 @@ const themeAPI = {
   openPlatform: p => { S.play('select'); go('shelf', p); },
   openSpectator: filter => { S.play('open'); go('spectator', { filter }); },
   openSettings: () => Menu.show(),
+  // Salir de la app (solo en Pandora instalada; en el navegador es null y los temas no muestran la opción).
+  quit: window.pandora?.app ? () => window.pandora.quit() : null,
   get modes() { return visibleLibrary().modes || []; },
   get genres() { return visibleLibrary().genres || []; },
   get developers() { return visibleLibrary().developers || []; },
@@ -823,7 +826,8 @@ const themeAPI = {
     if (spectator) out.push({ key: '_spectator', label: 'Espectador', icon: 'spectator', items: [{ ic: 'spectator', label: 'Toda la biblioteca', sub: 'Videos al azar', run: () => themeAPI.openSpectator(null) },
       ...L.categories.map(c => ({ ic: c.name, label: c.label, sub: 'Videos al azar de ' + c.label.toLowerCase(), run: () => themeAPI.openSpectator(c.name) }))] });
     if (system) out.push({ key: '_settings', label: 'Ajustes', icon: 'settings', items: [{ ic: 'settings', label: 'Ajustes de Pandora', sub: 'Tema, sonido, inicio y control', run: () => themeAPI.openSettings() },
-      { ic: '_other', label: 'Volver a leer LaunchBox', sub: 'Si agregaste juegos', run: () => themeAPI.reload() }] });
+      { ic: '_other', label: 'Volver a leer LaunchBox', sub: 'Si agregaste juegos', run: () => themeAPI.reload() },
+      ...(themeAPI.quit ? [{ ic: 'power', label: 'Salir de Pandora’s Box', sub: 'Cierra la aplicación', desc: 'Cierra Pandora’s Box. Tus favoritos y partidas ya están guardados.', run: () => themeAPI.quit() }] : [])] });
     return out;
   },
   reload: () => reloadLibrary(),
@@ -2092,7 +2096,21 @@ const Menu = {
     $('#menuRows').children[this.i]?.scrollIntoView({ block: 'nearest' });
     $('#menuHelp').textContent = this.confirm === this.rows[this.i]?.id ? 'Presiona A otra vez para confirmar.' : this.rows[this.i]?.help || '';
   },
-  show() { this.list = null; this.build(); this.open = true; this.el.hidden = false; this.x.set(0); this.paint(); S.play('open'); renderChrome(); },
+  // Botón «Salir» en la cabecera, a la vista y tocable desde cualquier tema. Pide un segundo toque para no cerrar por accidente.
+  quitBtn() {
+    if (this.qb || !window.pandora?.app) return;
+    const b = this.qb = h('button', { class: 'mquit', type: 'button' }, icon('power'), h('span', { text: 'Salir' }));
+    const reset = () => { clearTimeout(this.qt); b.classList.remove('arm'); b.lastChild.textContent = 'Salir'; };
+    b.addEventListener('click', e => {
+      e.stopPropagation();
+      if (b.classList.contains('arm')) { reset(); return window.pandora.quit(); }
+      b.classList.add('arm'); b.lastChild.textContent = 'Toca otra vez para salir'; S.play('toggle');
+      clearTimeout(this.qt); this.qt = setTimeout(reset, 3000);
+    });
+    this.qreset = reset;
+    this.el.append(b);
+  },
+  show() { this.quitBtn(); this.qreset?.(); this.list = null; this.build(); this.open = true; this.el.hidden = false; this.x.set(0); this.paint(); S.play('open'); renderChrome(); },
   close() { this.commit(); this.open = false; this.x.set(1); S.play('back'); renderChrome(); },
   change(d, viaA) {
     const r = this.rows[this.i];
