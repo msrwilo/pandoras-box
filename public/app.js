@@ -667,7 +667,7 @@ const cubeHome = {
         $('#catList').textContent = 'Del más reciente al más viejo';
       } else if (c.modes) {
         $('#catMeta').textContent = `${fmtN(c.platforms.length)} ${c.unit} · juegos de todas tus consolas`;
-        $('#catList').textContent = c.platforms.slice(0, 12).map(p => `${p.name} (${fmtN(p.count)})`).join(' · ') + (c.platforms.length > 12 ? ' …' : '');
+        $('#catList').textContent = c.platforms.filter(p => !p.goAll).slice(0, 12).map(p => `${p.name} (${fmtN(p.count)})`).join(' · ') + (c.platforms.length > 12 ? ' …' : '');
       } else {
         $('#catMeta').textContent = `${c.platforms.length} plataformas · ${fmtN(c.games)} juegos`;
         $('#catList').textContent = c.platforms.map(p => short(p.name)).join(' · ');
