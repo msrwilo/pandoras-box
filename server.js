@@ -9,6 +9,7 @@ const { URL } = require('url');
 const meta = require('./lib/meta');
 const createLauncher = require('./lib/launch');
 const createLogos = require('./lib/logos');
+const recomendar = require('./lib/recomendar');
 
 const APP_DIR = __dirname;
 // Datos propios de Pandora (no se tocan los XML de LaunchBox). Dentro de la app viven junto a Pandora.exe.
@@ -77,6 +78,7 @@ const launcher = createLauncher({
     const ahora = new Date().toISOString();
     s.last = ahora.slice(0, 10); s.lastAt = ahora; // lastAt ordena bien las partidas de un mismo día (Recientes)
     writeData(STATS_FILE, stats);
+    recsVer++;
   },
 });
 
@@ -405,6 +407,28 @@ function recentIds() {
     .slice(0, RECENT_MAX).map(r => r.id);
 }
 
+// ---------- Recomendados (etapa 3) ----------
+// Filas de juegos instalados que no has jugado (o casi no), calculadas por lib/recomendar.js.
+// Se calculan al pedirlas y se guardan hasta que cambie la biblioteca, una partida o un favorito.
+// Las correcciones de 2D/3D salen de datos/dimensiones.json si existe (aquí solo se lee).
+const DIM_FILE = path.join(DATA_DIR, 'dimensiones.json');
+const RECS_MAX = 20;
+let recsVer = 0, recsCache = null;
+function recs() {
+  if (!lib || !lib.games || !lib.games.size) return [];
+  const key = lib.loadedAt + ':' + recsVer;
+  if (recsCache && recsCache.key === key) return recsCache.filas;
+  let filas = [];
+  try {
+    const motor = recomendar.crear({ juegos: lib.games, plataformas: lib.platforms, stats, favoritos: favorites, excepciones: readJSON(DIM_FILE, {}) });
+    filas = motor.todas(RECS_MAX);
+  } catch (e) { log('Recomendados: ' + e.message); }
+  recsCache = { key, filas };
+  return filas;
+}
+// Lo que el inicio necesita: qué filas hay y cuántos juegos trae cada una (sin los juegos).
+const recsSummary = () => recs().map(f => ({ id: f.id, titulo: f.titulo, count: f.juegos.length }));
+
 // ---------- API ----------
 function publicGame(g, withMedia = true) {
   const o = { ...g };
@@ -439,9 +463,15 @@ function api(pathname, q) {
     const devs = pub(lib.developers).map(d => ({ ...d, logo: devLogos.url(d.label) }));
     const devsAll = pub(lib.developersAll || []).map(d => ({ ...d, logo: devLogos.url(d.label) }));
     const ser = seriesLists();
-    return { categories, total: lib.games.size, modes: pub(lib.modes), genres: pub(lib.genres), developers: devs, developersAll: devsAll, series: ser.home, seriesAll: ser.all, recent: { count: recentIds().length }, empty: !!lib.empty, path: LB };
+    return { categories, total: lib.games.size, modes: pub(lib.modes), genres: pub(lib.genres), developers: devs, developersAll: devsAll, series: ser.home, seriesAll: ser.all, recent: { count: recentIds().length }, recs: recsSummary(), empty: !!lib.empty, path: LB };
   }
   if (pathname === '/api/recent') return { count: recentIds().length };
+  if (pathname === '/api/recomendados' && q.get('resumen')) return { filas: recsSummary() };
+  if (pathname === '/api/recomendados') {
+    // Las filas con sus juegos ya armados (con medios) y la frase de por qué se recomiendan.
+    return { filas: recs().map(f => ({ id: f.id, titulo: f.titulo, semilla: f.semilla || null,
+      juegos: f.juegos.filter(x => lib.games.has(x.id)).map(x => ({ ...publicGame(lib.games.get(x.id)), razon: x.razon })) })).filter(f => f.juegos.length) };
+  }
   if (pathname === '/api/games' && q.get('mode') === 'recent') {
     return { mode: 'recent', games: recentIds().map(id => publicGame(lib.games.get(id))) };
   }
@@ -625,6 +655,7 @@ const server = http.createServer(async (req, res) => {
         if (w === 'carpeta') { rm(USER_CFG); done.push(w); }
         if (w === 'navegador') { rm(path.join(DATA_DIR, 'navegador', 'Cache')); done.push(w); }
       }
+      recsVer++;
       log('Datos borrados: ' + done.join(', '));
       res.writeHead(200, { 'Content-Type': 'application/json' }); return res.end(JSON.stringify({ ok: true, done }));
     }
@@ -638,7 +669,7 @@ const server = http.createServer(async (req, res) => {
         else console.log('No se pudo lanzar:', out.error);
       } else if (p === '/api/close') out = launcher.close();
       else {
-        favorites[body.id] = !!body.value; writeData(FAV_FILE, favorites); out = { ok: true, favorite: !!body.value };
+        favorites[body.id] = !!body.value; writeData(FAV_FILE, favorites); recsVer++; out = { ok: true, favorite: !!body.value };
       }
       res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
       return res.end(JSON.stringify(out));

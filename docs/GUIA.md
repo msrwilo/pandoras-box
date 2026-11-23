@@ -42,7 +42,8 @@ Lo táctil solo se activa cuando tocas la pantalla; el control y el teclado sigu
 - En las listas, en el cubo y en los temas con fila o rueda (Barra, Mosaicos, Alas, Vapor, Vitrina, Monolito, Manzana, Paneles, Órbita, Volumen, Tarjeta, Lavanda, Plaza, Canales, Torres, Doble y Relieve), el contenido va **pegado al dedo**: lo que pasa por el centro queda elegido y suena. Al soltar con impulso sigue girando con inercia, sonando en cada elemento que pasa, y se detiene en uno. Si detienes el dedo antes de soltar, se queda donde lo dejaste. Más allá del primero o del último, la fila se estira y regresa.
 - **Tocar algo que va girando** lo detiene ahí, sin abrir nada.
 - En el cubo: a los lados gira las caras; arriba o abajo lo inclina hacia Espectador o Ajustes (un golpe corto basta). En Barra, a los lados cambian las categorías y arriba/abajo sus elementos. En Monolito y Manzana, a los lados la fila y arriba/abajo las filas. En Mosaicos la fila se desplaza sin cambiar el cuadro elegido, como en Switch. En Paneles, deslizar a los lados cambia de panel y arriba/abajo desplaza su lista. En Tarjeta el abanico se arrastra desde cualquier parte de la pantalla. En Lavanda, la fila de cartuchos va con el dedo y el interruptor de la izquierda se arrastra como una perilla: va con el dedo y se queda donde lo sueltas. En Plaza, arriba el semicírculo gira con el dedo y abajo la tira de íconos se desliza sin cambiar lo elegido (se toca un ícono para elegirlo). En Canales la página va con el dedo y un golpe corto pasa a la siguiente; arriba/abajo recorre las filas. En Torres la lista de secciones sube y baja con el dedo y los cubos se desplazan por filas sin cambiar lo elegido. En Relieve los íconos se desplazan por columnas sin cambiar lo elegido y el deslizador «3D» se arrastra con el dedo (arriba = más relieve). Anillo sigue a pasos: es una lista con cursor y cada paso del dedo mide casi lo mismo que un renglón.
-- **Dejar el dedo quieto** sobre un juego de la lista lo marca o desmarca como favorito.
+- **Dejar el dedo quieto** sobre un juego de la lista (o de una fila de Recomendados) lo marca o desmarca como favorito.
+- En **Recomendados** cada fila va pegada al dedo y arrastrar arriba o abajo cambia de fila (ver «Recomendados»).
 - En el **modo espectador**: deslizar a los lados pasa al video siguiente o al anterior; arriba o abajo cambia el filtro (toda la biblioteca, consolas, portátiles…); tocar abre la ficha del juego. Un deslizamiento es un solo paso, por largo que sea.
 - En el **visor** de imágenes y de manuales: deslizar a los lados pasa de imagen o de página (también se puede tocar la mitad izquierda o derecha). En el manual por páginas, arriba/abajo también pasa de página; en el manual a lo ancho, la lista se desplaza con el dedo. En el video se usan sus propios controles.
 - En la **ficha**, la descripción se desplaza con el dedo y los botones se tocan. En el **teclado de búsqueda** se tocan las teclas; deslizar sobre él no escribe nada. En el **selector** (versiones, «Más») se toca la fila.
@@ -63,7 +64,7 @@ Están en pestañas (LB / RB). Debajo de cada opción hay una explicación corta
 | Apariencia | Tema, estilo de botones, acomodo de lista y ficha |
 | Sonido | Volumen, audio de fondo, ambiente y efectos |
 | Videos | Reproducir videos, modo cine y modo espectador |
-| Inicio | Qué secciones se muestran en el inicio |
+| Inicio | Qué secciones se muestran en el inicio (Todo, Recientes, Recomendados, plataformas, modos, géneros…) |
 | Listas | Búsqueda, barra de letras y qué datos se muestran |
 | Control | Distribución de botones (Xbox o Switch), atajo para cerrar un juego y registro detallado del control |
 | Biblioteca | Carpeta de LaunchBox, logos, modo depuración (en la ficha muestra qué datos o medios le faltan al juego), borrar datos y salir |
@@ -77,6 +78,36 @@ La sección **Recientes** del inicio muestra los últimos juegos que jugaste, de
 - Cuenta lo que juegas desde Pandora (no lo que juegas desde LaunchBox). Al cerrar un juego sube al primer lugar.
 - Las partidas anteriores a la 1.4.0 solo guardan el día; entre dos del mismo día se ordenan por el orden en que se registraron. Desde la 1.4.0 se guarda también la hora.
 - La lista conserva el orden por recencia: no se reordena de la A a la Z ni pone los favoritos primero.
+
+## Recomendados
+
+La sección **Recomendados** del inicio (justo después de «Recientes») te propone juegos **instalados que todavía no has jugado, o casi no**. Cada juego dice por qué se recomienda («Misma serie: Sonic», «Cooperativo, hasta 4 jugadores», «4,6 de 5 · 320 votos»).
+
+Las filas, en este orden (solo aparecen las que tienen juegos):
+
+1. **Porque jugaste…** (tu último juego): lo más parecido a él.
+2. **Para ti**: según todo tu historial, pesando el tiempo jugado y lo reciente. Sin historial, solo por calificación.
+3. **Para jugar acompañado**: multijugador y cooperativo.
+4. **En 3D** y 5. **En 2D**.
+6. **Joyas que no has tocado**: los mejor calificados sin ninguna partida.
+7. **Más de tus series favoritas**.
+8. **Partidas cortas**: arcade, pinball y laberintos (solo si hay suficientes).
+
+Cómo se usa:
+
+- **Control y teclado:** izquierda/derecha cambian de juego; arriba/abajo, de fila; A abre la ficha; X juega; LS (tecla F) lo marca como favorito; B regresa. Un juego no se repite entre filas.
+- **Con el dedo:** cada fila va pegada al dedo y sigue con inercia; arrastrar arriba o abajo cambia de fila; tocar un juego lo elige y tocarlo otra vez abre su ficha; dejar el dedo quieto sobre uno lo marca o desmarca como favorito.
+- Se oculta o se muestra desde Ajustes › Inicio › Recomendados. Se recalcula solo al abrirla cuando cambian tus partidas, tus favoritos o la biblioteca. Si no hay nada que recomendar, no aparece.
+
+Cómo se elige (por si quieres entender una recomendación):
+
+- **Instalado** = el juego tiene ruta de aplicación en LaunchBox (no se revisa que el archivo exista en el disco).
+- **Casi no jugado** = menos de 20 minutos y no más de 2 partidas, sumando lo de LaunchBox y lo de Pandora. «Joyas» pide cero partidas.
+- Si ya jugaste de verdad un título en una consola, no se te recomienda el mismo título en otra.
+- **Calificación** = la de la comunidad de LaunchBox, ponderada por número de votos (un 5,0 con 2 votos pesa menos que un 4,5 con 500). Si tú calificaste el juego con estrellas, cuenta la mitad.
+- **Parecido** = género, serie, desarrolladora, plataforma y época. Máximo 2 juegos de la misma serie por fila.
+
+**Ojo con 2D y 3D:** LaunchBox no guarda ese dato. Pandora lo deduce de la plataforma y el género, con una lista de excepciones por título, así que **habrá errores al principio** (un juego 3D en la fila 2D o al revés). Si ves uno, apunta el título: se corrige en la lista del programa. También se puede forzar a mano en `datos/dimensiones.json`, con el id del juego o el título en minúsculas, sin acentos ni paréntesis: `{ "t:doom": "3d", "<id del juego>": "2d" }`. Ese archivo no existe hasta que lo crees; Pandora solo lo lee.
 
 ## Series
 

@@ -32,7 +32,7 @@ const DEFAULTS = {
   cinemaDelay: 8, spectatorIdle: 5, debugMissing: false,
   // Qué aparece en el inicio, búsqueda y combinación para cerrar un juego.
   logoSound: true, marcas: true, padLayout: 'xbox', autoUpdate: true,
-  sections: { all: true, recent: true, Consoles: true, Handhelds: true, Arcade: true, Computers: true, modes: true, genres: true, developers: true, series: true },
+  sections: { all: true, recent: true, recs: true, Consoles: true, Handhelds: true, Arcade: true, Computers: true, modes: true, genres: true, developers: true, series: true },
   search: true, letterBar: true,
   exitCombo: ['ls', 'rs', 'b'], exitHold: 0, exitFromLaunchBox: true, buttonStyle: 'auto',
   fields: Object.fromEntries(Object.keys(FIELDS).map(k => [k, true])),
@@ -272,7 +272,7 @@ function updateAudio() {
   bgVideo.volume = Math.min(1, settings.volume);
   let src = null;
   if (settings.audioMode === 'musica' && shown) {
-    if (t === 'shelf' || t === 'detail' || t === 'spectator') src = currentGame?.media?.music || null;
+    if (t === 'shelf' || t === 'recs' || t === 'detail' || t === 'spectator') src = currentGame?.media?.music || null;
     else if (t === 'platforms' && screens.platforms.focused) src = trackFor('p:' + screens.platforms.focused.name) || null;
     else if (t === 'home' && screens.home.musicKey()) src = trackFor(screens.home.musicKey()) || null;
   }
@@ -360,13 +360,14 @@ function saveLast() {
   const sh = screens.shelf;
   if (L.platform && sh.platform?.name === L.platform && sh.games[sh.idx]) L.game = sh.games[sh.idx].id;
   if (top() === 'home') L.face = screens.home.state();
-  if (top() === 'spectator') L.screen = 'home';
+  if (top() === 'spectator' || top() === 'recs') L.screen = 'home';
   settings.last = L; saveSettings();
 }
 
 const HINTS = {
   home: [['a', 'Entrar'], ['lr', 'Girar'], ['ud', 'Arriba y abajo'], ['menu', 'Ajustes']],
   platforms: [['lr', 'Elegir'], ['a', 'Abrir'], ['b', 'Regresar'], ['menu', 'Ajustes']],
+  recs: [['lr', 'Elegir'], ['ud', 'Fila'], ['a', 'Ficha'], ['x', 'Jugar'], ['ls', 'Favorito'], ['b', 'Regresar']],
   shelf: [['a', 'Ficha'], ['x', 'Jugar'], ['rs', 'Vista'], ['ls', 'Favorito'], ['b', 'Regresar']],
   detail: [['a', 'Elegir'], ['x', 'Jugar'], ['y', 'Acomodo'], ['ls', 'Favorito'], ['b', 'Regresar']],
   playing: [['exitcombo', 'Sostén para cerrar el juego']],
@@ -422,7 +423,7 @@ function renderChrome() {
     if (screens.shelf.query) hints = hints.map(x => x[0] === 'b' ? ['b', 'Quitar búsqueda'] : x);
   }
   // El audio de fondo es una pista más, junto a las demás, y también se puede tocar.
-  if (['home', 'platforms', 'shelf', 'detail', 'spectator'].includes(key)) hints = [...hints, ['view', 'Audio: ' + AUDIO_SHORT[settings.audioMode]]];
+  if (['home', 'platforms', 'shelf', 'recs', 'detail', 'spectator'].includes(key)) hints = [...hints, ['view', 'Audio: ' + AUDIO_SHORT[settings.audioMode]]];
   if (key === 'playing') hints = [['exitcombo', exitCombo().text + ' para cerrar el juego']];
   $('#hints').replaceChildren(...hints.map(([g, t]) => {
     const el = h('span', {}, glyph(g), t); el.dataset.k = g; // la acción lógica, para las pruebas
@@ -435,6 +436,7 @@ function renderChrome() {
   for (const s of stack) {
     if (s.id === 'platforms') crumbs.push(s.params.label);
     if (s.id === 'shelf') crumbs.push(short(s.params.name));
+    if (s.id === 'recs') crumbs.push('Recomendados');
     if (s.id === 'spectator') crumbs.push('Espectador');
     if (s.id === 'detail') crumbs.push(s.params.game.title);
   }
@@ -442,7 +444,7 @@ function renderChrome() {
 }
 // Pistas que también funcionan con el dedo o el ratón.
 const TAPS = {
-  view: k => ['home', 'platforms', 'shelf', 'detail', 'spectator'].includes(k) && (() => { poke(); cycleAudio(); }),
+  view: k => ['home', 'platforms', 'shelf', 'recs', 'detail', 'spectator'].includes(k) && (() => { poke(); cycleAudio(); }),
   y: k => k === 'shelf' && settings.search && (() => { poke(); screens.shelf.openSearch(); }),
   menu: k => !['menu', 'keyboard', 'playing', 'capture'].includes(k) && (() => { poke(); Menu.show(); }),
 };
@@ -503,13 +505,25 @@ async function refreshRecent() {
     if (recentCount() !== antes) rebuildHome();
   } catch {}
 }
+// «Recomendados»: filas de juegos instalados que no has jugado (o casi no). Sale de lib/recomendar.js.
+// library.recs es solo el resumen (qué filas hay y cuántos juegos); los juegos se piden al abrir la pantalla.
+const recsCount = () => secOn('recs') ? (library?.recs?.length || 0) : 0;
+const recsTotal = () => secOn('recs') ? (library?.recs || []).reduce((n, f) => n + f.count, 0) : 0;
+async function refreshRecs() {
+  try {
+    const r = await (await fetch('/api/recomendados?resumen=1')).json();
+    const antes = recsCount() + ':' + recsTotal();
+    library.recs = r.filas;
+    if (recsCount() + ':' + recsTotal() !== antes) rebuildHome();
+  } catch {}
+}
 // Lo que el inicio muestra según tus ajustes (Ajustes › Inicio).
 let viewLib = null, viewKey = '';
 function visibleLibrary() {
-  const k = JSON.stringify(settings.sections) + library.loadedAt + library.total + ':' + recentCount();
+  const k = JSON.stringify(settings.sections) + library.loadedAt + library.total + ':' + recentCount() + ':' + recsTotal();
   if (viewLib && viewKey === k && viewLib.src === library) return viewLib;
   viewKey = k;
-  viewLib = { ...library, src: library, recent: recentCount() ? { count: recentCount() } : null, categories: library.categories.filter(c => secOn(c.name)) };
+  viewLib = { ...library, src: library, recent: recentCount() ? { count: recentCount() } : null, recs: recsCount() ? { count: recsTotal(), rows: recsCount() } : null, categories: library.categories.filter(c => secOn(c.name)) };
   for (const kind of Object.keys(COLLECTIONS)) if (!secOn(kind)) viewLib[kind] = [];
   return viewLib;
 }
@@ -538,6 +552,7 @@ const ICONS = {
   series: '<rect x="3.5" y="8" width="11" height="12.5" rx="1.6"/><path d="M7 5.5h10.5a1.6 1.6 0 0 1 1.6 1.6V17M10 3h10a1.6 1.6 0 0 1 1.6 1.6V14"/>',
   mode_p5: '<circle cx="12" cy="12" r="8.5"/><path d="M14.6 8.4H10l-.6 3.6a3 3 0 1 1-.4 3.2"/>',
   _other: '<rect x="4" y="4" width="7" height="7" rx="1.2"/><rect x="13" y="4" width="7" height="7" rx="1.2"/><rect x="4" y="13" width="7" height="7" rx="1.2"/><rect x="13" y="13" width="7" height="7" rx="1.2"/>',
+  recs: '<path d="M12 3l2.4 5.6 6.1.5-4.6 4 1.4 6-5.3-3.2-5.3 3.2 1.4-6-4.6-4 6.1-.5z"/>',
   recent: '<path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1"/><path d="M3.5 4.5v4h4"/><path d="M12 7.5V12l3 1.8"/>',
   all: '<rect x="3.5" y="9" width="17" height="11.5" rx="1.6"/><path d="M5.5 6h13M7.5 3h9"/><path d="M9.5 13h5"/>',
   spectator: '<path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><path d="M10.4 9.3v5.4l4.4-2.7z"/>',
@@ -581,14 +596,14 @@ const icon = k => { const s = h('div', { class: 'ico' }); s.innerHTML = `<svg vi
 
 const cubeHome = {
   el: $('#home'), sel: 0, tilt: 0, t: 0, items: [], center: null,
-  musicKey() { const c = this.items[this.idx]; return this.tilt === 0 && c && !c.modes && !c.all && !c.recent ? 'c:' + c.name : null; },
+  musicKey() { const c = this.items[this.idx]; return this.tilt === 0 && c && !c.modes && !c.all && !c.recent && !c.recs ? 'c:' + c.name : null; },
   ring: new Spring(0, { response: 0.55, damping: 0.8 }),
   tiltS: new Spring(-16, { response: 0.5, damping: 0.82 }),
   // El cubo siempre tiene 4 caras alrededor; lo que muestra cada cara se asigna al girar,
   // así caben todas las opciones que haga falta sin deformarlo.
   build() {
     const L = visibleLibrary();
-    this.items = [...(secOn('all') ? [{ name: '_all', label: 'Todo', all: true, platforms: [] }] : []), ...(L.recent ? [{ name: '_recent', label: 'Recientes', recent: true, platforms: [] }] : []), ...L.categories, ...Object.keys(COLLECTIONS).filter(k => (L[k] || []).length).map(collectionCategory)];
+    this.items = [...(secOn('all') ? [{ name: '_all', label: 'Todo', all: true, platforms: [] }] : []), ...(L.recent ? [{ name: '_recent', label: 'Recientes', recent: true, platforms: [] }] : []), ...(L.recs ? [{ name: '_recs', label: 'Recomendados', recs: true, platforms: [] }] : []), ...L.categories, ...Object.keys(COLLECTIONS).filter(k => (L[k] || []).length).map(collectionCategory)];
     this.faces = [0, 1, 2, 3].map(i => h('div', { class: 'shell', style: `transform: rotateY(${i * 90}deg) translateZ(9.5rem)` }));
     this.topFace = h('div', { class: 'shell', style: 'transform: rotateX(90deg) translateZ(9.5rem)' }, icon('spectator'));
     this.botFace = h('div', { class: 'shell', style: 'transform: rotateX(-90deg) translateZ(9.5rem)' }, icon('settings'));
@@ -609,7 +624,7 @@ const cubeHome = {
     for (const d of [-1, 0, 1, 2]) {
       const it = this.items[mod(c + d, this.N)];
       const f = this.faces[mod(c + d, 4)];
-      if (it && f.dataset.k !== it.name) { f.dataset.k = it.name; f.replaceChildren(icon(it.all ? 'all' : it.recent ? 'recent' : it.kind === 'genres' ? 'genre' : it.kind === 'developers' ? 'dev' : it.kind === 'series' ? 'series' : it.modes ? 'modes' : it.name)); }
+      if (it && f.dataset.k !== it.name) { f.dataset.k = it.name; f.replaceChildren(icon(it.all ? 'all' : it.recent ? 'recent' : it.recs ? 'recs' : it.kind === 'genres' ? 'genre' : it.kind === 'developers' ? 'dev' : it.kind === 'series' ? 'series' : it.modes ? 'modes' : it.name)); }
     }
     this.paintOn();
   },
@@ -644,6 +659,9 @@ const cubeHome = {
       if (c.all) {
         $('#catMeta').textContent = `${fmtN(library.total)} juegos · la biblioteca completa`;
         $('#catList').textContent = 'Todas tus plataformas en una sola lista, de la A a la Z';
+      } else if (c.recs) {
+        $('#catMeta').textContent = `${fmtN(recsTotal())} juegos instalados que casi no has jugado`;
+        $('#catList').textContent = 'Según lo que juegas, lo mejor calificado y lo que no has tocado';
       } else if (c.recent) {
         $('#catMeta').textContent = `${fmtN(recentCount())} ${recentCount() === 1 ? 'juego' : 'juegos'} · lo último que jugaste`;
         $('#catList').textContent = 'Del más reciente al más viejo';
@@ -675,6 +693,7 @@ const cubeHome = {
     const c = this.items[this.idx]; if (!c) return;
     if (c.all) { S.play('select'); go('shelf', allShelf()); return; }
     if (c.recent) { S.play('select'); go('shelf', recentShelf()); return; }
+    if (c.recs) { S.play('select'); go('recs'); return; }
     S.play('open'); go('platforms', c.modes ? collectionCategory(c.kind) : c);
   },
   enter() { Back.setImage(null); Back.setLook('ghost'); currentGame = null; this.background(); },
@@ -787,6 +806,9 @@ const themeAPI = {
   // «Recientes»: null si no hay partidas o está oculto en Ajustes › Inicio; si no, { count }.
   get recent() { return visibleLibrary().recent; },
   openRecent: () => { S.play('select'); go('shelf', recentShelf()); },
+  // «Recomendados»: null si no hay o está oculto en Ajustes › Inicio; si no, { count (juegos), rows (filas) }.
+  get recs() { return visibleLibrary().recs; },
+  openRecs: () => { S.play('select'); go('recs'); },
   go, back, top, Back, S, toast, h, $, Spring, rem, clamp, short, fmtN, ord, glyph, reducedMotion, draggable, dragRow, project, rubberband,
   updateAudio: () => updateAudio(), saveLast: () => saveLast(), renderChrome: () => renderChrome(),
   icon: k => icon(k), ICONS, genreIcon: m => genreIcon(m),
@@ -816,6 +838,7 @@ const themeAPI = {
       ...(m.logo ? { p: { name: m.label, count: m.count, media: { logo: m.logo } } } : {}) }); // las desarrolladoras muestran su logo
     if (secOn('all')) out.push({ key: '_all', label: 'Todo', icon: 'all', items: [{ all: true, ic: 'all', label: 'Todos los juegos', sub: `${fmtN(library.total)} juegos`, desc: 'Tu biblioteca completa en una sola lista, de la A a la Z.', run: () => themeAPI.openAll() }] });
     if (L.recent) out.push({ key: '_recent', label: 'Recientes', icon: 'recent', items: [{ recent: true, ic: 'recent', coll: { id: 'recent', label: 'Recientes', count: L.recent.count }, label: 'Jugados hace poco', sub: `${fmtN(L.recent.count)} ${L.recent.count === 1 ? 'juego' : 'juegos'}`, desc: 'Lo último que jugaste, del más reciente al más viejo.', run: () => themeAPI.openRecent() }] });
+    if (L.recs) out.push({ key: '_recs', label: 'Recomendados', icon: 'recs', items: [{ recs: true, ic: 'recs', coll: { id: 'recs', label: 'Recomendados', count: L.recs.count }, label: 'Para jugar hoy', sub: `${fmtN(L.recs.count)} ${L.recs.count === 1 ? 'juego' : 'juegos'} para ti`, desc: 'Juegos instalados que no has jugado (o casi no), elegidos según lo que sueles jugar y cómo los califica la comunidad.', run: () => themeAPI.openRecs() }] });
     for (const c of L.categories) out.push({ key: c.name, label: c.label, icon: c.name, video: c.video, items: c.platforms.map(p => ({ p, label: p.name, sub: [p.year, ord(p.generation), `${fmtN(p.count)} juegos`].filter(Boolean).join(' · '), desc: p.notes, run: () => themeAPI.openPlatform(p) })) });
     if ((L.modes || []).length) out.push({ key: '_modes', label: 'Modo de juego', icon: 'modes', items: L.modes.map(m => coll(m, 'mode_' + m.id)) });
     if ((L.genres || []).length) out.push({ key: '_genres', label: 'Géneros', icon: 'genre', items: L.genres.map(m => coll(m, genreIcon(m))) });
@@ -1377,6 +1400,162 @@ function metaLine(g) {
 }
 
 // ======================================================================
+// Recomendados: filas de juegos instalados que no has jugado (o casi no)
+// Arriba/abajo cambian de fila, izquierda/derecha de juego. Con el dedo cada fila se arrastra pegada al dedo
+// (dragRow) y las filas se arrastran en vertical. Cada juego trae la frase de por qué se recomienda.
+// ======================================================================
+screens.recs = {
+  el: $('#recs'), rows: [], ri: 0, ci: [], vpos: new Spring(0, { response: 0.4, damping: 1 }), els: [], memo: { row: null, game: {} }, loaded: false,
+  slot: () => 10.6 * rem(), rowH: () => 16.4 * rem(),
+  async enter() {
+    const token = this.token = {};
+    this.loaded = false; this.rows = []; this.els = [];
+    $('#recsRows').replaceChildren(); $('#recsGame').textContent = ''; $('#recsMeta').textContent = ''; $('#recsWhy').textContent = '';
+    $('#recsSub').textContent = 'Buscando qué recomendarte…';
+    Back.setLook('dim'); Back.setImage(null);
+    let rows = [];
+    try { rows = (await (await fetch('/api/recomendados')).json()).filas || []; } catch {}
+    if (this.token !== token) return;
+    this.rows = rows; this.loaded = true;
+    const want = rows.findIndex(f => f.id === this.memo.row);
+    this.ri = want >= 0 ? want : 0;
+    this.ci = rows.map(f => { const j = f.juegos.findIndex(g => g.id === this.memo.game[f.id]); return j >= 0 ? j : 0; });
+    this.build();
+    this.vpos.jump(this.ri);
+    this.els.forEach((R, i) => R.pos.jump(this.ci[i]));
+    this.info(true); renderChrome(); this.place(0);
+  },
+  imageFor(g) { for (const k of ['box', 'box3d', 'cart', 'shots', 'fanart']) if (g.media?.[k]?.length) return g.media[k][0]; return null; },
+  build() {
+    const total = this.rows.reduce((n, f) => n + f.juegos.length, 0);
+    $('#recsSub').textContent = this.rows.length
+      ? `${fmtN(total)} ${total === 1 ? 'juego instalado' : 'juegos instalados'} que casi no has jugado · ${this.rows.length} ${this.rows.length === 1 ? 'fila' : 'filas'}`
+      : 'Todavía no hay nada que recomendar. Instala o importa más juegos en LaunchBox.';
+    const box = $('#recsRows');
+    this.els = this.rows.map((f, i) => {
+      const track = h('div', { class: 'rec-track' });
+      const cards = f.juegos.map((g, j) => {
+        const im = this.imageFor(g);
+        const el = h('div', { class: 'rec-card' }, im ? h('img', { src: im, alt: g.title, decoding: 'async', draggable: 'false' }) : h('div', { class: 'ph', text: g.title }));
+        if (g.favorite) el.append(h('span', { class: 'fav-badge', text: '★' }));
+        el.addEventListener('click', () => { if (i === this.ri && j === this.ci[i]) this.open(); else this.focus(i, j); });
+        // Con el dedo: dejarlo quieto sobre un juego lo marca o desmarca como favorito.
+        longPress(el, () => { this.focus(i, j, false); this.toggleFav(); });
+        track.append(el);
+        return el;
+      });
+      const el = h('div', { class: 'rec-row' }, h('h2', { class: 'rec-title', text: f.titulo }), track);
+      box.append(el);
+      const R = { el, track, cards, pos: new Spring(0, { response: 0.36, damping: 1 }), f };
+      dragRow(track, {
+        pos: () => R.pos, pitch: () => this.slot(), count: () => f.juegos.length, index: () => this.ci[i],
+        select: (j, snd) => { if (i !== this.ri) { this.ri = i; this.vpos.set(i); S.play('rotate'); } this.ci[i] = j; this.info(); if (snd) saveLast(); },
+        pass: j => S.play('move', j),
+        active: () => top() === 'recs' && !overlayOpen(),
+      });
+      return R;
+    });
+    dragRow(box, {
+      axis: 'y', pos: () => this.vpos, pitch: () => this.rowH(), count: () => this.rows.length, index: () => this.ri,
+      select: i => { this.ri = i; S.play('rotate'); this.info(); }, pass: () => S.play('rotate'),
+      active: () => top() === 'recs' && !overlayOpen(),
+    });
+  },
+  get game() { return this.rows[this.ri]?.juegos[this.ci[this.ri]] || null; },
+  info(now) {
+    const g = this.game;
+    this.els.forEach((R, i) => {
+      R.el.classList.toggle('focus', i === this.ri);
+      R.cards.forEach((c, j) => c.classList.toggle('focus', i === this.ri && j === this.ci[i]));
+    });
+    clearTimeout(this.dwell1); clearTimeout(this.dwell2);
+    if (!g) { currentGame = null; return; }
+    currentGame = g;
+    const f = this.rows[this.ri];
+    $('#recsGame').textContent = (g.favorite ? '★ ' : '') + g.title;
+    $('#recsMeta').textContent = [short(g.platform), settings.fields.year && g.year, settings.fields.genres && g.genres?.length ? g.genres.slice(0, 2).join(', ') : '', settings.fields.players && g.maxPlayers ? (g.maxPlayers > 1 ? `1–${g.maxPlayers} jugadores` : '1 jugador') : ''].filter(Boolean).join(' · ');
+    $('#recsWhy').textContent = g.razon || '';
+    $('#recsInfo').dataset.n = `${fmtN(this.ci[this.ri] + 1)} / ${fmtN(f.juegos.length)}`;
+    if (Back.video && Back.video !== g.media.video) Back.setVideo(null);
+    updateAudio();
+    this.dwell1 = setTimeout(() => Back.setImage(g.media.fanart?.[0] || g.media.shots?.[0] || null), now ? 0 : 300);
+    if (settings.autoVideo && g.media.video) this.dwell2 = setTimeout(() => { if (currentGame === g && top() === 'recs') Back.setVideo(g.media.video); }, 1200);
+    else if (settings.audioMode === 'musica') this.dwell2 = setTimeout(updateAudio, 900);
+  },
+  focus(i, j, sound = true) {
+    if (!this.rows.length) return;
+    i = clamp(i, 0, this.rows.length - 1); j = clamp(j, 0, this.rows[i].juegos.length - 1);
+    if (i === this.ri && j === this.ci[i]) return;
+    if (i !== this.ri) { this.ri = i; this.vpos.set(i); if (sound) S.play('rotate'); }
+    this.ci[i] = j; this.els[i].pos.set(j);
+    if (sound && i === this.ri) S.play('move', j);
+    this.info(); saveLast();
+  },
+  open() {
+    const g = this.game; if (!g) return;
+    S.play('select'); go('detail', { game: g, platform: { name: g.platform } });
+  },
+  async toggleFav() {
+    const g = this.game; if (!g) return;
+    await toggleFavorite(g);
+    this.paintFav();
+  },
+  paintFav() {
+    this.els.forEach(R => R.f.juegos.forEach((g, j) => {
+      const c = R.cards[j]; let b = c.querySelector('.fav-badge');
+      if (g.favorite && !b) c.append(h('span', { class: 'fav-badge', text: '★' }));
+      else if (!g.favorite && b) b.remove();
+    }));
+    this.info(true);
+  },
+  resume() { Back.setLook('dim'); this.paintFav(); },
+  leave() {
+    const f = this.rows[this.ri]; if (f) { this.memo.row = f.id; this.memo.game[f.id] = this.game?.id; }
+    clearTimeout(this.dwell1); clearTimeout(this.dwell2);
+    if (top() !== 'detail') { Back.setVideo(null); currentGame = null; }
+  },
+  action(a) {
+    if (!this.rows.length) return;
+    const f = this.rows[this.ri], j = this.ci[this.ri];
+    if (a === 'left' || a === 'right' || a === 'lb' || a === 'rb') {
+      const d = { left: -1, right: 1, lb: -5, rb: 5 }[a], n = clamp(j + d, 0, f.juegos.length - 1);
+      if (n === j) { S.play('error'); return; }
+      this.focus(this.ri, n);
+    } else if (a === 'up' || a === 'down') {
+      const n = clamp(this.ri + (a === 'up' ? -1 : 1), 0, this.rows.length - 1);
+      if (n === this.ri) { S.play('error'); return; }
+      this.focus(n, this.ci[n]);
+    } else if (a === 'a') this.open();
+    else if (a === 'x') { const g = this.game; if (g) play(g); }
+    else if (a === 'ls') this.toggleFav();
+  },
+  // Las filas y las tarjetas se acomodan cada cuadro según sus resortes.
+  place() {
+    const r = rem(), slot = this.slot(), rowH = this.rowH(), left = 5 * r;
+    this.els.forEach((R, i) => {
+      const dv = i - this.vpos.x;
+      const vis = Math.abs(dv) < 2.2;
+      if (!vis) { if (!R.el.hidden) R.el.hidden = true; return; }
+      if (R.el.hidden) R.el.hidden = false;
+      R.el.style.transform = `translate3d(0, ${(dv * rowH).toFixed(1)}px, 0)`;
+      R.el.style.opacity = Math.max(0, 1 - Math.max(0, Math.abs(dv) - 0.05) * 0.5).toFixed(3);
+      const px = R.pos.x;
+      R.cards.forEach((c, j) => {
+        const o = j - px;
+        if (o < -1.3 || o > 9) { if (!c.hidden) c.hidden = true; return; }
+        if (c.hidden) c.hidden = false;
+        c.style.transform = `translate3d(${(left + o * slot).toFixed(1)}px, 0, 0)`;
+      });
+    });
+  },
+  frame(dt) {
+    this.vpos.step(dt);
+    for (const R of this.els) R.pos.step(dt);
+    this.place();
+  },
+};
+
+// ======================================================================
 // Ficha del juego, en cuatro acomodos
 // ======================================================================
 screens.detail = {
@@ -1788,7 +1967,7 @@ const Playing = {
     }
     if (Back.video) bgVideo.play().catch(() => {});
     lastInput = performance.now();
-    refreshRecent();
+    refreshRecent(); refreshRecs();
     updateAudio(); renderChrome();
   },
   close() { fetch('/api/close', { method: 'POST', body: '{}' }).then(() => this.poll()).catch(() => {}); },
@@ -2001,6 +2180,7 @@ const Menu = {
         { sec: 'Secciones visibles' },
         yes('sections.all', 'Todo (lista completa)', 'Una sección con todos tus juegos juntos.'),
         yes('sections.recent', 'Recientes', 'Los últimos 20 juegos que jugaste, del más reciente al más viejo. No aparece mientras no hayas jugado ninguno.'),
+        yes('sections.recs', 'Recomendados', 'Filas de juegos instalados que no has jugado (o casi no), según lo que sueles jugar. No aparece si no hay qué recomendar.'),
         ...library.categories.map(c => yes('sections.' + c.name, c.label, 'Muestra u oculta esta sección en el inicio.')),
         ...Object.entries(COLLECTIONS).filter(([k]) => (library[k] || []).length).map(([k, c]) => yes('sections.' + k, c.label, 'Muestra u oculta esta sección en el inicio.')),
       ] },
@@ -2171,6 +2351,7 @@ const Menu = {
       toast('Listo: ' + r.label.toLowerCase().replace(/^borrar /, '') + ' borrado');
       if (what === 'favoritos' || what === 'estadisticas') { gamesCache.clear(); }
       if (what === 'estadisticas') refreshRecent();
+      if (what === 'favoritos' || what === 'estadisticas') refreshRecs();
     }
   },
   hints() {

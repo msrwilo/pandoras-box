@@ -693,3 +693,28 @@ body:not(.touch) .mquit:hover { opacity: 1; border-color: currentColor; }
 
 /* Series favoritas: una estrella en la esquina de su casilla. */
 .tile.tile-fav::after { content: '★'; position: absolute; top: .5rem; right: .7rem; font-size: 1.1rem; color: #ffd76a; text-shadow: 0 .1rem .3rem rgba(0,0,0,.6); }
+
+/* ---------- Recomendados: filas de juegos (todos los temas heredan estos colores por sus variables) ---------- */
+#recs { touch-action: none; }
+.recs-head { position: absolute; left: 6rem; top: 5.2rem; right: 6rem; }
+.recs-head h1 { font-size: 2.6rem; font-weight: 600; line-height: 1.05; letter-spacing: -.025em; }
+.recs-head .meta { margin-top: .5rem; }
+.recs-rows { position: absolute; left: 0; right: 0; top: 10.6rem; height: 32rem; overflow: hidden; touch-action: none; }
+.rec-row { position: absolute; left: 0; right: 0; top: 0; height: 16rem; opacity: .55; will-change: transform, opacity; transition: none; }
+.rec-title { position: absolute; left: 6rem; top: 0; font-size: 1.15rem; font-weight: 600; letter-spacing: .02em; color: var(--muted); max-width: 60rem;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rec-row.focus .rec-title { color: var(--text); }
+.rec-track { position: absolute; left: 0; right: 0; top: 2.2rem; height: 13.4rem; touch-action: none; }
+.rec-card { position: absolute; left: 0; top: 0; width: 9.6rem; height: 12.2rem; display: flex; align-items: flex-end; justify-content: center;
+  will-change: transform; transform-origin: 50% 100%; }
+.rec-card img { max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 .4rem .8rem rgba(0, 0, 0, .55)); pointer-events: none; }
+.rec-card .ph { width: 100%; height: 100%; border-radius: .4rem; display: grid; place-items: center; padding: .8rem; text-align: center; font-size: .9rem; line-height: 1.25;
+  background: var(--ph); border: 1px solid var(--line); overflow: hidden; }
+.rec-card .fav-badge { bottom: auto; top: -.5rem; right: -.5rem; }
+.rec-row.focus .rec-card.focus { outline: .2rem solid var(--focus-line); outline-offset: .35rem; border-radius: .3rem; }
+.rec-row.focus .rec-card.focus img, .rec-row.focus .rec-card.focus .ph { filter: drop-shadow(0 .6rem 1.2rem var(--glow-shadow)); }
+.recs-info { position: absolute; left: 6rem; right: 6rem; top: 43.4rem; height: 7.4rem; }
+.recs-info::after { content: attr(data-n); position: absolute; right: 0; top: .2rem; font-size: .95rem; color: var(--faint); }
+.recs-info h2 { font-size: 1.9rem; font-weight: 600; line-height: 1.15; letter-spacing: -.015em; padding-right: 8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.recs-info .meta { margin-top: .35rem; }
+.recs-why { margin-top: .4rem; font-size: 1.1rem; font-weight: 600; color: var(--glow); }

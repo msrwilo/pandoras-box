@@ -21,6 +21,9 @@ export default function barra(api, root) {
         ...(api.recent ? [{ name: '_recent', label: 'Recientes', icon: 'recent', items: [
           { label: 'Jugados hace poco', sub: `${fmtN(api.recent.count)} ${api.recent.count === 1 ? 'juego' : 'juegos'}, del más reciente al más viejo`, iconKey: 'recent', run: () => api.openRecent() },
         ] }] : []),
+        ...(api.recs ? [{ name: '_recs', label: 'Recomendados', icon: 'recs', items: [
+          { label: 'Para jugar hoy', sub: `${fmtN(api.recs.count)} ${api.recs.count === 1 ? 'juego' : 'juegos'} que casi no has jugado`, iconKey: 'recs', run: () => api.openRecs() },
+        ] }] : []),
         ...lib.categories.map(c => ({
           name: c.name, label: c.label, icon: c.name,
           items: c.platforms.map(p => ({ p, label: p.name, sub: [p.year, ord(p.generation), `${fmtN(p.count)} juegos`].filter(Boolean).join(' · '), img: p.media.device || p.media.logo, run: () => api.openPlatform(p) })),

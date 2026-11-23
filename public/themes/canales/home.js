@@ -12,8 +12,8 @@ export default function canales(api, root) {
     },
     build() {
       const lib = api.library;
-      const specials = [['all', 'Todo', 'all'], ['recent', 'Recientes', 'recent'], ['modes', 'Modo de juego', 'modes'], ['genres', 'Géneros', 'genre'], ['developers', 'Desarrolladoras', 'dev'], ['series', 'Series', 'series']]
-        .filter(([k]) => k === 'all' ? api.all : k === 'recent' ? api.recent : api[k].length).map(([k, name, ic]) => ({ special: k, name, ic, media: {} }));
+      const specials = [['all', 'Todo', 'all'], ['recent', 'Recientes', 'recent'], ['recs', 'Recomendados', 'recs'], ['modes', 'Modo de juego', 'modes'], ['genres', 'Géneros', 'genre'], ['developers', 'Desarrolladoras', 'dev'], ['series', 'Series', 'series']]
+        .filter(([k]) => k === 'all' ? api.all : k === 'recent' ? api.recent : k === 'recs' ? api.recs : api[k].length).map(([k, name, ic]) => ({ special: k, name, ic, media: {} }));
       this.list = [...specials, ...lib.categories.flatMap(c => c.platforms)];
       root.replaceChildren();
       this.pagesEl = h('div', { class: 'wii-pages' });
@@ -89,7 +89,7 @@ export default function canales(api, root) {
     },
     openPreview() {
       const p = this.list[this.ci]; if (!p) return;
-      if (p.special) { if (p.special === 'all') api.openAll(); else if (p.special === 'recent') api.openRecent(); else api.openKind(p.special); return; }
+      if (p.special) { if (p.special === 'all') api.openAll(); else if (p.special === 'recent') api.openRecent(); else if (p.special === 'recs') api.openRecs(); else api.openKind(p.special); return; }
       this.preview = p; this.pi = 1;
       this.chVideo.pause(); this.chVideo.style.opacity = 0;
       const im = p.media.banner || p.media.device || p.media.logo;

@@ -45,7 +45,7 @@ test('servidor: biblioteca, marcas y peticiones protegidas', async () => {
     '<Game><ID>a</ID><Title>Uno</Title><Platform>Sega Genesis</Platform><Developer>Sega</Developer><PlayMode>Un Jugador</PlayMode><MaxPlayers>1</MaxPlayers><Genre>Platform</Genre></Game>' +
     '<Game><ID>b</ID><Title>Dos</Title><Platform>Sega Genesis</Platform><Developer>Capcom</Developer><PlayMode>Un Jugador; Multijugador</PlayMode><MaxPlayers>2</MaxPlayers><Genre>Fighting</Genre></Game>' +
     // 24 juegos más (g01 a g24) para probar Recientes y su límite de 20.
-    Array.from({ length: 24 }, (_, i) => { const n = String(i + 1).padStart(2, '0'); return `<Game><ID>g${n}</ID><Title>Juego ${n}</Title><Platform>Sega Genesis</Platform><Developer>Sega</Developer><PlayMode>Un Jugador</PlayMode><MaxPlayers>1</MaxPlayers><Genre>Platform</Genre></Game>`; }).join('') +
+    Array.from({ length: 24 }, (_, i) => { const n = String(i + 1).padStart(2, '0'); return `<Game><ID>g${n}</ID><Title>Juego ${n}</Title><Platform>Sega Genesis</Platform><Developer>Sega</Developer><PlayMode>Un Jugador</PlayMode><MaxPlayers>1</MaxPlayers><Genre>Platform</Genre><ApplicationPath>Games\\${n}.zip</ApplicationPath><CommunityStarRating>${(3 + i / 10).toFixed(1)}</CommunityStarRating><CommunityStarRatingTotalVotes>${20 + i}</CommunityStarRatingTotalVotes></Game>`; }).join('') +
     '</LaunchBox>');
   // Estadísticas para Recientes: 22 juegos con partidas, uno que ya no está en la biblioteca y uno sin fecha.
   // g01 a g20: un día distinto cada uno (g20 es el más nuevo). a y b: el mismo día que g20 pero con hora (más nuevos).
@@ -81,6 +81,22 @@ test('servidor: biblioteca, marcas y peticiones protegidas', async () => {
   assert.deepStrictEqual(rec.games.slice(17).map(g => g.id), ['g05', 'g01', 'g04']); // empate de día: gana el registrado después
   assert.ok(!rec.games.some(g => g.id === 'g02' || g.id === 'g03')); // quedan fuera por el límite de 20
   assert.ok(!rec.games.some(g => ['fantasma', 'g21', 'g22', 'g23'].includes(g.id)));
+  // Recomendados (etapa 3b): filas con juegos de la biblioteca, cada uno con su razón y sus medios; el resumen coincide.
+  const recs = await (await fetch(base + '/api/recomendados')).json();
+  assert.ok(recs.filas.length >= 2, 'hay filas de recomendados');
+  assert.ok(recs.filas.some(f => f.id === 'parati'));
+  const vistos = new Set();
+  for (const f of recs.filas) {
+    assert.ok(f.titulo && f.juegos.length > 0 && f.juegos.length <= 20, f.id);
+    for (const g of f.juegos) {
+      assert.ok(typeof g.razon === 'string' && g.media && g.title, f.id + ' ' + g.id);
+      assert.ok(!('appPath' in g), 'no se filtran rutas');
+      assert.ok(!vistos.has(g.id), 'un juego no se repite entre filas: ' + g.id); vistos.add(g.id);
+    }
+  }
+  const resumen = await (await fetch(base + '/api/recomendados?resumen=1')).json();
+  assert.deepStrictEqual(resumen.filas, recs.filas.map(f => ({ id: f.id, titulo: f.titulo, count: f.juegos.length })));
+  assert.deepStrictEqual(lib.recs, resumen.filas);
   const mk = await (await fetch(base + '/api/marcas')).json();
   assert.ok(mk.temas.anillo.logo && mk.temas.anillo.sounds.move);
   assert.strictEqual((await fetch(base + '/api/settings', { method: 'POST', body: '{}' })).status, 403);

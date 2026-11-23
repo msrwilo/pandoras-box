@@ -6,12 +6,12 @@ export default function mosaicos(api, root) {
     hints: () => [['a', 'Abrir'], ['lr', 'Moverse'], ['ud', 'Cuadros y botones'], ['menu', 'Ajustes']],
     build() {
       const lib = api.library;
-      this.plats = [...(api.all ? [{ all: true, p: { name: 'Todo', count: api.total, media: {} }, cat: { name: 'all' } }] : []), ...(api.recent ? [{ all: true, recent: true, p: { name: 'Recientes', count: api.recent.count, media: {} }, cat: { name: 'recent' } }] : []), ...lib.categories.flatMap(c => c.platforms.map(p => ({ p, cat: c })))];
+      this.plats = [...(api.all ? [{ all: true, p: { name: 'Todo', count: api.total, media: {} }, cat: { name: 'all' } }] : []), ...(api.recent ? [{ all: true, recent: true, p: { name: 'Recientes', count: api.recent.count, media: {} }, cat: { name: 'recent' } }] : []), ...(api.recs ? [{ all: true, recs: true, p: { name: 'Recomendados', count: api.recs.count, media: {} }, cat: { name: 'recs' } }] : []), ...lib.categories.flatMap(c => c.platforms.map(p => ({ p, cat: c })))];
       root.replaceChildren();
       this.title = h('div', { class: 'sw-title' });
       this.track = h('div', { class: 'sw-track' });
-      this.tiles = this.plats.map(({ p, cat, all, recent }, i) => {
-        const el = all ? h('button', { class: 'sw-tile sw-all' }, api.icon(recent ? 'recent' : 'all'), h('span', { class: 'sw-name', text: recent ? 'Recientes' : 'Todo' }))
+      this.tiles = this.plats.map(({ p, cat, all, recent, recs }, i) => {
+        const el = all ? h('button', { class: 'sw-tile sw-all' }, api.icon(recs ? 'recs' : recent ? 'recent' : 'all'), h('span', { class: 'sw-name', text: recs ? 'Recomendados' : recent ? 'Recientes' : 'Todo' }))
           : h('button', { class: 'sw-tile cat-' + cat.name.toLowerCase() },
           p.media.device ? h('img', { src: p.media.device, alt: '' }) : null,
           p.media.logo ? h('img', { class: 'sw-logo', src: p.media.logo, alt: p.name }) : h('span', { class: 'sw-name', text: p.name }));
@@ -61,7 +61,7 @@ export default function mosaicos(api, root) {
       this.tiles.forEach((e, i) => e.classList.toggle('on', this.row === 'tiles' && i === this.ti));
       this.btnEls.forEach((e, i) => e.classList.toggle('on', this.row === 'buttons' && i === this.bi));
       const it = this.plats[this.ti];
-      this.title.textContent = this.row === 'tiles' && it ? (it.recent ? 'Recientes' : it.all ? 'Todos los juegos' : it.p.name) : '';
+      this.title.textContent = this.row === 'tiles' && it ? (it.recs ? 'Recomendados' : it.recent ? 'Recientes' : it.all ? 'Todos los juegos' : it.p.name) : '';
       this.title.dataset.sub = this.row === 'tiles' && it ? `${fmtN(it.p.count)} juegos` : '';
       this.btnLabel.textContent = this.row === 'buttons' ? this.buttons[this.bi].label : '';
       this.scroll.set(this.scrollTarget());
@@ -74,7 +74,7 @@ export default function mosaicos(api, root) {
     },
     open() {
       if (this.row === 'buttons') { S.play('select'); this.buttons[this.bi].run(); return; }
-      const it = this.plats[this.ti]; if (it) { if (it.recent) api.openRecent(); else if (it.all) api.openAll(); else api.openPlatform(it.p); }
+      const it = this.plats[this.ti]; if (it) { if (it.recs) api.openRecs(); else if (it.recent) api.openRecent(); else if (it.all) api.openAll(); else api.openPlatform(it.p); }
     },
     enter() { Back.setImage(null); Back.setVideo(null); Back.setLook('ghost'); this.paintFocus(false); },
     leave() { clearTimeout(this.vt); },
